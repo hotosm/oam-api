@@ -1,0 +1,27 @@
+{
+  "name": "oam-catalog",
+  "version": "0.1.0",
+  "description": "A catalog for Open Aerial Map Imagery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hotosm/oam-catalog.git"
+  },
+  "author": "Development Seed",
+  "license": "CC01",
+  "bugs": {
+    "url": "https://github.com/hotosm/oam-catalog/issues"
+  },
+  "homepage": "https://github.com/hotosm/oam-catalog",
+  "dependencies": {
+    "fs-extra": "^0.18.2",
+    "hapi": "^8.4.0",
+    "hapi-router": "^3.0.1",
+    "lodash": "^3.8.0",
+    "mongoose": "^4.0.2",
+    "node-env-file": "^0.1.7"
+  }
+}
