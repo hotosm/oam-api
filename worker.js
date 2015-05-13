@@ -78,4 +78,4 @@ var readBucket = function (params) {
 
 // Run bucket update every hour
 readBucket(params);
-setInterval(readBucket, 3600000, [params]);
+setInterval(readBucket, 3600000, params);
