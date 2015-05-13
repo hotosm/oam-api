@@ -1,9 +1,9 @@
 'use strict';
 
-require("envloader").load();
+require('envloader').load();
+require('./connection.js');
 
 var Hapi = require('hapi');
-var conn = require('./connection.js')
 
 var server = new Hapi.Server({
   connections: {
@@ -28,7 +28,6 @@ server.register({
 }, function (err) {
   if (err) throw err;
 });
-
 
 server.start(function () {
   console.log('Server running at:', server.info.uri);
