@@ -2,7 +2,12 @@
 
 var Hapi = require('hapi');
 
-var server = new Hapi.Server({
+var Server = function(port) {
+  this.port = port;
+};
+
+Server.prototype.start = function (cb) {
+  var hapi = new Hapi.Server({
   connections: {
     routes: {
       cors: true
@@ -11,19 +16,27 @@ var server = new Hapi.Server({
   debug: process.env.OR_DEBUG ? {
     log: [ 'error' ],
     request: [ 'error', 'received', 'response' ]
-  } : false
-});
+    } : false
+  });
 
-server.connection({ port: process.env.PORT || 4000 });
+  hapi.connection({ port: this.port });
 
-// Register routes
-server.register({
-  register: require('hapi-router'),
-  options: {
-    routes: '../routes/*.js'
-  }
-}, function (err) {
-  if (err) throw err;
-});
+  // Register routes
+  hapi.register({
+    register: require('hapi-router'),
+    options: {
+      routes: './routes/*.js'
+    }
+  }, function (err) {
+    if (err) throw err;
+  });
 
-module.exports = server;
+  hapi.start(function () {
+    console.log('Server running at:', hapi.info.uri);
+    if (cb) {
+      cb();
+    }
+  });
+};
+
+module.exports = Server;
