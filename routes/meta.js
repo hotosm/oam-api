@@ -10,7 +10,7 @@ module.exports = [
     handler: function (request, reply) {
       var response = {};
 
-      if (!_.isEmpty(request.payload) && _.has(request.payload, 'uri')) {
+      if (!_.isEmpty(request.payload) && _.has(request.payload, 'uuid')) {
         var record = new Model(request.payload);
         record.save(function (err, record) {
           if (err) {
@@ -21,7 +21,7 @@ module.exports = [
           return reply(record);
         });
       } else {
-        response.error = 'This is an Error. You must provider URI field.';
+        response.error = 'This is an Error. You must provider UUID field.';
         return reply(response);
       }
     }
