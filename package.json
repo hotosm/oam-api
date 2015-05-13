@@ -25,5 +25,8 @@
     "mongoose": "^4.0.2",
     "request": "^2.55.0",
     "s3": "^4.4.0"
+  },
+  "devDependencies": {
+    "semistandard": "^4.1.4",
   }
 }
