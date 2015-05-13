@@ -2,22 +2,24 @@
 
 var mongoose = require('mongoose');
 
-var metaSchema = mongoose.Schema({
-    uri: { type : String , unique : true, required : true, dropDups: true },
+var metaSchema = new mongoose.Schema({
+    uuid: { type : String , unique : true, required : true, dropDups: true },
+    meta_uri: { type : String , unique : true, required : false },
+    thumb_uri: String,
     title: String,
     projection: String,
-    bbox: String,
+    bbox: [Number],
     footprint: String,
     gsd: Number,
     file_size: Number,
     license: String,
-    start: Date,
-    end: Date,
+    acquisition_start: Date,
+    acquisition_end: Date,
     platform: String,
     tags: String,
     provider: String,
-    contact_email: String,
-    extra_meta: String
+    contact: String,
+    properties: [mongoose.Schema.Types.Mixed]
 });
 
 module.exports = mongoose.model('meta', metaSchema);
