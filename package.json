@@ -4,7 +4,7 @@
   "description": "A catalog for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,8 @@
     "s3": "^4.4.0"
   },
   "devDependencies": {
-    "semistandard": "^4.1.4",
+    "chai": "^2.3.0",
+    "mocha": "^2.2.4",
+    "semistandard": "^4.1.4"
   }
 }
