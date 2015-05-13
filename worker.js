@@ -1,11 +1,14 @@
 'use strict';
 
 require('envloader').load();
-require('./connection.js');
 
 var s3 = require('s3');
 var request = require('request');
+var Conn = require('./services/db.js');
 var Meta = require('./models/meta.js');
+
+var db = new Conn(process.env.DBNAME || 'osm-catalog');
+db.start();
 
 var client = s3.createClient({
   maxAsyncS3: 20,     // this is the default

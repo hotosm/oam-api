@@ -1,36 +1,12 @@
 'use strict';
 
 require('envloader').load();
-require('./connection.js');
+var Conn = require('./services/db.js');
+var Server = require('./services/server.js');
 
-var Hapi = require('hapi');
+var db = new Conn(process.env.DBNAME || 'osm-catalog');
+db.start();
 
-var server = new Hapi.Server({
-  connections: {
-    routes: {
-      cors: true
-    }
-  },
-  debug: process.env.OR_DEBUG ? {
-    log: [ 'error' ],
-    request: [ 'error', 'received', 'response' ]
-  } : false
-});
+var server = new Server(process.env.PORT || 4000);
+server.start();
 
-server.connection({ port: process.env.PORT || 4000 });
-
-// Register routes
-server.register({
-  register: require('hapi-router'),
-  options: {
-    routes: 'routes/*.js'
-  }
-}, function (err) {
-  if (err) throw err;
-});
-
-server.start(function () {
-  console.log('Server running at:', server.info.uri);
-});
-
-module.exports = server;
