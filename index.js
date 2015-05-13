@@ -1,7 +1,8 @@
 'use strict';
 
+require("envloader").load();
+
 var Hapi = require('hapi');
-var env = require('./utils/readenv.js')
 var conn = require('./connection.js')
 
 var server = new Hapi.Server({
