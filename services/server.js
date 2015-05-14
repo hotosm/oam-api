@@ -8,14 +8,17 @@ var Server = function(port) {
 
 Server.prototype.start = function (cb) {
   var hapi = new Hapi.Server({
-  connections: {
-    routes: {
-      cors: true
-    }
-  },
-  debug: process.env.OR_DEBUG ? {
-    log: [ 'error' ],
-    request: [ 'error', 'received', 'response' ]
+    connections: {
+      routes: {
+        cors: true
+      },
+      router: {
+        stripTrailingSlash: true
+      }
+    },
+    debug: process.env.OR_DEBUG ? {
+      log: [ 'error' ],
+      request: [ 'error', 'received', 'response' ]
     } : false
   });
 
