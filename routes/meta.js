@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var Model = require('../models/meta.js');
+var queryMeta = require('../services/query-meta.js');
 
 module.exports = [
   {
@@ -31,12 +32,28 @@ module.exports = [
     path: '/meta',
     handler: function (request, reply) {
       var response = {};
+      var payload = {}
 
-      Model.find({}, function (err, records) {
+      if (request.query) {
+        payload = request.query
+      }
+
+      queryMeta(payload, function (err, records) {
         if (err) {
+          console.log(err)
           return reply(err.message);
         }
-        response.results = records;
+
+        if (!_.isEmpty(records)) {
+          response.meta = {
+            count: records.length
+          }
+          response.results = records;
+        } else {
+          response.results = {};
+          response.message = 'Not Found';
+        }
+
         return reply(response);
       });
     }
