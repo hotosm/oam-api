@@ -3,7 +3,9 @@
 require('envloader').load();
 
 var s3 = require('s3');
+var _ = require('lodash');
 var request = require('request');
+var parse = require('wellknown');
 var Conn = require('./services/db.js');
 var Meta = require('./models/meta.js');
 
@@ -29,11 +31,14 @@ var params = {
 };
 
 var addMeta = function (metaUri) {
+
+  //Check if the meta data is already added
   Meta.findOne({meta_uri: metaUri}, function (err, meta) {
     if (err) {
       console.log(err);
     }
 
+    // if the meta file doesn't exist then add
     if (meta === null) {
       request(metaUri, function (err, response, body) {
         if (err) {
@@ -41,12 +46,17 @@ var addMeta = function (metaUri) {
         }
         if (!err && response.statusCode === 200) {
           var payload = JSON.parse(body);
-          payload.metaUri = metaUri;
+          payload.meta_uri = metaUri;
+
+          //create a geojson object from footprint and bbox
+          payload.geojson = parse(payload.footprint);
+          payload.geojson.bbox = payload.bbox
 
           var record = new Meta(payload);
           record.save(function (err, record) {
             if (err) {
               console.log(err);
+              return;
             }
             console.log(record.uuid + ' added!');
           });
