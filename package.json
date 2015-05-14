@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/hotosm/oam-catalog",
   "dependencies": {
+    "boom": "^2.7.1",
     "envloader": "0.0.2",
     "fs-extra": "^0.18.2",
     "hapi": "^8.4.0",
