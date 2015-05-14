@@ -4,7 +4,7 @@
   "description": "A catalog for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/semistandard/bin/cmd.js && ./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
