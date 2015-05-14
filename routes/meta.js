@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
+var Boom = require('boom');
 var Model = require('../models/meta.js');
 
 module.exports = [
@@ -37,6 +38,23 @@ module.exports = [
           return reply(err.message);
         }
         response.results = records;
+        return reply(response);
+      });
+    }
+  },
+  {
+    method: 'GET',
+    path: '/meta/{id}',
+    handler: function (request, reply) {
+      var metaId = request.params.id;
+
+      var response = {};
+
+      Model.findOne({_id: metaId}, function (err, record) {
+        if (err) {
+          return reply(err.message);
+        }
+        response.results = record;
         return reply(response);
       });
     }
