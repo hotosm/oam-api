@@ -6,7 +6,7 @@ var Connection = function (dbName) {
   this.dbName = dbName;
   mongoose.connect('mongodb://localhost/' + this.dbName);
   this.db = mongoose.connection;
-}
+};
 
 Connection.prototype.start = function (cb) {
   this.db.on('error', console.error.bind(console, 'connection error:'));
@@ -16,14 +16,16 @@ Connection.prototype.start = function (cb) {
       cb();
     }
   });
-}
+};
 
 Connection.prototype.deleteDb = function (cb) {
   this.db.db.dropDatabase(function (err) {
-
-      mongoose.connection.close();
-      cb();
+    if (err) {
+      console.log(err);
+    }
+    mongoose.connection.close();
+    cb();
   });
-}
+};
 
 module.exports = Connection;

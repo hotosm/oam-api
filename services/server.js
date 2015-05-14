@@ -2,7 +2,7 @@
 
 var Hapi = require('hapi');
 
-var Server = function(port) {
+var Server = function (port) {
   this.port = port;
 };
 
