@@ -33,13 +33,9 @@ Starting the backgound worker:
 -  `/providers` -XGET
 -  `/providers/add` -XPOST
 
-Search parameters for `/meta`:
+### Search parameters for `/meta`:
 
-- start_date
-- end_date
-- resolution
-- sort_by_date
-- pagination
-- provider
-- bbox
-- footprint
+#### bbox:
+
+- format: `?bbox=[lon_min],[lat_min],[lon_max],[lat_max]`
+- example: `/meta?bbox=bbox=-66.15966796875,46.45678142812658,-65.63232421875,46.126556302418514`
