@@ -38,4 +38,4 @@ Starting the backgound worker:
 #### bbox:
 
 - format: `?bbox=[lon_min],[lat_min],[lon_max],[lat_max]`
-- example: `/meta?bbox=bbox=-66.15966796875,46.45678142812658,-65.63232421875,46.126556302418514`
+- example: `/meta?bbox=-66.15966796875,46.45678142812658,-65.63232421875,46.126556302418514`
