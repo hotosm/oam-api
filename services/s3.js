@@ -31,7 +31,6 @@ var S3 = function (secretId, secretKey, bucket) {
   };
 };
 
-
 /**
 * Read bucket method for S3. It reads the S3 bucket and adds all the `.json` metadata to Meta model
 *
