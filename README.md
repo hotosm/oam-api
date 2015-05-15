@@ -39,3 +39,29 @@ Starting the backgound worker:
 
 - format: `?bbox=[lon_min],[lat_min],[lon_max],[lat_max]`
 - example: `/meta?bbox=-66.15966796875,46.45678142812658,-65.63232421875,46.126556302418514`
+
+#### title:
+
+- format: `?title=string`
+- example: `/meta?title=sometitle`
+
+
+#### provider:
+
+- format: `?provider=string`
+- example: `/meta?provider=someprovider`
+
+#### page:
+
+- format: `?page=number`
+- example: `/meta?page=2`
+
+#### limit:
+
+default is `100`.
+
+- format: `?limit=number`
+- example: `/meta?limit=1000`
+
+
+
