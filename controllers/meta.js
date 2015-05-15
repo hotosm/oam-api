@@ -1,7 +1,3 @@
-/**
-* Meta controller module
-* @module controllers/meta.js
-*/
 'use strict';
 
 var _ = require('lodash');
@@ -12,8 +8,9 @@ var Meta = require('../models/meta.js');
 
 /**
 * Query Meta model. Implements all protocols supported by /meta endpoint
+*
 * @param {Object} payload - Payload contains query paramters and their values
-* @param {Callback} cb - The callback that handles the response
+* @param {recordsCallback} cb - The callback that returns the records
 */
 module.exports.query = function (payload, cb) {
   // bounding box search | looks for bbox in payload
@@ -79,3 +76,11 @@ module.exports.addRemoteMeta = function (remoteUri, cb) {
     }
   });
 };
+
+/**
+ * The records callback that returns the error and records.
+ *
+ * @callback responseCallback
+ * @param {error} err - The error message
+ * @param {Object} records - The query records
+ */
