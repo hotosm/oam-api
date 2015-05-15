@@ -12,7 +12,7 @@ var Meta = require('../models/meta.js');
 * @param {Object} payload - Payload contains query paramters and their values
 * @param {recordsCallback} cb - The callback that returns the records
 */
-module.exports.query = function (payload, cb) {
+module.exports.query = function (payload, page, limit, cb) {
   // bounding box search | looks for bbox in payload
   if (_.has(payload, 'bbox')) {
     var bboxPattern = /(-?\d+(?:\.\d*)?,-?\d+(?:\.\d*)?,-?\d+(?:\.\d*)?),-?\d+(?:\.\d*)?/;
@@ -24,17 +24,23 @@ module.exports.query = function (payload, cb) {
          $geoIntersects: { $geometry: geometry }
       };
 
-      console.log(JSON.stringify(bboxPolygon(coordinates)));
-
       // remove bbox from payload
       payload = _.omit(payload, 'bbox');
     }
   }
 
+  var skip = limit * (page - 1);
+
   // Execute the search and return the result via callback
-  Meta.find(payload, function (err, records) {
-    cb(err, records);
+  Meta.count(payload, function (err, count) {
+    if (err) {
+      return cb(err, null, null);
+    }
+    Meta.find(payload, null, { skip: skip, limit: limit }, function (err, records) {
+      cb(err, records, count);
+    });
   });
+
 };
 
 /**
@@ -83,4 +89,5 @@ module.exports.addRemoteMeta = function (remoteUri, cb) {
  * @callback responseCallback
  * @param {error} err - The error message
  * @param {Object} records - The query records
+ * @param {Number} count - Total number of records found
  */
