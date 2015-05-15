@@ -19,7 +19,7 @@ var metaSchema = new mongoose.Schema({
     tags: String,
     provider: String,
     contact: String,
-    geojson: {type: mongoose.Schema.Types.Mixed, index: "2dsphere"},
+    geojson: {type: mongoose.Schema.Types.Mixed, index: '2dsphere'},
     properties: [mongoose.Schema.Types.Mixed]
 });
 
