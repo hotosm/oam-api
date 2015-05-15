@@ -25,12 +25,27 @@ Server.prototype.start = function (cb) {
   hapi.connection({ port: this.port });
 
   // Register routes
-  hapi.register({
-    register: require('hapi-router'),
-    options: {
-      routes: './routes/*.js'
+  hapi.register([
+    {
+      register: require('hapi-router'),
+      options: {
+        routes: './routes/*.js'
+      }
+    },
+    {
+      register: require('../plugins/response-meta.js'),
+      options: {
+        content: {
+          provided_by: "OpenAerialMap",
+          license: "Some License",
+          website: "http://www.example.com"
+        }
+      }
+    },
+    {
+      register: require('../plugins/paginate.js')
     }
-  }, function (err) {
+  ], function (err) {
     if (err) throw err;
   });
 
