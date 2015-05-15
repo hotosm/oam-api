@@ -32,22 +32,22 @@ module.exports = [
     path: '/meta',
     handler: function (request, reply) {
       var response = {};
-      var payload = {}
+      var payload = {};
 
       if (request.query) {
-        payload = request.query
+        payload = request.query;
       }
 
       meta.query(payload, function (err, records) {
         if (err) {
-          console.log(err)
+          console.log(err);
           return reply(err.message);
         }
 
         if (!_.isEmpty(records)) {
           response.meta = {
             count: records.length
-          }
+          };
           response.results = records;
         } else {
           response.results = {};
