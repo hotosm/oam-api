@@ -1,14 +1,5 @@
 var _ = require('lodash');
 
-
-module.exports = function (records, page, limit) {
-  return {
-    count: records.length,
-    page: page,
-    limit: limit
-  };
-}
-
 var responseMeta = {
     register: function (server, options, next) {
         var name = options.key || 'meta';
