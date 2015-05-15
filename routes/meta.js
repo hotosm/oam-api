@@ -31,30 +31,20 @@ module.exports = [
     method: 'GET',
     path: '/meta',
     handler: function (request, reply) {
-      var response = {};
       var payload = {};
 
       if (request.query) {
         payload = request.query;
       }
 
-      meta.query(payload, function (err, records) {
+      meta.query(payload, request.page, request.limit, function (err, records, count) {
         if (err) {
           console.log(err);
           return reply(err.message);
         }
 
-        if (!_.isEmpty(records)) {
-          response.meta = {
-            count: records.length
-          };
-          response.results = records;
-        } else {
-          response.results = {};
-          response.message = 'Not Found';
-        }
-
-        return reply(response);
+        request.count = count;
+        return reply(records);
       });
     }
   },
