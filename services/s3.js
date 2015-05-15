@@ -38,7 +38,8 @@ var S3 = function (secretId, secretKey, bucket) {
 * @param {responseCallback} cb - The callback that handles the response
 */
 S3.prototype.readBucket = function (cb) {
-  var images = client.listObjects(this.params);
+  var self = this;
+  var images = this.client.listObjects(this.params);
 
   images.on('error', function (err) {
     cb(err);
@@ -50,7 +51,7 @@ S3.prototype.readBucket = function (cb) {
       format = format[format.length - 1];
 
       if (format === 'json') {
-        var url = s3.getPublicUrlHttp(this.params.s3Params.Bucket, data.Contents[i].Key);
+        var url = s3.getPublicUrlHttp(self.params.s3Params.Bucket, data.Contents[i].Key);
         meta.addRemoteMeta(url, function (err, msg) {
           if (err) {
             return cb(err);
