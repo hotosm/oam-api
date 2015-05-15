@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var Model = require('../models/meta.js');
-var queryMeta = require('../services/query-meta.js');
+var meta = require('../controllers/meta.js');
 
 module.exports = [
   {
@@ -38,7 +38,7 @@ module.exports = [
         payload = request.query
       }
 
-      queryMeta(payload, function (err, records) {
+      meta.query(payload, function (err, records) {
         if (err) {
           console.log(err)
           return reply(err.message);

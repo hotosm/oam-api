@@ -4,7 +4,7 @@ var _ = require('lodash');
 var bboxPolygon = require('turf-bbox-polygon');
 var Meta = require('../models/meta.js');
 
-module.exports = function(payload, cb) {
+module.exports.query = function(payload, cb) {
 
   // bounding box search
   // look for bbox in payload
