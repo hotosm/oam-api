@@ -10,11 +10,15 @@ db.start();
 
 var s3 = new S3();
 
-// Run bucket update every hour
-s3.readBucket(function (err, msg) {
+var consoleLog = function (err, msg) {
   if (err) {
     console.log(err);
   }
   console.log(msg);
-});
-setInterval(s3.readBucket, 3600000);
+};
+
+// Run bucket update every hour
+s3.readBucket(consoleLog);
+setInterval(function() {
+  s3.readBucket(consoleLog);
+}, 3600000);
