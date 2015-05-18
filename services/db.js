@@ -1,11 +1,16 @@
 'use strict';
 
 var mongoose = require('mongoose');
+var _ = require('lodash');
 
 var Connection = function (dbName, dbUri) {
-  this.dbName = dbName;
-  this.dbUri = dbUri || 'mongodb://localhost/';
-  mongoose.connect(this.dbUri + this.dbName);
+  if (!_.isEmpty(dbUri)) {
+    this.dbUri = dbUri
+  } else {
+    this.dbUri = 'mongodb://localhost/' + dbName;
+  }
+
+  mongoose.connect(this.dbUri);
   this.db = mongoose.connection;
 };
 
