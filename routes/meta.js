@@ -54,14 +54,11 @@ module.exports = [
     handler: function (request, reply) {
       var metaId = request.params.id;
 
-      var response = {};
-
       Model.findOne({_id: metaId}, function (err, record) {
         if (err) {
           return reply(err.message);
         }
-        response.results = record;
-        return reply(response);
+        return reply(record);
       });
     }
   }
