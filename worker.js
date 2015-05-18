@@ -5,7 +5,7 @@ require('envloader').load();
 var Conn = require('./services/db.js');
 var S3 = require('./services/s3.js');
 
-var db = new Conn(process.env.DBNAME || 'osm-catalog');
+var db = new Conn(process.env.DBNAME || 'osm-catalog', process.env.DBURI);
 db.start();
 
 var s3 = new S3();
