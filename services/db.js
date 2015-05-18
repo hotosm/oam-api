@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 var Connection = function (dbName, dbUri) {
   if (!_.isEmpty(dbUri)) {
-    this.dbUri = dbUri
+    this.dbUri = dbUri;
   } else {
     this.dbUri = 'mongodb://localhost/' + dbName;
   }
