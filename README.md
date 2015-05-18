@@ -25,6 +25,7 @@ Starting the backgound worker:
 - `OR_DEBUG` - turn on debug mode
 - `AWS_SECRET_KEY_ID` - set AWS secret key id
 - `AWS_SECRET_ACCESS_KEY` - set AWS secret access key
+- `DBURI` - set Mongo DB URI
 
 ### Endpoints
 
