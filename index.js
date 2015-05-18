@@ -4,7 +4,7 @@ require('envloader').load();
 var Conn = require('./services/db.js');
 var Server = require('./services/server.js');
 
-var db = new Conn(process.env.DBNAME || 'osm-catalog');
+var db = new Conn(process.env.DBNAME || 'osm-catalog', process.env.DBURI);
 db.start();
 
 var server = new Server(process.env.PORT || 4000);

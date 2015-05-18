@@ -2,9 +2,10 @@
 
 var mongoose = require('mongoose');
 
-var Connection = function (dbName) {
+var Connection = function (dbName, dbUri) {
   this.dbName = dbName;
-  mongoose.connect('mongodb://localhost/' + this.dbName);
+  this.dbUri = dbUri || 'mongodb://localhost/';
+  mongoose.connect(this.dbUri + this.dbName);
   this.db = mongoose.connection;
 };
 
