@@ -16,7 +16,10 @@ describe('check meta endpoint', function () {
 
   before(function (done) {
     self.db = new Conn(testDb);
-    self.db.start(function () {
+    self.db.start(function (err) {
+      if (err) {
+        console.log(err);
+      }
       var server = new Server(2000);
       server.start(done);
     });
@@ -30,7 +33,7 @@ describe('check meta endpoint', function () {
         console.log(err);
       }
       expect(httpResponse.statusCode).to.equal(200);
-      var metaId = JSON.parse(body)._id;
+      var metaId = JSON.parse(body).results._id;
       request('http://127.0.0.1:2000/meta/' + metaId, function (err, response, body) {
         if (err) {
           console.log(err);
