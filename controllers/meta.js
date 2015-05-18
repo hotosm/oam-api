@@ -40,7 +40,6 @@ module.exports.query = function (payload, page, limit, cb) {
       cb(err, records, count);
     });
   });
-
 };
 
 /**

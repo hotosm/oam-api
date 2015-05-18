@@ -19,6 +19,6 @@ var consoleLog = function (err, msg) {
 
 // Run bucket update every hour
 s3.readBucket(consoleLog);
-setInterval(function() {
+setInterval(function () {
   s3.readBucket(consoleLog);
 }, 3600000);

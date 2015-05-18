@@ -36,9 +36,9 @@ Server.prototype.start = function (cb) {
       register: require('../plugins/response-meta.js'),
       options: {
         content: {
-          provided_by: "OpenAerialMap",
-          license: "Some License",
-          website: "http://www.example.com"
+          provided_by: 'OpenAerialMap',
+          license: 'Some License',
+          website: 'http://www.example.com'
         }
       }
     },
