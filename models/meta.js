@@ -20,7 +20,7 @@ var metaSchema = new mongoose.Schema({
     provider: String,
     contact: String,
     geojson: {type: mongoose.Schema.Types.Mixed, index: '2dsphere'},
-    properties: [mongoose.Schema.Types.Mixed]
+    properties: mongoose.Schema.Types.Mixed
 });
 
 module.exports = mongoose.model('meta', metaSchema);
