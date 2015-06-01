@@ -37,8 +37,8 @@ Server.prototype.start = function (cb) {
       options: {
         content: {
           provided_by: 'OpenAerialMap',
-          license: 'Some License',
-          website: 'http://www.example.com'
+          license: 'CC-BY 4.0',
+          website: 'http://beta.openaerialmap.org'
         }
       }
     },
