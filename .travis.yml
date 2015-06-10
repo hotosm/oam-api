@@ -1,0 +1,15 @@
+language: node_js
+
+node_js:
+- '0.12'
+
+services: mongodb
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: iZGqyYrx4i7+MPDa0Lopoe/TULu9DNWc2UsYqB8+f39xNhpRNHqIR0lz5VFWl6oQugj0XeZnHpN+f4W+2jfy6ThyTUs42uFAE43HThVipPhf28NdeuCJVje5Qu2ZjMv9spRskalxBrJjdJ8G9C5Vxwx1+LmnjVcyvsk0ycSA38o=
+  app: oam-catalog
+  on:
+    repo: hotosm/oam-catalog
+    branch: master
