@@ -1,4 +1,4 @@
-# oam-catalog
+# oam-catalog [![Build Status](https://travis-ci.org/hotosm/oam-catalog.svg)](https://travis-ci.org/hotosm/oam-catalog)
 
 This repo is in development and rapidly changing.
 
@@ -64,5 +64,6 @@ default is `100`.
 - format: `?limit=number`
 - example: `/meta?limit=1000`
 
-
+### Deployment
+Changes to `master` branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
 
