@@ -1,6 +1,7 @@
 'use strict';
 
 require('envloader').load();
+require('newrelic');
 var Conn = require('./services/db.js');
 var Server = require('./services/server.js');
 
