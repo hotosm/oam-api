@@ -35,8 +35,9 @@ var S3 = function (secretId, secretKey, bucket) {
 * Read bucket method for S3. It reads the S3 bucket and adds all the `.json` metadata to Meta model
 *
 * @param {responseCallback} cb - The callback that handles the response
+* @param {finishedCallback} finished - The callback that handles when reading is done
 */
-S3.prototype.readBucket = function (cb) {
+S3.prototype.readBucket = function (cb, done) {
   var self = this;
   var images = this.client.listObjects(this.params);
 
@@ -60,6 +61,10 @@ S3.prototype.readBucket = function (cb) {
       }
     }
   });
+
+  images.on('end', function () {
+    done(null);
+  });
 };
 
 module.exports = S3;
@@ -70,4 +75,11 @@ module.exports = S3;
  * @callback responseCallback
  * @param {error} err - The error message
  * @param {string} msg - The success message
+ */
+
+ /**
+ * The finished callback just calls back to the worker to let it know there is
+ * no more data coming.
+ *
+ * @callback finishedCallback
  */

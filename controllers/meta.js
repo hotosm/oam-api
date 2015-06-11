@@ -36,7 +36,7 @@ module.exports.query = function (payload, page, limit, cb) {
     if (err) {
       return cb(err, null, null);
     }
-    Meta.find(payload, null, { skip: skip, limit: limit }, function (err, records) {
+    Meta.find(payload, null, { skip: skip, limit: limit }).sort({ acquisition_end: -1 }).exec(function (err, records) {
       cb(err, records, count);
     });
   });
