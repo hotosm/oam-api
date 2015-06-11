@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var analytics = require('../controllers/analytics.js');
 
 var analytics = require('../controllers/analytics.js');
