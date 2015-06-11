@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 
 var analyticsSchema = new mongoose.Schema({
     count: Number,
-    last_updated: Date
+    date: Date
 });
 
 module.exports = mongoose.model('analytics', analyticsSchema);

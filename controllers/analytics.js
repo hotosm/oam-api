@@ -16,7 +16,7 @@ module.exports.query = function (page, limit, cb) {
     if (err) {
       return cb(err, null, null);
     }
-    Analytics.find(null, null, { skip: skip, limit: limit }).sort({ last_updated: -1 }).exec(function (err, records) {
+    Analytics.find(null, null, { skip: skip, limit: limit }).sort({ date: -1 }).exec(function (err, records) {
       if (err) {
         return cb(err, null, null);
       }
@@ -26,7 +26,7 @@ module.exports.query = function (page, limit, cb) {
 };
 
 module.exports.addAnalyticsRecord = function (count) {
-  var record = new Analytics({ last_updated: Date.now(), count: count });
+  var record = new Analytics({ date: Date.now(), count: count });
   record.save(function (err, record) {
     if (err) {
       return console.log(err);
