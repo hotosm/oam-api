@@ -29,7 +29,7 @@ module.exports.query = function (payload, page, limit, cb) {
     }
   }
 
-  // Handle data ranges
+  // Handle date ranges
   if (_.has(payload, 'acquisition_from')) {
     // Test to make sure the date is formatted correctly
     var fromDate = new Date(payload.acquisition_from);
@@ -49,6 +49,24 @@ module.exports.query = function (payload, page, limit, cb) {
 
     // sanitize payload
     payload = _.omit(payload, 'acquisition_to');
+  }
+
+  // Handle resolution ranges
+  if (_.has(payload, 'gsd_from') && _.has(payload, 'gsd_to')) {
+    payload.gsd = { $gte: payload.gsd_from, $lte: payload.gsd_to };
+
+    // sanitize payload
+    payload = _.omit(payload, ['gsd_from', 'gsd_to']);
+  } else if (_.has(payload, 'gsd_from')) {
+    payload.gsd = { $gte: payload.gsd_from };
+
+    // sanitize payload
+    payload = _.omit(payload, 'gsd_from');
+  } else if (_.has(payload, 'gsd_to')) {
+    payload.gsd = { $lte: payload.gsd_to };
+
+    // sanitize payload
+    payload = _.omit(payload, 'gsd_to');
   }
 
   var skip = limit * (page - 1);

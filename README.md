@@ -52,6 +52,12 @@ Starting the backgound worker:
 - format: `?provider=string`
 - example: `/meta?provider=someprovider`
 
++#### GSD (Resolution):
++- format: `?gsd_from=value&gsd_to=value`
++- example: `/meta?gsd_from=0.005&gsd_to=20`
++
++*Note that gsd_from and gsd_to can be used on their own. Values should be provided in meters.*
+
 #### page:
 
 - format: `?page=number`
