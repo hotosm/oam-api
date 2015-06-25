@@ -63,6 +63,12 @@ Starting the backgound worker:
 - format: `?page=number`
 - example: `/meta?page=2`
 
+#### date:
+- format: `?acquisition_from=date&acquisition_to=date`
+- example: `/meta?acquisition_from=2015-04-10&acquisition_to=2015-05-01`
+
+*Note that acquisition_from and acquisition_to can be used on their own.*
+
 #### limit:
 
 default is `100`.

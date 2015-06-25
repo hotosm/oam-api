@@ -29,6 +29,28 @@ module.exports.query = function (payload, page, limit, cb) {
     }
   }
 
+  // Handle date ranges
+  if (_.has(payload, 'acquisition_from')) {
+    // Test to make sure the date is formatted correctly
+    var fromDate = new Date(payload.acquisition_from);
+    if (!isNaN(fromDate.getTime())) {
+      payload.acquisition_start = { $gte: new Date(payload.acquisition_from) };
+    }
+
+    // sanitize payload
+    payload = _.omit(payload, 'acquisition_from');
+  }
+  if (_.has(payload, 'acquisition_to')) {
+    // Test to make sure the date is formatted correctly
+    var toDate = new Date(payload.acquisition_to);
+    if (!isNaN(toDate.getTime())) {
+      payload.acquisition_end = { $lte: new Date(payload.acquisition_to) };
+    }
+
+    // sanitize payload
+    payload = _.omit(payload, 'acquisition_to');
+  }
+
   // Handle resolution ranges
   if (_.has(payload, 'gsd_from') && _.has(payload, 'gsd_to')) {
     payload.gsd = { $gte: payload.gsd_from, $lte: payload.gsd_to };
