@@ -76,6 +76,25 @@ module.exports.query = function (payload, page, limit, cb) {
     payload = _.omit(payload, 'has_tiled');
   }
 
+  // Handle custom sorts, starting with default of higher resolution and
+  // newer imagery first. Do nothing if we don't have both sort and order_by.
+  var sort = { gsd: 1, acquisition_end: -1 };
+  if (_.has(payload, 'sort') && _.has(payload, 'order_by')) {
+    // Custom sort, overwrite default
+    sort = {};
+    sort[payload.order_by] = (payload.sort === 'asc') ? 1 : -1;
+
+    // sanitized payload
+    payload = _.omit(payload, 'sort');
+    payload = _.omit(payload, 'order_by');
+  } else if (_.has(payload, 'sort')) {
+    // sanitized payload
+    payload = _.omit(payload, 'sort');
+  } else if (_.has(payload, 'order_by')) {
+    // sanitized payload
+    payload = _.omit(payload, 'order_by');
+  }
+
   var skip = limit * (page - 1);
 
   // Execute the search and return the result via callback
@@ -83,7 +102,7 @@ module.exports.query = function (payload, page, limit, cb) {
     if (err) {
       return cb(err, null, null);
     }
-    Meta.find(payload, null, { skip: skip, limit: limit }).sort({ acquisition_end: -1 }).exec(function (err, records) {
+    Meta.find(payload, null, { skip: skip, limit: limit }).sort(sort).exec(function (err, records) {
       cb(err, records, count);
     });
   });
