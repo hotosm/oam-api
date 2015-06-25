@@ -29,6 +29,24 @@ module.exports.query = function (payload, page, limit, cb) {
     }
   }
 
+  // Handle resolution ranges
+  if (_.has(payload, 'gsd_from') && _.has(payload, 'gsd_to')) {
+    payload.gsd = { $gte: payload.gsd_from, $lte: payload.gsd_to };
+
+    // sanitize payload
+    payload = _.omit(payload, ['gsd_from', 'gsd_to']);
+  } else if (_.has(payload, 'gsd_from')) {
+    payload.gsd = { $gte: payload.gsd_from };
+
+    // sanitize payload
+    payload = _.omit(payload, 'gsd_from');
+  } else if (_.has(payload, 'gsd_to')) {
+    payload.gsd = { $lte: payload.gsd_to };
+
+    // sanitize payload
+    payload = _.omit(payload, 'gsd_to');
+  }
+
   var skip = limit * (page - 1);
 
   // Execute the search and return the result via callback
