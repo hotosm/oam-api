@@ -29,6 +29,72 @@ module.exports.query = function (payload, page, limit, cb) {
     }
   }
 
+  // Handle date ranges
+  if (_.has(payload, 'acquisition_from')) {
+    // Test to make sure the date is formatted correctly
+    var fromDate = new Date(payload.acquisition_from);
+    if (!isNaN(fromDate.getTime())) {
+      payload.acquisition_start = { $gte: new Date(payload.acquisition_from) };
+    }
+
+    // sanitize payload
+    payload = _.omit(payload, 'acquisition_from');
+  }
+  if (_.has(payload, 'acquisition_to')) {
+    // Test to make sure the date is formatted correctly
+    var toDate = new Date(payload.acquisition_to);
+    if (!isNaN(toDate.getTime())) {
+      payload.acquisition_end = { $lte: new Date(payload.acquisition_to) };
+    }
+
+    // sanitize payload
+    payload = _.omit(payload, 'acquisition_to');
+  }
+
+  // Handle resolution ranges
+  if (_.has(payload, 'gsd_from') && _.has(payload, 'gsd_to')) {
+    payload.gsd = { $gte: payload.gsd_from, $lte: payload.gsd_to };
+
+    // sanitize payload
+    payload = _.omit(payload, ['gsd_from', 'gsd_to']);
+  } else if (_.has(payload, 'gsd_from')) {
+    payload.gsd = { $gte: payload.gsd_from };
+
+    // sanitize payload
+    payload = _.omit(payload, 'gsd_from');
+  } else if (_.has(payload, 'gsd_to')) {
+    payload.gsd = { $lte: payload.gsd_to };
+
+    // sanitize payload
+    payload = _.omit(payload, 'gsd_to');
+  }
+
+  if (_.has(payload, 'has_tiled')) {
+    payload['properties.tms'] = { $exists: true };
+
+    // sanitized payload
+    payload = _.omit(payload, 'has_tiled');
+  }
+
+  // Handle custom sorts, starting with default of higher resolution and
+  // newer imagery first. Do nothing if we don't have both sort and order_by.
+  var sort = { gsd: 1, acquisition_end: -1 };
+  if (_.has(payload, 'sort') && _.has(payload, 'order_by')) {
+    // Custom sort, overwrite default
+    sort = {};
+    sort[payload.order_by] = (payload.sort === 'asc') ? 1 : -1;
+
+    // sanitized payload
+    payload = _.omit(payload, 'sort');
+    payload = _.omit(payload, 'order_by');
+  } else if (_.has(payload, 'sort')) {
+    // sanitized payload
+    payload = _.omit(payload, 'sort');
+  } else if (_.has(payload, 'order_by')) {
+    // sanitized payload
+    payload = _.omit(payload, 'order_by');
+  }
+
   var skip = limit * (page - 1);
 
   // Execute the search and return the result via callback
@@ -36,7 +102,7 @@ module.exports.query = function (payload, page, limit, cb) {
     if (err) {
       return cb(err, null, null);
     }
-    Meta.find(payload, null, { skip: skip, limit: limit }).sort({ acquisition_end: -1 }).exec(function (err, records) {
+    Meta.find(payload, null, { skip: skip, limit: limit }).sort(sort).exec(function (err, records) {
       cb(err, records, count);
     });
   });

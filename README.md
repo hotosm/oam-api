@@ -52,10 +52,28 @@ Starting the backgound worker:
 - format: `?provider=string`
 - example: `/meta?provider=someprovider`
 
+#### GSD (Resolution):
+
+- format: `?gsd_from=value&gsd_to=value`
+- example: `/meta?gsd_from=0.005&gsd_to=20`
+
+*Note that gsd_from and gsd_to can be used on their own. Values should be provided in meters.*
+
+#### has tiled service?:
+
+- format: `?has_tiled`
+- example: `/meta?has_tiled`
+
 #### page:
 
 - format: `?page=number`
 - example: `/meta?page=2`
+
+#### date:
+- format: `?acquisition_from=date&acquisition_to=date`
+- example: `/meta?acquisition_from=2015-04-10&acquisition_to=2015-05-01`
+
+*Note that acquisition_from and acquisition_to can be used on their own.*
 
 #### limit:
 
@@ -63,6 +81,13 @@ default is `100`.
 
 - format: `?limit=number`
 - example: `/meta?limit=1000`
+
+#### sorting and ordering:
+
+- format: `?order_by=property&sort=asc|desc`
+- example: `/meta?order_by=acquisition_start&sort=asc`
+
+*Note that `sort` and `order_by` are required together and one alone will not be recognized. Default is to show higher resolution and newer imagery first.*
 
 ### Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
