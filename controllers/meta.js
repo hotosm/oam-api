@@ -69,6 +69,13 @@ module.exports.query = function (payload, page, limit, cb) {
     payload = _.omit(payload, 'gsd_to');
   }
 
+  if (_.has(payload, 'has_tiled')) {
+    payload['properties.tms'] = { $exists: true };
+
+    // sanitized payload
+    payload = _.omit(payload, 'has_tiled');
+  }
+
   var skip = limit * (page - 1);
 
   // Execute the search and return the result via callback
