@@ -114,15 +114,16 @@ module.exports.query = function (payload, page, limit, cb) {
 * @param {String} remoteUri - a URI to the remote file
 * @param {Callback} cb - The callback that handles the response
 */
-module.exports.addRemoteMeta = function (remoteUri, cb) {
+module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpdate, cb) {
   // Check if the meta data is already added
   Meta.findOne({meta_uri: remoteUri}, function (err, meta) {
     if (err) {
       return cb(err);
     }
 
-    // if the meta file doesn't exist then add
-    if (meta === null) {
+    // if the meta file doesn't exist then add, if the meta file is more recent
+    // than our last update, then update
+    if (meta === null || lastModified.getTime() > lastSystemUpdate.getTime()) {
       request(remoteUri, function (err, response, body) {
         if (err) {
           return cb(err);
@@ -135,12 +136,15 @@ module.exports.addRemoteMeta = function (remoteUri, cb) {
           payload.geojson = parse(payload.footprint);
           payload.geojson.bbox = payload.bbox;
 
-          var record = new Meta(payload);
-          record.save(function (err, record) {
+          var query = { uuid: payload.uuid };
+          var options = { upsert: true, new: true, select: { uuid: 1 } };
+          Meta.findOneAndUpdate(query, payload, options, function (err, record) {
             if (err) {
               return cb(err);
             }
-            cb(err, record.uuid + ' added!');
+
+            var status = (meta === null) ? ' added' : ' updated';
+            cb(err, record.uuid + status + '!');
           });
         }
       });
