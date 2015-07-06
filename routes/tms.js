@@ -9,10 +9,9 @@ module.exports = [
     method: 'POST',
     path: '/tms',
     handler: function (request, reply) {
-      if (!_.isEmpty(request.payload) && _.has(request.payload, 'uri')) {
+      if (!_.isEmpty(request.payload) && _.has(request.payload, 'uri') && _.has(request.payload, 'images')) {
         tms.addUpdate(request.payload, function (err, record) {
           if (err) {
-            console.log(err);
             return reply(Boom.badRequest(err));
           }
 
@@ -40,7 +39,6 @@ module.exports = [
 
       tms.query(payload, request.page, request.limit, function (err, records, count) {
         if (err) {
-          console.log(err);
           return reply(err.message);
         }
 
