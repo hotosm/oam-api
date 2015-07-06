@@ -25,7 +25,8 @@ module.exports = [
         );
         return reply(Boom.badRequest(err));
       }
-    }
+    },
+    config: { auth: 'simple' }
   },
   {
     method: 'GET',
