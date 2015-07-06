@@ -1,6 +1,8 @@
 'use strict';
 
+var async = require('async');
 var Model = require('../models/tms.js');
+var meta = require('./meta.js');
 
 /**
 * Query TMS model. Implements all protocols supported by /meta endpoint
@@ -26,13 +28,28 @@ module.exports.query = function (payload, page, limit, cb) {
 
 module.exports.addUpdate = function (payload, cb) {
 
-  var options = { upsert: true, new: true };
-  var query = { uuid: payload.uri };
-  Model.findOneAndUpdate(query, payload, options, function (err, record) {
+  var images = [];
+
+  async.each(payload.images, function (image, callback) {
+    meta.addUpdateTms(image.uuid, payload.uri, function (err, meta) {
+      images.push(meta);
+      return callback(err);
+    });
+  }, function (err) {
     if (err) {
       return cb(err);
     }
 
-    cb(err, record);
+    var options = { upsert: true, new: true };
+    var query = { uuid: payload.uri };
+    payload.images = images;
+    Model.findOneAndUpdate(query, payload, options, function (err, record) {
+      if (err) {
+        return cb(err);
+      }
+
+      cb(err, record);
+    });
+
   });
 };
