@@ -4,6 +4,7 @@ var _ = require('lodash');
 var request = require('request');
 var parse = require('wellknown');
 var bboxPolygon = require('turf-bbox-polygon');
+var Boom = require('boom');
 var Meta = require('../models/meta.js');
 
 /**
@@ -112,6 +113,8 @@ module.exports.query = function (payload, page, limit, cb) {
 * Add Meta Information from a provided URI. This function reads the remote json meta file
 * and adds the content to Meta model.
 * @param {String} remoteUri - a URI to the remote file
+* @param {Date} lastModified
+* @param {Date} lastSystemUpdate
 * @param {Callback} cb - The callback that handles the response
 */
 module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpdate, cb) {
@@ -147,6 +150,52 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
             cb(err, record.uuid + status + '!');
           });
         }
+      });
+    }
+  });
+};
+
+/**
+* Add or Update TMS endpoints related to each image
+* @param {String} remoteUri - a URI to the remote file
+* @param {String} tmsUri - a URI to the TMS
+* @param {Callback} cb - The callback that handles the response
+*/
+module.exports.addUpdateTms = function (remoteUri, tmsUri, cb) {
+  // Check if the meta data is already added
+  Meta.findOne({uuid: remoteUri}, function (err, meta) {
+    if (err) {
+      return cb(err);
+    }
+
+    // if the meta file doesn't exist then add, if the meta file is more recent
+    // than our last update, then update
+    if (meta === null) {
+      err = Boom.create(
+        400,
+        'Image was not found in the catalog!',
+        { timestamp: Date.now() }
+      );
+      return cb(err);
+    } else {
+
+      var custom = [];
+
+      if (!_.has(meta, 'custom_tms')) {
+        custom.push(tmsUri);
+      } else if (meta.custom_tms.indexOf(tmsUri) === -1) {
+        custom = meta.custom_tms;
+        custom.push(remoteUri);
+      } else {
+        // return if the tms uri is already added to the image
+        return cb(err, meta);
+      }
+
+      console.log(custom);
+      // Update the image with the tms uri provided
+      Meta.update({uuid: remoteUri}, {custom_tms: custom}, function (err, c) {
+        console.log(c);
+        return cb(err, meta);
       });
     }
   });
