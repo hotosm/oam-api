@@ -181,20 +181,18 @@ module.exports.addUpdateTms = function (remoteUri, tmsUri, cb) {
 
       var custom = [];
 
-      if (!_.has(meta, 'custom_tms')) {
+      if (typeof meta.custom_tms === 'undefined') {
         custom.push(tmsUri);
       } else if (meta.custom_tms.indexOf(tmsUri) === -1) {
         custom = meta.custom_tms;
-        custom.push(remoteUri);
+        custom.push(tmsUri);
       } else {
         // return if the tms uri is already added to the image
         return cb(err, meta);
       }
 
-      console.log(custom);
       // Update the image with the tms uri provided
-      Meta.update({uuid: remoteUri}, {custom_tms: custom}, function (err, c) {
-        console.log(c);
+      Meta.update({uuid: remoteUri}, {custom_tms: custom}, function (err) {
         return cb(err, meta);
       });
     }
