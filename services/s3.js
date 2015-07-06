@@ -37,7 +37,7 @@ var S3 = function (secretId, secretKey, bucket) {
 * @param {responseCallback} cb - The callback that handles the response
 * @param {finishedCallback} finished - The callback that handles when reading is done
 */
-S3.prototype.readBucket = function (cb, done) {
+S3.prototype.readBucket = function (lastSystemUpdate, cb, done) {
   var self = this;
   var images = this.client.listObjects(this.params);
 
@@ -51,8 +51,11 @@ S3.prototype.readBucket = function (cb, done) {
       format = format[format.length - 1];
 
       if (format === 'json') {
+        // Get the last time the metadata file was modified so we can determine
+        // if we need to update it.
+        var lastModified = data.Contents[i].LastModified;
         var url = s3.getPublicUrlHttp(self.params.s3Params.Bucket, data.Contents[i].Key);
-        meta.addRemoteMeta(url, function (err, msg) {
+        meta.addRemoteMeta(url, lastModified, lastSystemUpdate, function (err, msg) {
           if (err) {
             return cb(err);
           }

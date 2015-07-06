@@ -1,18 +1,26 @@
 'use strict';
 
 var _ = require('lodash');
+var parse = require('wellknown');
 var Model = require('../models/meta.js');
 var meta = require('../controllers/meta.js');
 
 module.exports = [
   {
     method: 'POST',
-    path: '/meta/add',
+    path: '/meta',
+    config: { auth: 'simple' },
     handler: function (request, reply) {
       var response = {};
 
       if (!_.isEmpty(request.payload) && _.has(request.payload, 'uuid')) {
-        var record = new Model(request.payload);
+        var payload = request.payload;
+
+        // create a geojson object from footprint and bbox
+        payload.geojson = parse(payload.footprint);
+        payload.geojson.bbox = payload.bbox;
+
+        var record = new Model(payload);
         record.save(function (err, record) {
           if (err) {
             console.log(err);

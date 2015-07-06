@@ -3,8 +3,8 @@
 var mongoose = require('mongoose');
 
 var metaSchema = new mongoose.Schema({
-    uuid: {type: String, unique: true, required: true, dropDups: true },
-    meta_uri: {type: String, unique: true, required: false },
+    uuid: {type: String, unique: true, required: true, dropDups: true }, // The URI of the image
+    meta_uri: {type: String, unique: true, required: false }, // To URI of the meta of the image
     thumb_uri: String,
     title: String,
     projection: String,
@@ -20,7 +20,8 @@ var metaSchema = new mongoose.Schema({
     provider: String,
     contact: String,
     geojson: {type: mongoose.Schema.Types.Mixed, index: '2dsphere'},
-    properties: mongoose.Schema.Types.Mixed
+    properties: mongoose.Schema.Types.Mixed,
+    custom_tms: mongoose.Schema.Types.Mixed
 });
 
 module.exports = mongoose.model('meta', metaSchema);

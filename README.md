@@ -26,6 +26,7 @@ Starting the backgound worker:
 - `AWS_SECRET_KEY_ID` - set AWS secret key id
 - `AWS_SECRET_ACCESS_KEY` - set AWS secret access key
 - `DBURI` - set Mongo DB URI
+- `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 
 ### Endpoints
 
@@ -33,6 +34,19 @@ Starting the backgound worker:
 -  `/meta/add` -XPOST
 -  `/providers` -XGET
 -  `/providers/add` -XPOST
+-  `/tms` -XGET
+-  `/tms` -XPOST
+
+### POST parameters for `/tms`:
+To add/update tms endpoint, the following json format should be used:
+
+```json
+{ "uri": "http://example.com/tms_uri",
+  "images": [
+    {"uuid": "http://example.com/image_uri.tif"}
+    ]
+}
+```
 
 ### Search parameters for `/meta`:
 

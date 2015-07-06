@@ -1,0 +1,47 @@
+[{
+    "uuid": "http://www.example.com/some_image1.tif",
+    "title": "some_image1.tif",
+    "projection": "PROJCS[\"WGS84/Pseudo-Mercator\",GEOGCS[\"WGS84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Mercator_1SP\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"scale_factor\",1],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],EXTENSION[\"PROJ4\",\"+proj=merc+a=6378137+b=6378137+lat_ts=0.0+lon_0=0.0+x_0=0.0+y_0=0+k=1.0+units=m+nadgrids=@null+wktext+no_defs\"],AUTHORITY[\"EPSG\",\"3857\"]]",
+    "footprint": "POLYGON((37.51555277777778 59.79141666666666,41.82819444444445 59.79141666666666,41.82819444444445 57.57304444444445,37.51555277777778 57.57304444444445,37.51555277777778 59.79141666666666))",
+    "gsd": 0.0004999999999998001,
+    "file_size": 2121158626,
+    "acquisition_start": "2015-04-20T00:00:00.000Z",
+    "acquisition_end": "2015-04-21T00:00:00.000Z",
+    "platform": "drone",
+    "provider": "UAViators",
+    "contact": "someone@nasa.gov",
+    "properties": {
+      "thumbnail": "http://www.example.com/some_image1.thumb.jpg"
+    },
+    "meta_uri": "http://www.example.com/some_image1_meta.json",
+    "bbox": [
+      37.51555277777778,
+      57.57304444444445,
+      41.82819444444445,
+      59.79141666666666
+    ]
+  },
+  {
+    "uuid": "http://www.example.com/some_image2.tif",
+    "title": "some_image2.tif",
+    "projection": "PROJCS[\"WGS84/UTMzone45N\",GEOGCS[\"WGS84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",87],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"32645\"]]",
+    "footprint": "POLYGON((85.15127222222223 28.07871111111111,85.20211944444445 28.07938888888889,85.20296388888889 28.028730555555555,85.1521388888889 28.028055555555554,85.15127222222223 28.07871111111111))",
+    "gsd": 4,
+    "file_size": 2121158626,
+    "acquisition_start": "2015-01-01T00:00:00.000Z",
+    "acquisition_end": "2015-01-02T00:00:00.000Z",
+    "platform": "drone",
+    "provider": "UAViators",
+    "contact": "someone@nasa.gov",
+    "properties": {
+      "tms": "http://example.com/some.tms",
+      "thumbnail": "http://www.example.com/some_image2.thumb.jpg"
+    },
+    "meta_uri": "http://www.example.com/some_image2_meta.json",
+    "bbox": [
+      85.15127222222223,
+      28.028055555555554,
+      85.20296388888889,
+      28.07938888888889
+    ]
+}]

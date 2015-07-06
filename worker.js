@@ -83,17 +83,24 @@ var readBuckets = function (tasks) {
 * The main function to get the registered buckets, read them and update metadata
 */
 var getListAndReadBuckets = function () {
-  getBucketList(function (buckets) {
-    // Generate array of tasks to run in parallel
-    var tasks = _.map(buckets, function (bucket) {
-      return function (done) {
-        var s3 = new S3(null, null, bucket);
-        s3.readBucket(consoleLog, done);
-      };
-    });
+  // Start of by getting the last time the system was updated.
+  analytics.getLastUpdateTime(function (err, lastSystemUpdate) {
+    if (err) {
+      return console.error(err);
+    }
 
-    // Read the buckets and store metadata
-    readBuckets(tasks);
+    getBucketList(function (buckets) {
+      // Generate array of tasks to run in parallel
+      var tasks = _.map(buckets, function (bucket) {
+        return function (done) {
+          var s3 = new S3(null, null, bucket);
+          s3.readBucket(lastSystemUpdate, consoleLog, done);
+        };
+      });
+
+      // Read the buckets and store metadata
+      readBuckets(tasks);
+    });
   });
 };
 
