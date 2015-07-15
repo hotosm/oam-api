@@ -2,14 +2,6 @@
 
 var analytics = require('../controllers/analytics.js');
 
-var analytics = require('../controllers/analytics.js');
-// analytics.setLastUpdatedDate();
-// setTimeout(function () {
-//   analytics.getLastUpdatedDate(function (err, date) {
-//     console.log(date);
-//   });
-// }, 1000);
-
 module.exports = [
   {
     method: 'GET',
