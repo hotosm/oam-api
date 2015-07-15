@@ -14,7 +14,7 @@ var Server = function (port) {
         stripTrailingSlash: true
       }
     },
-    debug: process.env.OR_DEBUG ? {
+    debug: process.env.OAM_DEBUG ? {
       log: [ 'error' ],
       request: [ 'error', 'received', 'response' ]
     } : false
