@@ -1,0 +1,38 @@
+{
+  "name": "oam-catalog",
+  "description": "A catalog for OpenAerialMap imagery",
+  "repository": "https://github.com/hotosm/oam-catalog",
+  "keywords": [
+    "node",
+    "REST",
+    "satellite",
+    "imagery"
+  ],
+  "addons": [
+    "mongolab",
+    "newrelic"
+  ],
+  "env": {
+    "OAM_DEBUG": {
+      "description": "Debug mode true or false (default)",
+      "required": false
+    },
+    "AWS_SECRET_KEY_ID": {
+      "description": "AWS secret key id for reading OIN buckets",
+      "required": true
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "description": "AWS secret access key for reading OIN buckets",
+      "required": true
+    },
+    "DBURI": {
+      "description": "MongoDB connection url",
+      "required": true
+    },
+    "SECRET_TOKEN": {
+      "description": "The token used for post requests to /tms endpoint",
+      "required": true,
+      "generator": "secret"
+    }
+  }
+}
