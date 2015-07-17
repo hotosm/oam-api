@@ -3,7 +3,19 @@ language: node_js
 node_js:
 - '0.12'
 
+env:
+  global:
+  - GH_REF=github.com/hotosm/oam-catalog.git
+  - PRODUCTION_BRANCH=master
+  - secure: AhiKIqAYPeXH1HjhYza/VdMJrp8wCri5WNRY+Kdkb4piYEK20dAQPVgcVT2EM1tvlyZL5Q0ZU4rtnATkJOU3k9DQHI99xVjk4MjnqfpkrM9iZtif6o9xDZwf9iWwBeuu9MmKH0tsvKhktxrJkzZ7vAThurZVz89ZPoCAXuudyqk=
+
 services: mongodb
+
+before_install:
+- chmod +x ./.build_scripts/docs.sh
+
+after_success:
+- "./.build_scripts/docs.sh"
 
 deploy:
   provider: heroku

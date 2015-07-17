@@ -4,7 +4,8 @@
   "description": "A catalog for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/semistandard/bin/cmd.js && ./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/semistandard/bin/cmd.js && ./node_modules/mocha/bin/mocha",
+    "docs": "apidoc -i routes/ -o docs/"
   },
   "repository": {
     "type": "git",
@@ -33,11 +34,20 @@
     "wellknown": "^0.3.1"
   },
   "devDependencies": {
+    "apidoc": "^0.13.1",
     "chai": "^2.3.0",
     "mocha": "^2.2.4",
     "semistandard": "^4.1.4"
   },
   "engines": {
     "node": "0.12.2"
+  },
+  "apidoc": {
+    "title": "OAM API",
+    "name": "Open Aerial Map Catalog API",
+    "url": "https://oam-catalog.herokuapp.com",
+    "template": {
+      "withCompare": false
+    }
   }
 }
