@@ -42,7 +42,8 @@ Server.prototype.start = function (cb) {
     {
       register: require('hapi-router'),
       options: {
-        routes: './routes/*.js'
+        routes: './routes/*.js',
+        ignore: './routes/_apidoc.js'
       }
     },
     {
