@@ -50,3 +50,33 @@
  *       "bbox": []
  *       }
  */
+
+// -----------------------------------------------------------------------------
+// TMS success return values
+// -----------------------------------------------------------------------------
+/**
+ * @apiDefine tmsSuccess
+ * @apiSuccess {string}   _id         Unique internal ID
+ * @apiSuccess {uuid}     uri         TMS URI
+ * @apiSuccess {object}   images      An array of images related to this TMS. Each item in the array includes _id and image uuid
+ */
+
+// -----------------------------------------------------------------------------
+// TMS success example
+// -----------------------------------------------------------------------------
+/**
+ * @apiDefine tmsSuccessExample
+ * @apiSuccessExample {json} Success Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "_id": "55b2b167dbfcedde6020f1a4",
+ *      "uri": "http://publish.astrodigital.com/#astrodigital.LC80010852015131LGN00_bands_741",
+ *      "__v": 0,
+ *      "images": [
+ *        {
+ *          "_id": "55b2af9bdbfcedde6020ee54",
+ *          "uuid": "http://hotosm-oam.s3.amazonaws.com/2015-04-17_mburahati_bottomright.tif"
+ *        }
+ *      ]
+ *   }
+ */
