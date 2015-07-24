@@ -1,34 +1,55 @@
-# oam-catalog [![Build Status](https://travis-ci.org/hotosm/oam-catalog.svg)](https://travis-ci.org/hotosm/oam-catalog)
+# OAM Catalog [![Build Status](https://travis-ci.org/hotosm/oam-catalog.svg)](https://travis-ci.org/hotosm/oam-catalog) 
 
-This repo is in development and rapidly changing.
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
-### Dependencies
+A catalog for OpenAerialMap imagery. The application indexes all metadata available within Open Imagery Network and creates an API to search and find imagery. The API powers the frontend search tool, OAM Browser. 
 
-- MongoDB
+## Installation and Usage
 
-### Installation
+The steps below will walk you through setting up your own instance of the oam-catalog.
+
+### Install Project Dependencies
+
+- [MongoDB](https://www.mongodb.org/)
+- [Node.js](https://nodejs.org/)
+
+### Install Application Dependencies
 
     $ npm install
 
 ### Usage
 
-Starting the API:
+#### Starting the database:
+
+    $ mongod
+
+The database is responsible for storing metadata about the imagery and analytics.
+
+#### Starting the API:
 
     $ node index.js
 
-Starting the backgound worker:
+The API exposes endpoints used to access information form the system via a RESTful interface.
+
+#### Starting the backgound worker:
 
     $ node worker.js
 
+The worker process runs on a schedule and checks for new data, update database when it finds anything to add.
+
 ### Environment Variables
 
-- `OR_DEBUG` - turn on debug mode
-- `AWS_SECRET_KEY_ID` - set AWS secret key id
-- `AWS_SECRET_ACCESS_KEY` - set AWS secret access key
-- `DBURI` - set Mongo DB URI
+- `OAM_DEBUG` - Debug mode `true` or `false` (default)
+- `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN buckets
+- `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN buckets
+- `DBURI` - MongoDB connection url
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 
-### Endpoints
+## Endpoints and Parameters
+
+More API documentation can be found at: [tbd]. 
+
+### Available Endpoints
 
 -  `/meta` -XGET
 -  `/meta/add` -XPOST
@@ -36,17 +57,23 @@ Starting the backgound worker:
 -  `/providers/add` -XPOST
 -  `/tms` -XGET
 -  `/tms` -XPOST
+-  `/analytics` -XGET
 
 ### POST parameters for `/tms`:
-To add/update tms endpoint, the following json format should be used:
+
+To add/update `/tms` endpoint, the following JSON format should be used:
 
 ```json
-{ "uri": "http://example.com/tms_uri",
-  "images": [
-    {"uuid": "http://example.com/image_uri.tif"}
+{
+    "uri": "http://example.com/tms_uri",
+    "images": [
+        {
+            "uuid": "http://example.com/image_uri.tif"
+        }
     ]
 }
 ```
+*Note that the `/tms` endpoint requires authenticated access.*
 
 ### Search parameters for `/meta`:
 
@@ -103,6 +130,5 @@ default is `100`.
 
 *Note that `sort` and `order_by` are required together and one alone will not be recognized. Default is to show higher resolution and newer imagery first.*
 
-### Deployment
+### Docs Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
-

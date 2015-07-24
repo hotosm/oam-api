@@ -14,7 +14,7 @@ var Server = function (port) {
         stripTrailingSlash: true
       }
     },
-    debug: process.env.OR_DEBUG ? {
+    debug: process.env.OAM_DEBUG ? {
       log: [ 'error' ],
       request: [ 'error', 'received', 'response' ]
     } : false
@@ -42,7 +42,8 @@ Server.prototype.start = function (cb) {
     {
       register: require('hapi-router'),
       options: {
-        routes: './routes/*.js'
+        routes: './routes/*.js',
+        ignore: './routes/_apidoc.js'
       }
     },
     {

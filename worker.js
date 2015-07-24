@@ -13,7 +13,7 @@ var Meta = require('./models/meta.js');
 var recheckTime = 1 * 60 * 60 * 1000; // 1 hour
 var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 
-var db = new Conn(process.env.DBNAME || 'osm-catalog', process.env.DBURI);
+var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
 db.start();
 
 var consoleLog = function (err, msg) {
