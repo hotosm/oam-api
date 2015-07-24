@@ -4,6 +4,36 @@ var _ = require('lodash');
 var Boom = require('boom');
 var tms = require('../controllers/tms.js');
 
+/**
+ * @api {post} /tms Add a TMS
+ * @apiGroup TMS
+ * @apiDescription Add a TMS (Tiled Map Service) endpoint to the catalog. **This is an authenticated endpoint.**
+ *
+ * @apiHeader {string} [Authorization] Bear Token for authentication
+ *
+ * @apiHeaderExample {json} Request-Example:
+ *                      { "Authorization": "Bearer token" }
+ *
+ * @apiParam {string} [uri] TMS' URI. Must be unique. If a TMS with the same URI has been added before, the TMS' info
+ * will be updated
+ * @apiParam {object} [images] An array containing the URIs to images included in the TMS.
+ *
+ * @apiUse tmsSuccess
+ *
+ * @apiUse tmsSuccessExample
+ *
+ * @apiError statusCode     The error code
+ * @apiError error          Error name
+ * @apiError message        Error message
+ *
+ * @apiErrorExample {json} Error Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *      "statusCode": 400,
+ *      "error": "Bad Request",
+ *      "message": "There is an Error. Fields missing."
+ *     }
+ */
 module.exports = [
   {
     method: 'POST',
@@ -28,6 +58,22 @@ module.exports = [
     },
     config: { auth: 'simple' }
   },
+
+/**
+ * @api {get} /tms List all TMS endpoints
+ * @apiGroup TMS
+ * @apiDescription Main endpoint to list TMS endpoints
+ *
+ * @apiParam {string} [uri] search for a particular TMS URI
+ *
+ * @apiExample {curl} Simple example:
+ *     curl 'https://oam-catalog.herokuapp.com/tms'
+ *
+ * @apiUse tmsSuccess
+ *
+ * @apiUse tmsSuccessExample
+ *
+ */
   {
     method: 'GET',
     path: '/tms',
