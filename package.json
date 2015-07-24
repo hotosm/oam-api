@@ -44,10 +44,19 @@
   },
   "apidoc": {
     "title": "OAM API",
-    "name": "Open Aerial Map Catalog API",
+    "name": "OpenAerialMap Catalog API",
+    "description": "",
     "url": "https://oam-catalog.herokuapp.com",
     "template": {
       "withCompare": false
-    }
+    },
+    "header": {
+      "title": "Getting Started",
+      "filename": "about.md"
+    },
+    "order": [
+      "Images",
+      "Analytics"
+    ]
   }
 }

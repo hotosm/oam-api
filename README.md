@@ -1,4 +1,10 @@
-# oam-catalog [![Build Status](https://travis-ci.org/hotosm/oam-catalog.svg)](https://travis-ci.org/hotosm/oam-catalog) [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+# OAM Catalog [![Build Status](https://travis-ci.org/hotosm/oam-catalog.svg)](https://travis-ci.org/hotosm/oam-catalog) 
+
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
+A catalog for OpenAerialMap imagery. The application indexes all metadata available within Open Imagery Network and creates an API to search and find imagery. The API powers the frontend search tool, OAM Browser. 
+
+## Installation and Usage
 
 The steps below will walk you through setting up your own instance of the oam-catalog.
 
@@ -39,6 +45,10 @@ The worker process runs on a schedule and checks for new data, update database w
 - `DBURI` - MongoDB connection url
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 
+## Endpoints and Parameters
+
+More API documentation can be found at: [tbd]. 
+
 ### Available Endpoints
 
 -  `/meta` -XGET
@@ -50,15 +60,20 @@ The worker process runs on a schedule and checks for new data, update database w
 -  `/analytics` -XGET
 
 ### POST parameters for `/tms`:
+
 To add/update `/tms` endpoint, the following JSON format should be used:
 
 ```json
-{ "uri": "http://example.com/tms_uri",
-  "images": [
-    {"uuid": "http://example.com/image_uri.tif"}
+{
+    "uri": "http://example.com/tms_uri",
+    "images": [
+        {
+            "uuid": "http://example.com/image_uri.tif"
+        }
     ]
 }
 ```
+*Note that the `/tms` endpoint requires authenticated access.*
 
 ### Search parameters for `/meta`:
 
@@ -115,6 +130,5 @@ default is `100`.
 
 *Note that `sort` and `order_by` are required together and one alone will not be recognized. Default is to show higher resolution and newer imagery first.*
 
-### Deployment
+### Docs Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
-
