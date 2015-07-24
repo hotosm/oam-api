@@ -6,8 +6,8 @@ var Model = require('../models/meta.js');
 var meta = require('../controllers/meta.js');
 
 /**
- * @api {post} /meta Add an image
- * @apiGroup Images
+ * @api {post} /meta Add an image metadata
+ * @apiGroup Meta
  * @apiDescription Add an image to the catalog. **This is an authenticated endpoint.**
  *
  * @apiParam {string} [uuid] Location of image.
@@ -62,8 +62,8 @@ module.exports = [
   },
 
 /**
- * @api {get} /meta List all images
- * @apiGroup Images
+ * @api {get} /meta List all images' metadata
+ * @apiGroup Meta
  * @apiDescription Main endpoint to find data within the catalog
  *
  * @apiParam {string} [bbox] Bounding box to search within. Format `?bbox=[lon_min],[lat_min],[lon_max],[lat_max]`.
@@ -114,8 +114,8 @@ module.exports = [
   },
 
 /**
- * @api {get} /meta/:id Get image detail
- * @apiGroup Images
+ * @api {get} /meta/:id Get an ƒimage's metadata
+ * @apiGroup Meta
  * @apiDescription Display data for an individual image
  *
  * @apiParam {string} [id] The id of the image.
