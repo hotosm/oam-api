@@ -2,14 +2,25 @@
 
 var analytics = require('../controllers/analytics.js');
 
-var analytics = require('../controllers/analytics.js');
-// analytics.setLastUpdatedDate();
-// setTimeout(function () {
-//   analytics.getLastUpdatedDate(function (err, date) {
-//     console.log(date);
-//   });
-// }, 1000);
-
+/**
+ * @api {get} /analytics Platform metadata
+ * @apiGroup Analytics
+ * @apiDescription Provides metadata about the catalog
+ *
+ * @apiSuccess {integer}   count      Number of images in catalog
+ * @apiSuccess {date}      date       Date and time of data point
+ *
+ * @apiSuccessExample {json} Success Response:
+ *      HTTP/1.1 200 OK
+ *      [{
+ *       "date": "2015-07-17T18:49:22.452Z",
+ *       "count": 856,
+ *      },
+ *      {
+ *       "date": "2015-07-17T17:49:22.452Z",
+ *       "count": 856,
+ *      }]
+ */
 module.exports = [
   {
     method: 'GET',
