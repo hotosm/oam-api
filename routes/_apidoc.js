@@ -69,12 +69,12 @@
  * @apiSuccessExample {json} Success Response:
  *   HTTP/1.1 200 OK
  *   {
- *      "_id": "55b2b167dbfcedde6020f1a4",
- *      "uri": "http://publish.astrodigital.com/#astrodigital.LC80010852015131LGN00_bands_741",
+ *      "_id": "55b671ac2b67227a79b4f3fb",
+ *      "uri": "http://a.tiles.mapbox.com/v4/droneadv.l8kc6bho/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZHJvbmVhZHYiLCJhIjoiYmU0ZXQtcyJ9.8Fh95YZQ_WdYEDlgtmH95A",
  *      "__v": 0,
  *      "images": [
  *        {
- *          "_id": "55b2af9bdbfcedde6020ee54",
+ *          "_id": "556f7a49ac00a903002fb01a",
  *          "uuid": "http://hotosm-oam.s3.amazonaws.com/2015-04-17_mburahati_bottomright.tif"
  *        }
  *      ]

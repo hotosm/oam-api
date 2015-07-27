@@ -26,6 +26,16 @@ var tms = require('../controllers/tms.js');
  * @apiError error          Error name
  * @apiError message        Error message
  *
+ * @apiExample {curl} Simple example:
+ *     curl 'https://oam-catalog.herokuapp.com/tms' -X POST \
+ *      -H 'Authorization: Bearer token' \
+ *      -H 'Content-Type: application/json' \
+ *      -d \
+ *      '{
+ *        "uri": "http://a.tiles.mapbox.com/v4/droneadv.l8kc6bho/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZHJvbmVhZHYiLCJhIjoiYmU0ZXQtcyJ9.8Fh95YZQ_WdYEDlgtmH95A",
+ *        "images": [{"uuid": "http://hotosm-oam.s3.amazonaws.com/2015-04-17_mburahati_bottomright.tif"}]
+ *      }'
+ *
  * @apiErrorExample {json} Error Response:
  *     HTTP/1.1 400 Bad Request
  *     {
