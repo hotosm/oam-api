@@ -55,7 +55,8 @@
       "filename": "about.md"
     },
     "order": [
-      "Images",
+      "Meta",
+      "TMS",
       "Analytics"
     ]
   }

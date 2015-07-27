@@ -114,7 +114,7 @@ module.exports = [
   },
 
 /**
- * @api {get} /meta/:id Get an ƒimage's metadata
+ * @api {get} /meta/:id Get an image's metadata
  * @apiGroup Meta
  * @apiDescription Display data for an individual image
  *
