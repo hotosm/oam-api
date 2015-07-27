@@ -41,7 +41,7 @@ module.exports.addUpdate = function (payload, cb) {
     }
 
     var options = { upsert: true, new: true };
-    var query = { uuid: payload.uri };
+    var query = { uri: payload.uri };
     payload.images = images;
     Model.findOneAndUpdate(query, payload, options, function (err, record) {
       if (err) {

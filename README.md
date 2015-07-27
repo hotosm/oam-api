@@ -53,8 +53,6 @@ More API documentation can be found at: [tbd].
 
 -  `/meta` -XGET
 -  `/meta/add` -XPOST
--  `/providers` -XGET
--  `/providers/add` -XPOST
 -  `/tms` -XGET
 -  `/tms` -XPOST
 -  `/analytics` -XGET
