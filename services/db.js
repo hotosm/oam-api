@@ -34,4 +34,8 @@ Connection.prototype.deleteDb = function (cb) {
   });
 };
 
+Connection.prototype.close = function () {
+  mongoose.disconnect();
+};
+
 module.exports = Connection;
