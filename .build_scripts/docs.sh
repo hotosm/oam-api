@@ -6,6 +6,7 @@ if [ $TRAVIS_PULL_REQUEST = "false" ] && [ $TRAVIS_BRANCH = ${PRODUCTION_BRANCH}
   echo "Get ready, we're pushing to gh-pages!"
   npm run docs
   cd docs
+  echo "docs.openaerialmap.org" > CNAME
   git init
   git config user.name "Travis-CI"
   git config user.email "travis@somewhere.com"
