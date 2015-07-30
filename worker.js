@@ -10,7 +10,6 @@ var async = require('async');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
 
-var recheckTime = 1 * 60 * 60 * 1000; // 1 hour
 var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 
 var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
@@ -72,9 +71,15 @@ var readBuckets = function (tasks) {
     // Get total record count and save to analytics collection
     Meta.count(null, function (err, count) {
       if (err) {
+        db.close();
         return console.error(err);
       }
-      analytics.addAnalyticsRecord(count);
+      analytics.addAnalyticsRecord(count, function (err) {
+        if (err) {
+          console.error(err);
+        }
+        db.close();
+      });
     });
   });
 };
@@ -104,8 +109,5 @@ var getListAndReadBuckets = function () {
   });
 };
 
-// Kick it all off and keep it going, forever...
+// Kick it all off
 getListAndReadBuckets();
-setInterval(function () {
-  getListAndReadBuckets();
-}, recheckTime);
