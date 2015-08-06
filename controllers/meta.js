@@ -126,7 +126,8 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
     // if the meta file doesn't exist then add, if the meta file is more recent
     // than our last update, then update
-    if (meta === null || lastModified.getTime() > lastSystemUpdate.getTime()) {
+    if (meta === null || lastModified > lastSystemUpdate) {
+      console.log('Modified', lastModified.getTime());
       request(remoteUri, function (err, response, body) {
         if (err) {
           return cb(err);
