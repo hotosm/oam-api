@@ -151,6 +151,8 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
           });
         }
       });
+    } else {
+      return cb(null);
     }
   });
 };

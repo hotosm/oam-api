@@ -2,6 +2,7 @@
 
 var s3 = require('s3');
 var meta = require('../controllers/meta.js');
+var async = require('async');
 
 /**
 * S3 Constructor that handles intractions with S3
@@ -38,35 +39,43 @@ var S3 = function (secretId, secretKey, bucket) {
 * @param {finishedCallback} finished - The callback that handles when reading is done
 */
 S3.prototype.readBucket = function (lastSystemUpdate, cb, done) {
+  console.info('--- Reading from bucket: ' + this.params.s3Params.Bucket + ' ---');
+
   var self = this;
   var images = this.client.listObjects(this.params);
+  self.tasks = [];
 
   images.on('error', function (err) {
     cb(err);
   });
 
   images.on('data', function (data) {
-    for (var i = 0; i < data.Contents.length; i++) {
-      var format = data.Contents[i].Key.split('.');
+    data.Contents.forEach(function (item) {
+      var format = item.Key.split('.');
       format = format[format.length - 1];
 
       if (format === 'json') {
         // Get the last time the metadata file was modified so we can determine
         // if we need to update it.
-        var lastModified = data.Contents[i].LastModified;
-        var url = s3.getPublicUrlHttp(self.params.s3Params.Bucket, data.Contents[i].Key);
-        meta.addRemoteMeta(url, lastModified, lastSystemUpdate, function (err, msg) {
-          if (err) {
-            return cb(err);
-          }
-          cb(err, msg);
-        });
+        var lastModified = item.LastModified;
+        var url = s3.getPublicUrlHttp(self.params.s3Params.Bucket, item.Key);
+        var task = function (done) {
+          meta.addRemoteMeta(url, lastModified, lastSystemUpdate, done);
+        };
+        self.tasks.push(task);
       }
-    }
+    });
   });
 
   images.on('end', function () {
-    done(null);
+    async.parallel(self.tasks, function (err, results) {
+      results.forEach(function (result) {
+        if (result) {
+          console.info(result);
+        }
+      });
+      return done(err);
+    });
   });
 };
 
