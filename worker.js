@@ -94,6 +94,7 @@ var getListAndReadBuckets = function () {
       return console.error(err);
     }
 
+    console.info('Last system update time:', lastSystemUpdate);
     getBucketList(function (buckets) {
       // Generate array of tasks to run in parallel
       var tasks = _.map(buckets, function (bucket) {
