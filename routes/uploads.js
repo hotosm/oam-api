@@ -11,6 +11,9 @@ module.exports = [
   {
     method: 'GET',
     path: '/uploads',
+    config: {
+      auth: 'api-token'
+    },
     handler: function (request, reply) {
       var db = request.server.plugins.db.connection;
       db.collection('uploads').find({}).toArray(function (err, uploads) {
@@ -37,6 +40,7 @@ module.exports = [
     method: 'POST',
     path: '/uploads',
     config: {
+      auth: 'api-token',
       payload: {
         output: 'data',
         parse: true
