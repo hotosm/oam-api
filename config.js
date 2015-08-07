@@ -15,7 +15,7 @@ module.exports = {
         error: '*',
         response: '*',
         info: '*',
-        log: '*',
+        log: '*'
       }
     }]
   }

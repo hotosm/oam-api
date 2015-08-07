@@ -4,7 +4,7 @@
   "description": "An uploader API for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/semistandard/bin/cmd.js && ./node_modules/mocha/bin/mocha",
+    "test": "semistandard && tape test/*.js",
     "docs": "apidoc -i routes/ -o docs/"
   },
   "repository": {
@@ -35,8 +35,8 @@
   "devDependencies": {
     "apidoc": "^0.13.1",
     "chai": "^2.3.0",
-    "mocha": "^2.2.4",
-    "semistandard": "^4.1.4"
+    "semistandard": "^4.1.4",
+    "tape": "^4.0.3"
   },
   "engines": {
     "node": "0.12.2"

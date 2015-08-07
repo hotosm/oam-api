@@ -28,6 +28,7 @@ module.exports = [
       var uploads = db.collection('uploads');
       console.log('uploads', uploads);
       uploads.insert([request.payload], function (err, result) {
+        request.log(['debug'], result);
         if (err) { return reply(Boom.wrap(err)); }
         reply('Success');
       });
