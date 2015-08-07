@@ -26,6 +26,7 @@
     "hapi": "^8.4.0",
     "hapi-auth-bearer-token": "^3.1.1",
     "hapi-router": "^3.0.1",
+    "joi": "^6.6.1",
     "lodash": "^3.8.0",
     "mongodb": "^2.0.40",
     "newrelic": "^1.20.0",

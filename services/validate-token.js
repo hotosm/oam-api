@@ -9,7 +9,10 @@ module.exports = function (db) {
     if (token === 'usertoken') {
       // successful authentication
       callback(null, true, {
-        user: 'Some Body',
+        user: {
+          id: 1, // <- can be anything as long as it's unique; used for associations w uploads
+          name: 'Some Body'
+        },
         token: token
       });
     } else {
