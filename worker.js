@@ -78,6 +78,7 @@ var readBuckets = function (tasks) {
         if (err) {
           console.error(err);
         }
+        console.info('--- Added new analytics record ---');
         db.close();
       });
     });
