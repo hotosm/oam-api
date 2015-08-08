@@ -1,6 +1,10 @@
 'use strict';
 
+var path = require('path');
+var fork = require('child_process').fork;
 var Boom = require('boom');
+var Joi = require('joi');
+var uploadSchema = require('../models/upload');
 
 module.exports = [
   /**
@@ -15,8 +19,10 @@ module.exports = [
       auth: 'api-token'
     },
     handler: function (request, reply) {
+      let user = request.auth.credentials.user.id;
       var db = request.server.plugins.db.connection;
-      db.collection('uploads').find({}).toArray(function (err, uploads) {
+      db.collection('uploads').find({ user: user })
+      .toArray(function (err, uploads) {
         if (err) { return reply(Boom.wrap(err)); }
         reply({ results: uploads });
       });
@@ -42,21 +48,41 @@ module.exports = [
     config: {
       auth: 'api-token',
       payload: {
+        allow: 'application/json',
         output: 'data',
         parse: true
       }
     },
     handler: function (request, reply) {
-      // TODO: validate request
+      Joi.validate(request.payload, uploadSchema, function (err, data) {
+        if (err) { return reply(Boom.badRequest(err)); }
 
-      var db = request.server.plugins.db.connection;
-      var uploads = db.collection('uploads');
-      uploads.insert([request.payload], function (err, result) {
-        request.log(['debug'], result);
-        if (err) { return reply(Boom.wrap(err)); }
-        // TODO: kick off the job
+        data.user = request.auth.credentials.user.id;
+        data.status = 'initial';
 
-        reply('Success');
+        var workers = request.server.plugins.db.connection.collection('workers');
+        var uploads = request.server.plugins.db.connection.collection('uploads');
+
+        workers.findOneAndUpdate({ state: 'working' }, {
+          $set: { state: 'paused' }
+        })
+        .then(function (result) {
+          return uploads.insertOne(data)
+          .then(function () {
+            if (result.value) {
+              // we already have a worker - unpause it.
+              return workers.updateOne(result.value, {
+                $set: { state: 'working' }
+              });
+            } else {
+              // spawn a worker
+              fork(path.join(__dirname, '../worker'));
+              return;
+            }
+          });
+        })
+        .then(function () { reply('Success'); })
+        .catch(function (err) { reply(Boom.wrap(err)); });
       });
     }
   }
