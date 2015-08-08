@@ -41,6 +41,27 @@ module.exports = [
    * @apiParam {Object[]} scenes
    * @apiParam {Object} scenes.metadata The OAM metadata
    * @apiParam {string[]} scenes.urls The image URLs
+   *
+   * @apiExample {js} Example post
+   * {
+   *   "uploaderInfo": {
+   *     "name": "Anand",
+   *     "email": "me@foo.com"
+   *   },
+   *   "contactInfo": {
+   *     "name": "Anand",
+   *     "email": "me@foo.com"
+   *   },
+   *   "scenes": [
+   *     {
+   *       "metadata": {},
+   *       "urls": [
+   *         "http://myimagery.com/image01.tif",
+   *         "http://myimagery.com/image02.tif"
+   *       ]
+   *     }
+   *   ]
+   * }
    */
   {
     method: 'POST',
