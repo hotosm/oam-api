@@ -5,7 +5,7 @@ module.exports = [
     method: ['GET', 'POST'],
     path: '/login',
     config: {
-      auth: {mode: 'try', strategy: 'session' },
+      auth: {mode: 'try', strategy: 'session'}
     },
     handler: function (request, reply) {
       if (request.auth.isAuthenticated) {
@@ -26,7 +26,7 @@ module.exports = [
           }).code(400);
         }
 
-        if (username != process.env.ADMIN_USERNAME || password != process.env.ADMIN_PASSWORD) {
+        if (username !== process.env.ADMIN_USERNAME || password !== process.env.ADMIN_PASSWORD) {
           return reply({
             statusCode: 401,
             message: 'Invalid username and/or password'
@@ -41,8 +41,8 @@ module.exports = [
           statusCode: 200,
           message: 'User logged'
         });
-      }
-      else {
+
+      } else {
         return reply({
           statusCode: 401,
           message: 'User not logged'
@@ -55,7 +55,7 @@ module.exports = [
     method: 'GET',
     path: '/logout',
     config: {
-      auth: 'session',
+      auth: 'session'
     },
     handler: function (request, reply) {
       request.auth.session.clear();

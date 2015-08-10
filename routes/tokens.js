@@ -11,7 +11,7 @@ module.exports = [
     method: 'GET',
     path: '/tokens',
     config: {
-      auth: 'session',
+      auth: 'session'
     },
     handler: function (request, reply) {
       var tokensCol = request.server.plugins.db.connection.collection('tokens');
@@ -58,7 +58,7 @@ module.exports = [
       data.created = new Date();
       data.updated = null;
 
-      tokensCol.insert(data, function(err, res) {
+      tokensCol.insert(data, function (err, res) {
         if (err) {
           return reply(Boom.badImplementation());
         }
@@ -105,13 +105,13 @@ module.exports = [
       if (_.isEmpty(update.$set)) {
         return reply({
           code: 200,
-          message: 'Nothing to update',
+          message: 'Nothing to update'
         });
       }
 
       update.$set.updated = new Date();
 
-      tokensCol.findAndModify({_id: new ObjectId(request.params.token_id)}, [], update, {new:true}, function(err, res) {
+      tokensCol.findAndModify({_id: new ObjectId(request.params.token_id)}, [], update, {new: true}, function (err, res) {
         if (err) {
           return reply(Boom.badImplementation());
         }
@@ -144,7 +144,7 @@ module.exports = [
           return reply(Boom.badImplementation());
         }
 
-        if (res.result.n == 0) {
+        if (res.result.n === 0) {
           return reply(Boom.notFound());
         }
 

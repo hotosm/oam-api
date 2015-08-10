@@ -5,10 +5,9 @@
  */
 module.exports = function (db) {
   return function (req, session, callback) {
-    if (session.username == process.env.ADMIN_USERNAME) {
+    if (session.username === process.env.ADMIN_USERNAME) {
       return callback(null, true, session);
-    }
-    else {
+    } else {
       // Session no longer valid
       return callback(null, false);
     }
