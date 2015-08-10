@@ -19,7 +19,7 @@ module.exports = [
       auth: 'api-token'
     },
     handler: function (request, reply) {
-      let user = request.auth.credentials.user.id;
+      var user = request.auth.credentials.user.id;
       var db = request.server.plugins.db.connection;
       db.collection('uploads').find({ user: user })
       .toArray(function (err, uploads) {
