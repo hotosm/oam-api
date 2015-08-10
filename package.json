@@ -42,7 +42,7 @@
     "tape": "^4.0.3"
   },
   "engines": {
-    "node": "0.12.2"
+    "iojs": "2.5.x"
   },
   "apidoc": {
     "title": "OAM API",

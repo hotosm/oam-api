@@ -2,7 +2,7 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
-API Documentation: TBD
+## [API Docs](http://hotosm.github.io/oam-uploader-api/)
 
 ## Installation and Usage
 
