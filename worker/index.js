@@ -5,14 +5,16 @@
  */
 
 var MongoClient = require('mongodb').MongoClient;
-var dbUri = require('../config').dbUri;
 var processUpload = require('./process-upload');
+var log = require('./log');
+var config = require('../config');
 
 var db;
 var workers;
 var uploads;
 var workerId;
-MongoClient.connect(dbUri, function (err, connection) {
+
+MongoClient.connect(config.dbUri, function (err, connection) {
   if (err) { throw err; }
   db = connection;
   workers = db.collection('workers');
@@ -22,7 +24,7 @@ MongoClient.connect(dbUri, function (err, connection) {
 
   workers.insertOne({ state: 'working' })
   .then(function (result) {
-    workerId = result.ops[0]._id;
+    log.workerId = workerId = result.ops[0]._id;
     log('Started.');
     return mainloop();
   })
@@ -46,9 +48,10 @@ function mainloop () {
       });
     } else {
       // we got a job!
-      log('Processing job', result.value);
+      log(['info'], 'Processing job', result.value);
       return processUpload(result.value)
       .then(function (processedResult) {
+        log(['debug'], 'Done processing job', processedResult);
         return uploads.findOneAndUpdate(result.value, {
           $set: { status: 'finished' },
           $unset: { _workerId: '' },
@@ -75,7 +78,7 @@ function dequeue () {
 
 function cleanup (err) {
   log('Cleaning up.');
-  if (err) { logError(err); }
+  if (err) { log(['error'], err); }
   if (db) {
     if (workerId) {
       workers.deleteOne({ _id: workerId })
@@ -90,9 +93,8 @@ function cleanup (err) {
         process.exit(err ? 1 : 0);
       })
       .catch(function (error) {
-        err = error;
-        logError('Error cleaning up worker ' + workerId + '; bad news.');
-        logError(err);
+        log(['error'], 'Error cleaning up. Bad news.');
+        log(['error'], error);
         db.close();
         process.exit(1);
       });
@@ -102,12 +104,3 @@ function cleanup (err) {
   }
 }
 
-function log () {
-  var args = Array.prototype.slice.call(arguments);
-  console.log.apply(console, ['[ Worker ' + workerId + ' ]'].concat(args));
-}
-
-function logError () {
-  var args = Array.prototype.slice.call(arguments);
-  console.error.apply(console, ['[ Worker ' + workerId + ' ]'].concat(args));
-}

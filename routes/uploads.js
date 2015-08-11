@@ -91,13 +91,18 @@ module.exports = [
           return uploads.insertOne(data)
           .then(function () {
             if (result.value) {
+              request.log(['debug'], 'Resuming worker');
               // we already have a worker - unpause it.
               return workers.updateOne(result.value, {
                 $set: { state: 'working' }
               });
             } else {
               // spawn a worker
-              fork(path.join(__dirname, '../worker'));
+              request.log(['debug'], 'Spawning worker');
+              fork(path.join(__dirname, '../worker'))
+              .on('message', function (msg) {
+                request.log(['worker'].concat(msg.tags), msg.message);
+              });
               return;
             }
           });
