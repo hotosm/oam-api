@@ -1,5 +1,8 @@
 'use strict';
 
+var Boom = require('boom');
+var config = require('../config');
+
 module.exports = [
   {
     method: ['GET', 'POST'],
@@ -15,6 +18,10 @@ module.exports = [
         });
       }
 
+      if (!config.adminUsername || !config.adminPassword) {
+        return reply(Boom.badImplementation('Admin username and password are not configured'));
+      }
+
       if (request.method === 'post') {
         var username = request.payload.username;
         var password = request.payload.password;
@@ -26,7 +33,7 @@ module.exports = [
           }).code(400);
         }
 
-        if (username !== process.env.ADMIN_USERNAME || password !== process.env.ADMIN_PASSWORD) {
+        if (username !== config.adminUsername || password !== config.adminPassword) {
           return reply({
             statusCode: 401,
             message: 'Invalid username and/or password'
@@ -41,7 +48,6 @@ module.exports = [
           statusCode: 200,
           message: 'User logged'
         });
-
       } else {
         return reply({
           statusCode: 401,
