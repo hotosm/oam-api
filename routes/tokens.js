@@ -96,7 +96,7 @@ module.exports = [
         update.$set.name = request.payload.name;
       }
       if (request.payload.expiration !== undefined) {
-        update.$set.expiration = request.payload.expiration;
+        update.$set.expiration = request.payload.expiration === false ? false : new Date(request.payload.expiration);
       }
       if (request.payload.status !== undefined) {
         update.$set.status = request.payload.status;

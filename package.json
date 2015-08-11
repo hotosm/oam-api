@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "semistandard && lab test/test__*.js",
+    "lab": "lab test/test__*.js",
     "docs": "apidoc -i routes/ -o docs/"
   },
   "repository": {
