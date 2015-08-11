@@ -61,16 +61,21 @@ function mainloop () {
       .then(function (result) {
         if (result.modifiedCount === 0) { return mainloop(); }
         return cleanup();
-      });
+      })
+      .catch(cleanup);
     } else {
       // we got a job!
-      log(['info'], 'Processing job', result.value);
       return processUpload(result.value)
       .then(function (processedResult) {
-        log(['debug'], 'Done processing job', processedResult);
         return uploads.findOneAndUpdate(result.value, jobFinished);
       })
       .then(function (result) {
+        return workers.updateOne(myself, lastJobTimestamp)
+        .then(mainloop);
+      })
+      .catch(function (error) {
+        log(['error'], error);
+        // TODO: save error data/status on the upload
         return workers.updateOne(myself, lastJobTimestamp)
         .then(mainloop);
       });
