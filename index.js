@@ -78,7 +78,6 @@ if (!module.parent) {
     // Start the server.
     hapi.start(function () {
       hapi.log(['info'], 'Server running at:' + hapi.info.uri);
-      hapi.log(['debug'], 'Config: ' + JSON.stringify(config));
     });
   });
 }
