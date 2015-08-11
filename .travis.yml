@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- 'iojs-v2.5.0'
+- '0.12'
 env:
   global:
   - GH_REF=github.com/hotosm/oam-uploader-api.git
