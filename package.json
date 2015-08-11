@@ -35,14 +35,13 @@
     "newrelic": "^1.20.0",
     "request": "^2.55.0",
     "s3": "^4.4.0",
-    "semistandard": "^7.0.2",
     "wellknown": "^0.3.1"
   },
   "devDependencies": {
-    "lab": "^5.15.0",
     "apidoc": "^0.13.1",
     "chai": "^2.3.0",
-    "semistandard": "^4.1.4",
+    "lab": "^5.15.0",
+    "semistandard": "^7.0.2",
     "tape": "^4.0.3"
   },
   "engines": {
