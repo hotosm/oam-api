@@ -326,7 +326,7 @@ suite('test tokens', function () {
 
       assert.equal(result.data.name, 'Secondary token modified');
       assert.equal(result.data.status, 'active');
-      assert.equal(result.data.expiration, 'Mon Aug 10 2020 14:38:48 GMT+0100 (WEST)');
+      assert.equal(new Date(result.data.expiration).toISOString(), '2020-08-10T13:38:48.684Z');
       done();
     });
   });
@@ -397,7 +397,7 @@ suite('test tokens', function () {
 
       assert.equal(result.data.name, 'Secondary token');
       assert.equal(result.data.status, 'active');
-      assert.equal(result.data.expiration, 'Mon Aug 10 2020 14:38:48 GMT+0100 (WEST)');
+      assert.equal(new Date(result.data.expiration).toISOString(), '2020-08-10T13:38:48.684Z');
       done();
     });
   });
