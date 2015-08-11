@@ -36,6 +36,8 @@ The API exposes endpoints used to access information form the system via a RESTf
 - `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN buckets
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN buckets
 - `DBURI` - MongoDB connection url
+- `ADMIN_USERNAME` - Token management Admin username
+- `ADMIN_PASSWORD` - Token management Admin password
 
 ### Docs Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-uploader-api.herokuapp.com.
