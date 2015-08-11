@@ -18,7 +18,7 @@ module.exports = [
 
       tokensCol.find().toArray(function (err, tokens) {
         if (err) {
-          return reply(Boom.badImplementation());
+          return reply(Boom.wrap(err));
         }
 
         return reply({
@@ -60,7 +60,7 @@ module.exports = [
 
       tokensCol.insert(data, function (err, res) {
         if (err) {
-          return reply(Boom.badImplementation());
+          return reply(Boom.wrap(err));
         }
 
         return reply({
@@ -113,7 +113,7 @@ module.exports = [
 
       tokensCol.findAndModify({_id: new ObjectId(request.params.token_id)}, [], update, {new: true}, function (err, res) {
         if (err) {
-          return reply(Boom.badImplementation());
+          return reply(Boom.wrap(err));
         }
 
         return reply({
@@ -141,7 +141,7 @@ module.exports = [
 
       tokensCol.remove({_id: new ObjectId(request.params.token_id)}, function (err, res) {
         if (err) {
-          return reply(Boom.badImplementation());
+          return reply(Boom.wrap(err));
         }
 
         if (res.result.n === 0) {
