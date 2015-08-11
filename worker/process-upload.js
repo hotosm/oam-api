@@ -97,6 +97,8 @@ function processUrl (upload, scene, url, key, callback) {
               Body: JSON.stringify(metadata),
               Bucket: s3bucket,
               Key: key + '_meta.json'
+            }, function (err, data) {
+              callback(err, data);
             });
           });
         });

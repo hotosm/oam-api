@@ -1,7 +1,5 @@
 'use strict';
 
-var path = require('path');
-var fork = require('child_process').fork;
 var Boom = require('boom');
 var Joi = require('joi');
 var uploadSchema = require('../models/upload');
@@ -81,32 +79,10 @@ module.exports = [
         data.user = request.auth.credentials.user.id;
         data.status = 'initial';
 
-        var workers = request.server.plugins.db.connection.collection('workers');
         var uploads = request.server.plugins.db.connection.collection('uploads');
 
-        workers.findOneAndUpdate({ state: 'working' }, {
-          $set: { state: 'paused' }
-        })
-        .then(function (result) {
-          return uploads.insertOne(data)
-          .then(function () {
-            if (result.value) {
-              request.log(['debug'], 'Resuming worker');
-              // we already have a worker - unpause it.
-              return workers.updateOne(result.value, {
-                $set: { state: 'working' }
-              });
-            } else {
-              // spawn a worker
-              request.log(['debug'], 'Spawning worker');
-              fork(path.join(__dirname, '../worker'))
-              .on('message', function (msg) {
-                request.log(['worker'].concat(msg.tags), msg.message);
-              });
-              return;
-            }
-          });
-        })
+        uploads.insertOne(data)
+        .then(request.server.plugins.workers.spawn)
         .then(function () { reply('Success'); })
         .catch(function (err) { reply(Boom.wrap(err)); });
       });

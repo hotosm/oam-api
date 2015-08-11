@@ -6,7 +6,11 @@ function log () {
   var tags = args.length > 1 ? [args.shift()] : [];
   tags.unshift('Worker ' + module.exports.workerId);
   if (typeof process.send === 'function') {
-    process.send({ tags: tags, message: args });
+    process.send({
+      tags: tags,
+      message: args,
+      workerId: module.exports.workerId
+    });
   } else {
     console.log.apply(console, [tags].concat(args));
   }

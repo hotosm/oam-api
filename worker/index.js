@@ -14,6 +14,20 @@ var workers;
 var uploads;
 var workerId;
 
+// mongodb queries and updates
+var myself = { _id: 'none', state: 'working' };
+var lastJobTimestamp = { $currentDate: { lastJobTimestamp: true } };
+var stopping = { $set: { state: 'stopping' } };
+var jobClaimed = {
+  $set: { status: 'pending', _workerId: 'none' },
+  $currentDate: { startedAt: true }
+};
+var jobFinished = {
+  $set: { status: 'finished' },
+  $unset: { _workerId: '' },
+  $currentDate: { finishedAt: true }
+};
+
 MongoClient.connect(config.dbUri, function (err, connection) {
   if (err) { throw err; }
   db = connection;
@@ -24,7 +38,11 @@ MongoClient.connect(config.dbUri, function (err, connection) {
 
   workers.insertOne({ state: 'working' })
   .then(function (result) {
-    log.workerId = workerId = result.ops[0]._id;
+    workerId = result.ops[0]._id;
+    jobClaimed['$set']['_workerId'] = workerId;
+    myself['_id'] = workerId;
+    log.workerId = workerId;
+
     log('Started.');
     return mainloop();
   })
@@ -39,9 +57,7 @@ function mainloop () {
       // no jobs left; try to shut down.
       // avoid race condition by making sure our state wasn't changed from
       // 'working' to something else (by the server) before we actually quit.
-      return workers.updateOne({ _id: workerId, state: 'working' }, {
-        $set: { state: 'stopping' }
-      })
+      return workers.updateOne(myself, stopping)
       .then(function (result) {
         if (result.modifiedCount === 0) { return mainloop(); }
         return cleanup();
@@ -52,14 +68,11 @@ function mainloop () {
       return processUpload(result.value)
       .then(function (processedResult) {
         log(['debug'], 'Done processing job', processedResult);
-        return uploads.findOneAndUpdate(result.value, {
-          $set: { status: 'finished' },
-          $unset: { _workerId: '' },
-          $currentDate: { finishedAt: true }
-        });
+        return uploads.findOneAndUpdate(result.value, jobFinished);
       })
       .then(function (result) {
-        return mainloop();
+        return workers.updateOne(myself, lastJobTimestamp)
+        .then(mainloop);
       });
     }
   });
@@ -67,13 +80,9 @@ function mainloop () {
 
 // claim an upload for this worker to process
 function dequeue () {
-  return uploads.findOneAndUpdate({status: 'initial'}, {
-    $set: {
-      status: 'pending',
-      _workerId: workerId
-    },
-    $currentDate: { startedAt: true }
-  }, { returnOriginal: false });
+  return uploads.findOneAndUpdate({status: 'initial'}, jobClaimed, {
+    returnOriginal: false
+  });
 }
 
 function cleanup (err) {
