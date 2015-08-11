@@ -4,7 +4,7 @@
   "description": "An uploader API for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
-    "test": "semistandard && lab test/test__*.js",
+    "test": "semistandard && OAM_TEST=1 lab test/test__*.js",
     "lab": "lab test/test__*.js",
     "docs": "apidoc -i routes/ -o docs/"
   },

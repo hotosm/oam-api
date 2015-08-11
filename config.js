@@ -5,7 +5,8 @@ try {
 
 module.exports = {
   port: process.env.PORT || 3000,
-  dbUri: process.env.DBURI || 'mongodb://localhost/oam-uploader',
+  dbUri: process.env.DBURI || process.env.OAM_TEST ?
+    'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader',
   adminPassword: process.env.ADMIN_PASSWORD || null,
   adminUsername: process.env.ADMIN_USERNAME || null,
   logOptions: local.logOptions || {
