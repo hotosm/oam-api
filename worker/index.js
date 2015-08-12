@@ -25,8 +25,15 @@ var jobClaimed = {
 var jobFinished = {
   $set: { status: 'finished' },
   $unset: { _workerId: '' },
-  $currentDate: { finishedAt: true }
+  $currentDate: { stoppedAt: true }
 };
+function jobErrored (error) {
+  return {
+    $set: { status: 'errored', error: error },
+    $unset: { _workerId: '' },
+    $currentDate: { stoppedAt: true }
+  };
+}
 
 MongoClient.connect(config.dbUri, function (err, connection) {
   if (err) { throw err; }
@@ -75,8 +82,8 @@ function mainloop () {
       })
       .catch(function (error) {
         log(['error'], error);
-        // TODO: save error data/status on the upload
-        return workers.updateOne(myself, lastJobTimestamp)
+        return uploads.findOneAndUpdate(result.value, jobErrored(error))
+        .then(workers.updateOne.bind(workers, myself, lastJobTimestamp))
         .then(mainloop);
       });
     }
