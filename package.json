@@ -25,7 +25,6 @@
     "envloader": "0.0.2",
     "es6-promise": "^2.3.0",
     "gdalinfo-json": "^0.5.1",
-    "gm": "^1.18.1",
     "good": "^6.3.0",
     "good-console": "^5.0.2",
     "hapi": "^8.4.0",
@@ -41,6 +40,7 @@
     "queue-async": "^1.0.7",
     "request": "^2.60.0",
     "s3": "^4.4.0",
+    "sharp": "^0.11.1",
     "tmp": "0.0.26",
     "wellknown": "^0.3.1",
     "xtend": "^4.0.0"

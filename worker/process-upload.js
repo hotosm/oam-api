@@ -9,9 +9,12 @@ var queue = require('queue-async');
 var AWS = require('aws-sdk');
 var gdalinfo = require('gdalinfo-json');
 var applyGdalinfo = require('oam-meta-generator/lib/apply-gdalinfo');
-var gm = require('gm');
+var sharp = require('sharp');
 var log = require('./log');
 var config = require('../config');
+
+// desired size in kilobytes * 1000 bytes/kb / (~.75 byte/pixel)
+var targetPixelArea = config.thumbnailSize * 1000 / 0.75;
 
 AWS.config = {
   accessKeyId: config.awsKeyId,
@@ -41,11 +44,15 @@ module.exports = function processUpload (upload) {
     q.awaitAll(function (err, results) {
       if (err) { return reject(err); }
       log(['debug'], 'Done processing job', results);
-      resolve();
+      resolve(Array.prototype.concat.apply([], results));
     });
   });
 };
 
+/**
+ * Fully process one URL.
+ * Callback called with (err, { metadata, messages })
+ */
 function processUrl (upload, scene, url, key, callback) {
   tmp.file({ postfix: '.tif' }, function (err, path, fd, cleanup) {
     if (err) { return callback(err); }
@@ -55,32 +62,43 @@ function processUrl (upload, scene, url, key, callback) {
     request(url).pipe(fs.createWriteStream(path))
     .on('finish', function () {
       // we've successfully downloaded the file.  now do stuff with it.
-      var thumbKey = key + '.thumb.jpg';
-      generateMetadata(scene, path, key, thumbKey, function (err, metadata) {
+      generateMetadata(scene, path, key, function (err, metadata) {
         if (err) { return callback(err); }
-        makeThumbnail(path, function (err, thumbPath) {
-          if (err) { return callback(err); }
+        makeThumbnail(path, function (thumbErr, thumbPath) {
+          var messages = [];
           var q = queue();
+
+          // upload image
           q.defer(s3.upload.bind(s3), {
             Body: fs.createReadStream(path),
             Bucket: s3bucket,
             Key: key
           });
-          q.defer(s3.upload.bind(s3), {
-            Body: fs.createReadStream(thumbPath),
-            Bucket: s3bucket,
-            Key: thumbKey
-          });
+
+          // upload thumbnail, if it worked
+          if (!thumbErr) {
+            q.defer(s3.upload.bind(s3), {
+              Body: fs.createReadStream(thumbPath),
+              Bucket: s3bucket,
+              Key: key + '.thumb.png'
+            });
+            metadata.properties.thumbnail = publicUrl(s3bucket, key + '.thumb.png');
+          } else {
+            messages.push('Could not generate thumbnail: ' + thumbErr.message);
+          }
+
+          // upload metadata
           q.defer(s3.upload.bind(s3), {
             Body: JSON.stringify(metadata),
             Bucket: s3bucket,
             Key: key + '_meta.json'
           });
+
           log(['debug'], 'Uploading to s3; bucket=' + s3bucket + ' key=' + key);
           q.awaitAll(function (err, data) {
             cleanup(); // delete tempfile
             log(['debug'], 'Uploaded', data);
-            callback(err, data);
+            callback(err, { metadata: metadata, messages: messages });
           });
         });
       });
@@ -89,7 +107,7 @@ function processUrl (upload, scene, url, key, callback) {
   });
 }
 
-function generateMetadata (scene, path, key, thumbKey, callback) {
+function generateMetadata (scene, path, key, callback) {
   log(['debug'], 'Generating metadata.');
   fs.stat(path, function (err, stat) {
     if (err) { return callback(err); }
@@ -109,8 +127,7 @@ function generateMetadata (scene, path, key, thumbKey, callback) {
       contact: scene.contact,
       properties: {
         tms: scene.tms,
-        sensor: scene.sensor,
-        thumbnail: publicUrl(s3bucket, thumbKey)
+        sensor: scene.sensor
       }
     };
 
@@ -120,28 +137,35 @@ function generateMetadata (scene, path, key, thumbKey, callback) {
       // set uuid after doing applyGdalinfo because it actually sets it to
       // gdaldata.url, which for us is blank since we used gdalinfo.local
       metadata.uuid = publicUrl(s3bucket, key);
-      log(['debug'], 'Generated metadata: ' + JSON.stringify(metadata));
+      log(['debug'], 'Generated metadata: ', metadata);
       callback(null, metadata);
     });
   });
 }
 
 function makeThumbnail (imagePath, callback) {
-  tmp.file({ postfix: '.jpg' }, function (err, path, fd, cleanup) {
+  tmp.file({ postfix: '.png' }, function (err, path, fd, cleanup) {
     if (err) { return callback(err); }
     log(['debug'], 'Generating thumbnail', path);
-    gm(imagePath)
-      .resize(5, 5, '%')
-      .write(path, function (err, stdout, stderr, command) {
-        if (err) {
-          // the error object itself isn't useful, so let's pass along the
-          // stderr output from the gm command
-          var msg = 'Error generating thumbnail with "' + command + '":\n';
-          return callback(new Error(msg + stderr));
-        }
+
+    var original = sharp(imagePath)
+      // upstream: https://github.com/lovell/sharp/issues/250
+      .limitInputPixels(2147483647);
+    original
+    .metadata()
+    .then(function (metadata) {
+      var pixelArea = metadata.width * metadata.height;
+      var ratio = Math.sqrt(targetPixelArea / pixelArea);
+      log(['debug'], 'Generating thumbnail, targetPixelArea=' + targetPixelArea);
+      original
+      .resize(Math.round(ratio * metadata.width))
+      .toFile(path)
+      .then(function () {
         log(['debug'], 'Finished generating thumbnail');
         callback(null, path);
       });
+    })
+    .catch(callback);
   });
 }
 

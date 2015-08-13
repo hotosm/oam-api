@@ -28,6 +28,10 @@ var jobFinished = {
   $currentDate: { stoppedAt: true }
 };
 function jobErrored (error) {
+  error = {
+    message: error.message,
+    data: JSON.stringify(error)
+  };
   return {
     $set: { status: 'errored', error: error },
     $unset: { _workerId: '' },

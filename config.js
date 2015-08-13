@@ -13,6 +13,7 @@ var defaults = {
   adminPassword: null,
   adminUsername: null,
   awsRegion: 'us-west-2',
+  thumbnailSize: 300, // thumbnail size, in kilobytes
   logOptions: {
     opsInterval: 3000,
     reporters: [{
