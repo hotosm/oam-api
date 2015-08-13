@@ -1,4 +1,6 @@
-var sharp = require('sharp')
+var sharp = require('sharp');
+
+var targetPixelArea = 500000;
 
 var original = sharp(process.argv[2])
   .limitInputPixels(Math.pow(2, 31) - 1);
@@ -7,11 +9,11 @@ original
   .then(function (metadata) {
     console.log(metadata);
     var pixelArea = metadata.width * metadata.height;
-    var ratio = 0.05;
+    var ratio = Math.sqrt(targetPixelArea / pixelArea);
     console.log(pixelArea, original.options.limitInputPixels);
     return original
     .resize(Math.round(ratio * metadata.width))
-    .toFile('/tmp/thumb.png')
+    .toFile('/tmp/thumb.png');
   })
   .then(function () {
     console.log('Finished generating thumbnail');
