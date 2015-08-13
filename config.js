@@ -6,6 +6,7 @@ try {
 } catch(e) {}
 
 var defaults = {
+  host: '0.0.0.0',
   port: 3000,
   oinBucket: 'oam-uploader',
   dbUri: process.env.OAM_TEST ?
@@ -31,6 +32,7 @@ var defaults = {
 
 var environment = {
   port: process.env.PORT,
+  host: process.env.HOST,
   oinBucket: process.env.OIN_BUCKET,
   dbUri: process.env.DBURI,
   adminPassword: process.env.ADMIN_PASSWORD,
