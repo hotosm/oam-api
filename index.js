@@ -20,7 +20,7 @@ var OAMUploader = function (readyCb) {
     }
   });
 
-  hapi.connection({host: config.host, port: config.port });
+  hapi.connection({ host: config.host, port: config.port });
 
   // Register plugins
   hapi.register([
