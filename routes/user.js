@@ -14,7 +14,10 @@ module.exports = [
       if (request.auth.isAuthenticated) {
         return reply({
           statusCode: 200,
-          message: 'Welcome back'
+          message: 'Welcome back',
+          data: {
+            username: request.auth.artifacts.username
+          }
         });
       }
 
