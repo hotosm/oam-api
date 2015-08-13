@@ -28,6 +28,8 @@ var OAMUploader = function (readyCb) {
     { register: require('good'), options: config.logOptions },
     // exports the db as plugins.db.connection
     require('./plugins/mongodb'),
+    // exports plugins.workers.spawn
+    require('./plugins/workers'),
     // adds bearer-access-token scheme
     require('hapi-auth-bearer-token'),
     // Cookie auth.
@@ -80,7 +82,6 @@ if (!module.parent) {
     // Start the server.
     hapi.start(function () {
       hapi.log(['info'], 'Server running at:' + hapi.info.uri);
-      hapi.log(['debug'], 'Config: ' + JSON.stringify(config));
     });
   });
 }
