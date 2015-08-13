@@ -10,7 +10,9 @@ var OAMUploader = function (readyCb) {
   var hapi = new Hapi.Server({
     connections: {
       routes: {
-        cors: true
+        cors: {
+          credentials: true
+        }
       },
       router: {
         stripTrailingSlash: true
@@ -18,7 +20,7 @@ var OAMUploader = function (readyCb) {
     }
   });
 
-  hapi.connection({ port: config.port });
+  hapi.connection({ host: config.host, port: config.port });
 
   // Register plugins
   hapi.register([
