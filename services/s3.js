@@ -28,7 +28,8 @@ var S3 = function (secretId, secretKey, bucket) {
   this.params = {
     s3Params: {
       Bucket: bucket || process.env.S3_BUCKET_NAME /* required */
-    }
+    },
+    recursive: true
   };
 };
 
