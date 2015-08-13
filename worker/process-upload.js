@@ -150,7 +150,8 @@ function makeThumbnail (imagePath, callback) {
 
     var original = sharp(imagePath)
       // upstream: https://github.com/lovell/sharp/issues/250
-      .limitInputPixels(2147483647);
+      .limitInputPixels(2147483647)
+      .sequentialRead();
     original
     .metadata()
     .then(function (metadata) {
