@@ -1,18 +1,24 @@
 var Joi = require('joi');
 
 var infoSchema = Joi.object().keys({
-  name: Joi.string().min(3).max(30).required(),
+  name: Joi.string().min(1).max(30).required(),
   email: Joi.string().email()
 });
 
 var sceneSchema = Joi.object().keys({
-  metadata: Joi.object().required(),
+  contact: infoSchema.required(),
+  title: Joi.string().min(1).required(),
+  provider: Joi.string(),
+  platform: Joi.any().allow('satellite', 'aircraft', 'UAV', 'balloon', 'kite').required(),
+  sensor: Joi.string(),
+  acquisition_start: Joi.date().required(),
+  acquisition_end: Joi.date().required(),
+  tms: Joi.string().uri(),
   urls: Joi.array().items(Joi.string().uri({scheme: ['http', 'https']}))
     .min(1).required()
 });
 
 module.exports = Joi.object().keys({
-  uploaderInfo: infoSchema.required(),
-  contactInfo: infoSchema.required(),
+  uploader: infoSchema.required(),
   scenes: Joi.array().items(sceneSchema).min(1).required()
 });

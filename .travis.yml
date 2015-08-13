@@ -1,6 +1,11 @@
+sudo: required
 language: node_js
 node_js:
-- 'iojs-v2.5.0'
+- '0.12'
+cache:
+  apt: true
+  directories:
+    - node_modules
 env:
   global:
   - GH_REF=github.com/hotosm/oam-uploader-api.git
@@ -8,6 +13,11 @@ env:
   - secure: W0eGs5Lg+fZOIEYKLIFJZPsw7qFUNFTAUtPS/2UmlWwlQtzvYCYnNu4dd62kZKivzCuWZiwdwsm58l2r6tB6zRv7/3S4mhkiA1SrYFC3p34CXXV9XaJeEgOQ1SXoJuAW1ThSmq7CJu9dsk3Aix+KA4MggzBgTPG2RXyYhgr3Qzhcil1BX6KNqW4TP7cPaJTUCEhoDcyVLNvmjvUDQNwwJjCu1hifDptlyZt88jDshIVPi4wd2ITy10O22dkwvVaes79A7yYrpRyBJyAhb8w/fPZsCwT+9wQz28x1Q47at/eERrpeAVGOUbXE+5cla/dCCVG3rMlyJnaRP0HagaUQK71GJMYe/nnOEirmF3vtpYzRTmzbvaahEtWr6EbdVWqXB8WJCBShgEF2NICwQAYwgIsYyzIAI3wDvVyrdhbSqqARlUqRwEN4NUFAXfVYkXssYWiTz/s0Eaktg3I/Z0wL2lgBy0hz2JN9BcSCjSdzzj9FWaoWjFSDamb/M5U1R6h9rTGe2bgoDGsZbo4TV/QCXIsKvqjX5lC/W5GFyoUOyTrqtGyPIpOdkTg8Nf1V2ZPuAznln6YYchMdO64eABy7w5tKErM6JP8N4pHFgkgIPJI4gZdAlUELFe+mgqp/kl1GEuSd8TtlIdZ/ErvsmhH5ubYifIdBkpSZfUMRM/vueXI=
 services: mongodb
 before_install:
+- echo "Installing libvips..."
+- sudo add-apt-repository -y ppa:lovell/precise-backport-vips
+- sudo apt-get update
+- sudo apt-get install -y libvips-dev
+- echo "Completed libvips installation."
 - chmod +x ./.build_scripts/docs.sh
 after_success:
 - "./.build_scripts/docs.sh"
