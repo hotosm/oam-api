@@ -1,5 +1,7 @@
 'use strict';
 
+require('newrelic');
+
 /*
  * A worker that queries the db for new uploads and process 'em.
  */
