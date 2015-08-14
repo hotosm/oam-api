@@ -11,6 +11,7 @@ var defaults = {
   oinBucket: 'oam-uploader',
   dbUri: process.env.OAM_TEST ?
     'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader',
+  maxWorkers: 1,
   adminPassword: null,
   adminUsername: null,
   awsRegion: 'us-west-2',
@@ -35,6 +36,7 @@ var environment = {
   host: process.env.HOST,
   oinBucket: process.env.OIN_BUCKET,
   dbUri: process.env.DBURI,
+  maxWorkers: process.env.MAX_WORKERS,
   adminPassword: process.env.ADMIN_PASSWORD,
   adminUsername: process.env.ADMIN_USERNAME,
   awsKeyId: process.env.AWS_SECRET_KEY_ID,

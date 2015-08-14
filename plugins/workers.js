@@ -3,6 +3,7 @@
 var fork = require('child_process').fork;
 var path = require('path');
 var ObjectID = require('mongodb').ObjectID;
+var config = require('../config');
 
 module.exports = function register (server, options, next) {
   var myWorkers = {};
@@ -15,10 +16,11 @@ module.exports = function register (server, options, next) {
   function spawn () {
     var available = Object.keys(myWorkers);
     var workers = server.plugins.db.connection.collection('workers');
-    server.log(['debug'], 'spawnIfNecessary; available: ' + available);
-    if (!available.length) {
+    server.log(['debug'], 'maybe spawn... available: ' + available +
+      ' max: ' + config.maxWorkers);
+    if (available.length < config.maxWorkers) {
       spawnWorker();
-    } else {
+    } else if (config.maxWorkers > 0) {
       var id = available[0];
       server.log(['debug'], 'Attempting to pause ' + id);
       id = new ObjectID(id);
