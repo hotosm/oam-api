@@ -4,6 +4,7 @@
  * A worker that queries the db for new uploads and process 'em.
  */
 
+var onExit = require('exit-hook');
 var MongoClient = require('mongodb').MongoClient;
 var processUpload = require('./process-upload');
 var log = require('./log');
@@ -45,7 +46,8 @@ MongoClient.connect(config.dbUri, function (err, connection) {
   workers = db.collection('workers');
   uploads = db.collection('uploads');
 
-  process.on('SIGINT', cleanup);
+  // clean up
+  onExit(cleanup);
 
   workers.insertOne({ state: 'working' })
   .then(function (result) {
@@ -103,6 +105,8 @@ function dequeue () {
 
 function cleanup (err) {
   log('Cleaning up.');
+  process.removeAllListeners();
+
   if (err) { log(['error'], err); }
   if (db) {
     if (workerId) {

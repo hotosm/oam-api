@@ -24,6 +24,7 @@
     "boom": "^2.8.0",
     "envloader": "0.0.2",
     "es6-promise": "^2.3.0",
+    "exit-hook": "^1.1.1",
     "gdalinfo-json": "^0.5.1",
     "good": "^6.3.0",
     "good-console": "^5.0.2",
