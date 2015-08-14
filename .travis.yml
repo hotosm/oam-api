@@ -21,11 +21,3 @@ before_install:
 - chmod +x ./.build_scripts/docs.sh
 after_success:
 - "./.build_scripts/docs.sh"
-deploy:
-  provider: heroku
-  app: oam-uploader-api
-  on:
-    repo: hotosm/oam-uploader-api
-    branch: master
-  api_key:
-    secure: VHwJSkfvBAAXl1BPcgV2RvoQFSV62B5gJJ+RK9fiBv++IO6pJpJErStljwxv/LTedT0lp3NHWlK12NpJc6fWQg/hQo4KzxHP6NEqsZx/lNQ5te4KDQNZcOQjFV6miSArWm1VbVv2DvJoAOATuPcR7+daleWNd/H/EDZ+692hqAp4zcQ/ek6q7+TezxKFdUY43f3hN77u+umTbHd7mqwJEuSkUR29oq/fsh9Ik1+6UR3jlfs8mn47yUXbD74g81/5oSogt8uBzVNsfuhEWdpJ7GTdS4dXM5fci5PsvVZfc9lrcsex7vItu+LmggFLOkr2HI4+Hnvd0v5b9ML0khMxFtEY+lb0vDqMch4O5aT1pA1bi73g8UluuB8K/PTbhVsuVA2AXJ5PEznlNUZPpgZg3jNDV1Xrcc0Nmoi7s6dGJyCcWtat4aqi7Lo6zF9tzDlRS2vWrNeWG/oTGnSZhWozOCxavJZ6Z9eKVE2MIenCqYrkhL+E952mQwS++5IhpE5ibvPq/84FfAzjUgGRCu1r3LyYPISLKFrpyfqT7PEMOK1YqgOH6tAIClrxagcB+80i40NG9hu3mo3Sg3ckGMBsxaXR13VH8gHcCAKxv79a6jwzMKdlsOlGLjIUL2adewUToN7ssVQtCRwXKM+ZW92kMgtLxImbMwySshCkRK5vNYc=

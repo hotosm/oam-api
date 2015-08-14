@@ -9,8 +9,10 @@ var dbUri = require('../config').dbUri;
 module.exports = function register (server, options, next) {
   server.log(['info'], 'Attempting db connection: ' + dbUri);
   MongoClient.connect(dbUri, function (err, db) {
-    server.log(['info'], 'Successful db connection.');
-    server.expose('connection', db);
+    if (!err) {
+      server.log(['info'], 'Successful db connection.');
+      server.expose('connection', db);
+    }
     next(err);
   });
 };

@@ -1,10 +1,5 @@
 var xtend = require('xtend');
 
-var local = {};
-try {
-  local = require('./local.js');
-} catch(e) {}
-
 var defaults = {
   host: '0.0.0.0',
   port: 3000,
@@ -44,7 +39,7 @@ var environment = {
   awsRegion: process.env.AWS_REGION
 };
 
-var config = xtend(defaults, local);
+var config = xtend(defaults);
 for (var k in environment) {
   if (typeof environment[k] !== 'undefined') {
     config[k] = environment[k];

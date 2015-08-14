@@ -1,7 +1,5 @@
 # OAM Uploader API [![Build Status](https://travis-ci.org/hotosm/oam-uploader-api.svg)](https://travis-ci.org/hotosm/oam-uploader-api) 
 
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
 ## [API Docs](http://hotosm.github.io/oam-uploader-api/)
 
 ## Installation and Usage
@@ -12,7 +10,7 @@ The steps below will walk you through setting up your own instance of the oam-up
 
 - [MongoDB](https://www.mongodb.org/)
 - [Node.js](https://nodejs.org/)
-- [GraphicsMagick](http://www.graphicsmagick.org/) (**NOTE:** must be installed with libtiff support.)
+- [libvips](https://github.com/jcupitt/libvips)
 
 ### Install Application Dependencies
 

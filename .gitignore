@@ -1,5 +1,6 @@
 sharp.js
 local.js
+local.env
 node_modules
 bower_components
 .tmp
