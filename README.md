@@ -18,12 +18,6 @@ The steps below will walk you through setting up your own instance of the oam-up
 
 ### Usage
 
-#### Starting the database:
-
-    $ mongod
-
-The database is responsible for storing metadata about the imagery and analytics.
-
 #### Starting the API:
 
     $ node index.js
@@ -39,6 +33,36 @@ The API exposes endpoints used to access information form the system via a RESTf
 - `DBURI` - MongoDB connection url
 - `ADMIN_USERNAME` - Token management Admin username
 - `ADMIN_PASSWORD` - Token management Admin password
+
+### Install via Docker
+
+Alternatively, if you've got a mongo instance running elsewhere, install and
+run on a fresh instance using docker as follows:
+
+[Install Docker](https://docs.docker.com/installation/)
+
+```sh
+# install nvm and node
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.26.0/install.sh | bash && source ~/.nvm/nvm.sh
+nvm install 0.12
+
+# clone the repo
+git clone https://github.com/hotosm/oam-uploader-api
+
+# build the docker image
+cd oam-uploader-api
+npm run build-docker
+
+# set up environment vars:
+cp local.sample.env local.env
+nano local.env
+```
+
+Now, for each deployment:
+
+```sh
+npm run docker-install && npm run docker-start
+```
 
 ### Docs Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-uploader-api.herokuapp.com.
