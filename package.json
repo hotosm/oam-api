@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "docker-install": ".build_scripts/docker/run.sh /local/.build_scripts/docker/install.sh",
-    "docker-test": ".build_scripts/docker/run.sh /local/.build_scripts/docker/test.sh",
-    "docker-start": ".build_scripts/docker/run.sh /local/.build_scripts/docker/start.sh",
+    "docker-install": ".build_scripts/docker/run.sh /install.sh",
+    "docker-test": ".build_scripts/docker/run.sh /test.sh",
+    "docker-start": ".build_scripts/docker/run.sh /start.sh",
     "build-docker": "docker build -t oam-uploader-api .build_scripts/docker",
     "test": "semistandard && OAM_TEST=1 lab test/test__*.js",
     "lab": "lab test/test__*.js",

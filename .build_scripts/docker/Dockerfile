@@ -32,3 +32,4 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.26.0/install.sh | b
 
 ENV PATH      $NVM_BIN:$PATH
 
+COPY *.sh /
