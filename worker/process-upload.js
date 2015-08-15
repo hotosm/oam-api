@@ -59,8 +59,17 @@ function processUrl (upload, scene, url, key, callback) {
 
     log(['debug'], 'Downloading ' + url + ' to ' + path);
 
-    request(url).pipe(fs.createWriteStream(path))
+    var downloadStatus;
+    request(url)
+    .on('response', function (response) {
+      downloadStatus = response.statusCode;
+    })
+    .pipe(fs.createWriteStream(path))
     .on('finish', function () {
+      if (downloadStatus < 200 || downloadStatus >= 400) {
+        return callback(new Error('Could not download ' + url +
+         '; server responded with status code ' + downloadStatus));
+      }
       // we've successfully downloaded the file.  now do stuff with it.
       generateMetadata(scene, path, key, function (err, metadata) {
         if (err) { return callback(err); }
