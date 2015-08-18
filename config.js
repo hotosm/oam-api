@@ -4,7 +4,7 @@ var defaults = {
   host: '0.0.0.0',
   port: 3000,
   oinBucket: 'oam-uploader',
-  dbUri: process.env.OAM_TEST ?
+  dbUri: process.env.NODE_ENV === 'test' ?
     'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader',
   maxWorkers: 1,
   adminPassword: null,
@@ -30,7 +30,8 @@ var environment = {
   port: process.env.PORT,
   host: process.env.HOST,
   oinBucket: process.env.OIN_BUCKET,
-  dbUri: process.env.DBURI,
+  dbUri: process.env.NODE_ENV === 'test' ?
+    process.env.DBURI_TEST : process.env.DBURI,
   maxWorkers: process.env.MAX_WORKERS,
   adminPassword: process.env.ADMIN_PASSWORD,
   adminUsername: process.env.ADMIN_USERNAME,

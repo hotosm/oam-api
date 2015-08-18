@@ -30,9 +30,11 @@ The API exposes endpoints used to access information form the system via a RESTf
 - `AWS_REGION` - AWS region of OIN_BUCKET
 - `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN bucket
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN bucket
-- `DBURI` - MongoDB connection url
 - `ADMIN_USERNAME` - Token management Admin username
 - `ADMIN_PASSWORD` - Token management Admin password
+- `DBURI` - MongoDB connection url
+- `DBURI_TEST` - MongoDB connection to the test database (not needed for
+  production)
 
 ### Install via Docker
 

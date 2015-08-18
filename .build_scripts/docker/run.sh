@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # This script runs the docker container for this application, by:
-#  - passing in the environment variables defined in `local.env` (creating an
-#    empty one if necessary)
+#  - passing in the environment variables defined in local.env, if it exists
+#  - overriding the above with any relevant variables in the current environment
+#    (see config.js)
 #  - exposing the $PORT (default: 3000), on which the app listens
 #  - setting the container to use the host OS's networking stack (better
 #    performance, worse isolation)
@@ -13,7 +14,28 @@
 #  run directly from its location on the host OS, but using the container as its
 #  environment to make dependency management trivial.
 
-touch local.env
-source local.env
+if [ -f local.env ] ; then
+  ENVFILE="--env-file local.env"
+else
+  ENVFILE=""
+fi
+
 PORT=${PORT:-3000}
-docker run -it -p $PORT --env-file=local.env --net=\"host\" -v $(pwd):/local oam-uploader-api $1
+docker run -it \
+  -p $PORT \
+  $ENVFILE \
+  -e OAM_TEST \
+  -e PORT \
+  -e HOST \
+  -e OIN_BUCKET \
+  -e DBURI \
+  -e DBURI_TEST \
+  -e MAX_WORKERS \
+  -e ADMIN_PASSWORD \
+  -e ADMIN_USERNAME \
+  -e AWS_SECRET_KEY_ID \
+  -e AWS_SECRET_ACCESS_KEY \
+  -e AWS_REGION \
+  --net=\"host\" \
+  -v $(pwd):/local \
+  oam-uploader-api $1
