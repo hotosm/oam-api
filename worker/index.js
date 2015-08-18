@@ -22,7 +22,7 @@ var myself = { _id: 'none', state: 'working' };
 var lastJobTimestamp = { $currentDate: { lastJobTimestamp: true } };
 var stopping = { $set: { state: 'stopping' } };
 var jobClaimed = {
-  $set: { status: 'pending', _workerId: 'none' },
+  $set: { status: 'processing', _workerId: 'none' },
   $currentDate: { startedAt: true }
 };
 var jobFinished = {
@@ -114,7 +114,7 @@ function cleanup (err) {
     if (workerId) {
       workers.deleteOne({ _id: workerId })
       .then(function () {
-        return uploads.updateMany({ _workerId: workerId, status: 'pending' }, {
+        return uploads.updateMany({ _workerId: workerId, status: 'processing' }, {
           $set: { status: 'initial' },
           $unset: { _workerId: '', startedAt: '' }
         });

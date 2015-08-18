@@ -1,8 +1,38 @@
 'use strict';
 
+var ObjectID = require('mongodb').ObjectID;
+var queue = require('queue-async');
 var Boom = require('boom');
 var Joi = require('joi');
 var uploadSchema = require('../models/upload');
+
+function insertImages (db, scene, callback) {
+  var imageIds = [];
+  db.collection('images').insertMany(scene.urls.map(function (url) {
+    var id = new ObjectID();
+    imageIds.push(id);
+    return {
+      _id: id,
+      url: url,
+      status: 'initial',
+      messages: []
+    };
+  }), callback);
+
+  // replace the urls list with a list of _id's
+  scene.images = imageIds;
+  delete scene.urls;
+}
+
+function includeImages (db, scene, callback) {
+  db.collection('images').find({
+    _id: { $in: scene.images }
+  })
+  .toArray(function (err, images) {
+    scene.images = images;
+    callback(err, images);
+  });
+}
 
 module.exports = [
   /**
@@ -22,7 +52,17 @@ module.exports = [
       db.collection('uploads').find({ user: user })
       .toArray(function (err, uploads) {
         if (err) { return reply(Boom.wrap(err)); }
-        reply({ results: uploads });
+        var q = queue();
+        uploads.forEach(function (upload) {
+          upload.scenes.forEach(function (scene) {
+            q.defer(includeImages, db, scene);
+          });
+        });
+
+        q.awaitAll(function (err) {
+          if (err) { return reply(Boom.wrap(err)); }
+          reply({ results: uploads });
+        });
       });
     }
   },
@@ -76,15 +116,26 @@ module.exports = [
       Joi.validate(request.payload, uploadSchema, function (err, data) {
         if (err) { return reply(Boom.badRequest(err)); }
 
+        var db = request.server.plugins.db.connection;
+
         data.user = request.auth.credentials.user.id;
         data.status = 'initial';
+        data.createdAt = new Date();
 
-        var uploads = request.server.plugins.db.connection.collection('uploads');
+        // pull out the actual images into their own collection, so it can be
+        // more easily used as a task queue for the worker(s)
+        var q = queue();
+        data.scenes.forEach(function (scene) {
+          q.defer(insertImages, db, scene);
+        });
 
-        uploads.insertOne(data)
-        .then(request.server.plugins.workers.spawn)
-        .then(function () { reply('Success'); })
-        .catch(function (err) { reply(Boom.wrap(err)); });
+        q.awaitAll(function (err) {
+          if (err) { return reply(Boom.wrap(err)); }
+          db.collection('uploads').insertOne(data)
+          .then(request.server.plugins.workers.spawn)
+          .then(function () { reply('Success'); })
+          .catch(function (err) { reply(Boom.wrap(err)); });
+        });
       });
     }
   }

@@ -30,6 +30,9 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.26.0/install.sh | b
     && nvm use default
 ENV PATH      $NVM_BIN:$PATH
 
+# Go ahead and install nodemon for convenience while developing
+RUN source $NVM_DIR/nvm.sh && npm install -g nodemon
+
 # Set TMPDIR environment variable
 ENV TMPDIR /tmp
 
