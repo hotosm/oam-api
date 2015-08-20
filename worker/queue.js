@@ -22,20 +22,20 @@ JobQueue.prototype._initialize = function init () {
   if (this._initialized) { return Promise.resolve(true); }
   this._initialized = true;
   return promisify(MongoClient.connect.bind(MongoClient))(config.dbUri)
-  .then(function (connection) {
+  .then((connection) => {
     this.db = connection;
     this.workers = this.db.collection('workers');
     this.images = this.db.collection('images');
 
     return this.workers.insertOne({ state: 'working' })
-    .then(function (result) {
+    .then((result) => {
       this.workerId = result.ops[0]._id;
       log.workerId = this.workerId;
       this._setupQueries();
       log('Initialized');
-    }.bind(this))
+    })
     .catch(this.cleanup.bind(this));
-  }.bind(this));
+  });
 };
 
 JobQueue.prototype._setupQueries = function _setupQueries () {
@@ -76,18 +76,18 @@ JobQueue.prototype._mainloop = function mainloop () {
   .findOneAndUpdate({
     status: 'initial'
   }, this.update.jobClaimed, { returnOriginal: false })
-  .then(function (result) {
+  .then((result) => {
     if (!result.value) {
       // no jobs left; try to shut down.
       // avoid race condition by making sure our state wasn't changed from
       // 'working' to something else (by the server) before we actually quit.
       return this.workers.updateOne(this.query.myself, this.update.stopping)
-      .then(function (result) {
+      .then((result) => {
         // failed to set our state, so continue processing
         if (result.modifiedCount === 0) { return this._mainloop(); }
         // we're in the clear - clean up and exit
         return this.cleanup();
-      }.bind(this))
+      })
       .catch(this.cleanup.bind(this));
     }
 
@@ -117,25 +117,25 @@ JobQueue.prototype._mainloop = function mainloop () {
       // this should never happen
       throw new Error('Could not find the scene for image ' + image._id);
     })
-    .then(function () {
+    .then(() => {
       // mark the job as finished
       return this.images.findOneAndUpdate(result.value, this.update.jobFinished);
-    }.bind(this))
-    .then(function () {
+    })
+    .then(() => {
       // update this worker's timestamp
       return this.workers.updateOne(this.query.myself, this.update.lastJobTimestamp);
-    }.bind(this))
+    })
     // keep going
     .then(this._mainloop.bind(this))
-    .catch(function (error) {
+    .catch((error) => {
       log(['error'], error);
       return this.images.findOneAndUpdate(result.value, this.update.jobErrored(error))
-      .then(function () {
+      .then(() => {
         this.workers.updateOne(this.query.myself, this.update.lastJobTimestamp);
-      }.bind(this))
+      })
       .then(this._mainloop.bind(this));
-    }.bind(this));
-  }.bind(this));
+    });
+  });
 };
 
 JobQueue.prototype.cleanup = function cleanup (err) {
@@ -146,18 +146,18 @@ JobQueue.prototype.cleanup = function cleanup (err) {
   if (!this.workerId) { return this.db.close(); }
 
   return this.workers.deleteOne({ _id: this.workerId })
-  .then(function () {
+  .then(() => {
     return this.images.updateMany({ _workerId: this.workerId, status: 'processing' }, {
       $set: { status: 'initial' },
       $unset: { _workerId: '', startedAt: '' }
     });
-  }.bind(this))
-  .catch(function (error) {
+  })
+  .catch((error) => {
     log(['error'], 'Error cleaning up. Bad news.');
     log(['error'], error);
     this.db.close();
     throw error;
-  }.bind(this))
-  .then(function () { this.db.close(); }.bind(this))
+  })
+  .then(() => { this.db.close(); })
   .then(function () { if (err) { throw err; } });
 };
