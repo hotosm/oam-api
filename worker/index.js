@@ -1,6 +1,7 @@
 'use strict';
 
 require('newrelic');
+require('babel/register');
 
 /*
  * A worker that queries the db for new uploads and process 'em.
