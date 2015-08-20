@@ -9,7 +9,7 @@
     "docker-test": ".build_scripts/docker/run.sh /test.sh",
     "docker-start": ".build_scripts/docker/run.sh /start.sh",
     "build-docker": "docker build -t oam-uploader-api .build_scripts/docker",
-    "test": "semistandard && OAM_TEST=1 lab test/test__*.js",
+    "test": "semistandard && lab test/test__*.js",
     "lab": "lab test/test__*.js",
     "docs": "apidoc -i routes/ -o docs/"
   },
@@ -29,6 +29,7 @@
     "boom": "^2.8.0",
     "envloader": "0.0.2",
     "es6-promise": "^2.3.0",
+    "es6-promisify": "^3.0.0",
     "exit-hook": "^1.1.1",
     "gdalinfo-json": "^0.5.1",
     "good": "^6.3.0",
@@ -54,6 +55,7 @@
   "devDependencies": {
     "apidoc": "^0.13.1",
     "chai": "^2.3.0",
+    "ecstatic": "^0.8.0",
     "lab": "^5.15.0",
     "semistandard": "^7.0.2",
     "tape": "^4.0.3"
