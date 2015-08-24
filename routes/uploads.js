@@ -66,6 +66,23 @@ module.exports = [
       });
     }
   },
+  {
+    method: 'GET',
+    path: '/uploads/{id}',
+    config: {
+      auth: 'api-token'
+    },
+    handler: function (request, reply) {
+      var user = request.auth.credentials.user.id;
+      var db = request.server.plugins.db.connection;
+      db.collection('uploads').findOne({
+        _id: new ObjectID(request.params.id),
+        user: user
+      })
+      .then(reply)
+      .catch(function (err) { reply(Boom.wrap(err)); });
+    }
+  },
   /**
    * @api {post} /uploads Add an upload to the queue
    * @apiGroup uploads
@@ -119,7 +136,6 @@ module.exports = [
         var db = request.server.plugins.db.connection;
 
         data.user = request.auth.credentials.user.id;
-        data.status = 'initial';
         data.createdAt = new Date();
 
         // pull out the actual images into their own collection, so it can be
