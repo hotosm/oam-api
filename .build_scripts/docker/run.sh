@@ -21,6 +21,7 @@ else
 fi
 
 if [[ -t 0 || -p /dev/stdin ]] ; then
+  echo "Running in tty mode."
   MODE=-it
 else
   MODE=
