@@ -43,28 +43,58 @@ run on a fresh instance using docker as follows:
 
 [Install Docker](https://docs.docker.com/installation/)
 
-```sh
-# install nvm and node
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.26.0/install.sh | bash && source ~/.nvm/nvm.sh
-nvm install 0.12
 
+One-time setup:
+
+```sh
 # clone the repo
 git clone https://github.com/hotosm/oam-uploader-api
 
 # build the docker image
 cd oam-uploader-api
-npm run build-docker
+docker build -t oam-uploader-api .build_scripts/docker
 
 # set up environment vars:
 cp local.sample.env local.env
 nano local.env
 ```
 
-Now, for each deployment:
+To start up the API server after pulling from the repo:
 
 ```sh
-npm run docker-install && npm run docker-start
+# install node dependencies
+.build_scripts/docker/run.sh /install.sh
+# start server
+.build_scripts/docker/run.sh /start.sh
 ```
 
-### Docs Deployment
-Changes to `master` branch are automatically deployed via Travis to https://oam-uploader-api.herokuapp.com.
+# Deployment
+
+To automate some of the above on a remote, you can use
+[visionmedia/deploy](https://github.com/visionmedia/deploy) and upstart for
+deployment and process management.
+
+First, add a new section to
+https://github.com/hotosm/oam-uploader-api/blob/develop/.build_scripts/deploy.conf.
+(If you don't want to commit it to the repo, you can just make your own copy of the
+config file wherever you want.) Make sure you have ssh creds to the server from
+wherever you're running `deploy`. Then do the following, with `ENV` replaced with
+whatever you called the section you added to `deploy.conf`.
+
+```sh
+deploy -c .build_scripts/deploy.conf ENV setup
+```
+
+Now ssh into the server with `deploy -c .build_scripts/deploy.conf ENV console`,
+and set up the upstart script and start up the server
+
+```sh
+sudo cp .build_scripts/upstart.conf /etc/init/oam-uploader-api.conf
+sudo nano /etc/init/oam-uplodaer-api.conf
+sudo start oam-uploader-api
+exit
+```
+
+Now you can use `deploy -c .build_scripts/deploy.conf ENV` at any time to
+deploy your local branch.
+

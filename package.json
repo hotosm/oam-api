@@ -4,10 +4,10 @@
   "description": "An uploader API for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
+    "docker-build": "docker build -t oam-uploader-api .build_scripts/docker",
     "docker-install": ".build_scripts/docker/run.sh /install.sh",
     "docker-test": ".build_scripts/docker/run.sh /test.sh",
     "docker-start": ".build_scripts/docker/run.sh /start.sh",
-    "build-docker": "docker build -t oam-uploader-api .build_scripts/docker",
     "start": "nodemon index.js",
     "test": "semistandard && npm run lab",
     "lab": "lab -T test/babel.js test/test__*.js",

@@ -20,8 +20,14 @@ else
   ENVFILE=""
 fi
 
+if [[ -t 0 || -p /dev/stdin ]] ; then
+  MODE=-it
+else
+  MODE=
+fi
+
 PORT=${PORT:-3000}
-docker run -it \
+exec docker run $MODE \
   -p $PORT \
   $ENVFILE \
   -e OAM_TEST \
