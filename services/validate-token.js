@@ -5,19 +5,24 @@
  */
 module.exports = function (db) {
   return function (token, callback) {
-    // TODO: replace the following with real auth (hit the db, etc.)
-    if (token === 'usertoken') {
-      // successful authentication
-      callback(null, true, {
-        user: {
-          id: 1, // <- can be anything as long as it's unique; used for associations w uploads
-          name: 'Some Body'
-        },
-        token: token
-      });
-    } else {
-      // bad token
-      callback(null, false, { token: token });
-    }
+    db.collection('tokens').findOne({
+      token: token,
+      status: 'active'
+    })
+    .then(function (activeToken) {
+      if (!activeToken) { return callback(null, false, {token: token}); }
+
+      var expired = false;
+      if (activeToken.expiration) {
+        var exp = new Date(activeToken.expiration);
+        var now = new Date();
+        expired = exp < now;
+      }
+
+      // routes expect an 'id' property on the credentials object
+      activeToken.id = activeToken._id;
+      callback(null, !expired, activeToken);
+    })
+    .catch(callback);
   };
 };

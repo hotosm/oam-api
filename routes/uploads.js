@@ -47,7 +47,7 @@ module.exports = [
       auth: 'api-token'
     },
     handler: function (request, reply) {
-      var user = request.auth.credentials.user.id;
+      var user = request.auth.credentials.id;
       var db = request.server.plugins.db.connection;
       db.collection('uploads').find({ user: user })
       .toArray(function (err, uploads) {
@@ -69,15 +69,13 @@ module.exports = [
   {
     method: 'GET',
     path: '/uploads/{id}',
-    config: {
-      auth: 'api-token'
-    },
     handler: function (request, reply) {
-      var user = request.auth.credentials.user.id;
+      if (!ObjectID.isValid(request.params.id)) {
+        return reply(Boom.badRequest('Invalid id: ' + request.params.id));
+      }
       var db = request.server.plugins.db.connection;
       db.collection('uploads').findOne({
-        _id: new ObjectID(request.params.id),
-        user: user
+        _id: new ObjectID(request.params.id)
       })
       .then(reply)
       .catch(function (err) { reply(Boom.wrap(err)); });
@@ -135,7 +133,7 @@ module.exports = [
 
         var db = request.server.plugins.db.connection;
 
-        data.user = request.auth.credentials.user.id;
+        data.user = request.auth.credentials.id;
         data.createdAt = new Date();
 
         // pull out the actual images into their own collection, so it can be

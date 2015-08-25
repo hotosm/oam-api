@@ -2,6 +2,8 @@
 
 var Lab = require('lab');
 var server = require('../');
+var config = require('../config');
+var createValidateToken = require('../services/validate-token');
 var chai = require('chai');
 var ObjectId = require('mongodb').ObjectID;
 
@@ -12,10 +14,13 @@ var before = lab.before;
 var assert = chai.assert;
 
 var cookie = null;
+var activeToken = null;
+var validateToken = null;
 
 suite('test tokens', function () {
 
   before(function (done) {
+    assert.match(config.dbUri, /test$/, 'use the test database');
     // Get a reference to the server.
     // Wait for everything to load.
     // Change to test db
@@ -23,6 +28,7 @@ suite('test tokens', function () {
       server = hapi;
       // Prepare db.
       var db = hapi.plugins.db.connection;
+      validateToken = createValidateToken(db);
       db.collection('tokens').deleteMany({}, function (err) {
         if (err) { throw err; }
 
@@ -251,7 +257,15 @@ suite('test tokens', function () {
       assert.equal(response.statusCode, 201);
 
       assert.isDefined(result.data._id);
+      activeToken = result.data.token;
       done();
+    });
+  });
+
+  test('should validate active token', function (done) {
+    validateToken(activeToken, function (error, valid, creds) {
+      assert(valid);
+      done(error);
     });
   });
 
