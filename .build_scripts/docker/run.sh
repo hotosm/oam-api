@@ -28,6 +28,11 @@ else
 fi
 
 PORT=${PORT:-3000}
+
+ARGS_LENGTH=$(($#-1))
+ARGS=${@:1:$ARGS_LENGTH}
+COMMAND=${@:$((ARGS_LENGTH+1)):1}
+
 exec docker run $MODE --rm \
   -p $PORT \
   $ENVFILE \
@@ -45,4 +50,5 @@ exec docker run $MODE --rm \
   -e AWS_REGION \
   --net=\"host\" \
   -v $(pwd):/local \
-  oam-uploader-api $1
+  $ARGS \
+  oam-uploader-api $COMMAND
