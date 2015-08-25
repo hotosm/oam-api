@@ -28,7 +28,7 @@ else
 fi
 
 PORT=${PORT:-3000}
-exec docker run $MODE \
+exec docker run $MODE --rm \
   -p $PORT \
   $ENVFILE \
   -e OAM_TEST \
