@@ -5,6 +5,9 @@ var queue = require('queue-async');
 var Boom = require('boom');
 var Joi = require('joi');
 var uploadSchema = require('../models/upload');
+var config = require('../config');
+
+var sendgrid = require('sendgrid')(config.sendridApiKey);
 
 function insertImages (db, scene, callback) {
   var imageIds = [];
@@ -157,6 +160,15 @@ module.exports = [
           if (err) { return reply(Boom.wrap(err)); }
           db.collection('uploads').insertOne(data)
           .then(function (result) {
+            sendgrid.send({
+              to: data.uploader.email,
+              from: config.sendgridFrom,
+              subject: config.emailNotification.subject,
+              text: config.emailNotification.text.replace('{UPLOAD_ID}', data._id)
+            }, function (err, json) {
+              if (err) { request.log(['error', 'email'], err.message); }
+              if (json) { request.log(['debug', 'email'], json); }
+            });
             return request.server.plugins.workers.spawn()
             .then(function () {
               reply({ upload: data._id });

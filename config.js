@@ -6,11 +6,19 @@ var defaults = {
   oinBucket: 'oam-uploader',
   dbUri: process.env.NODE_ENV === 'test' ?
     'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader',
-  maxWorkers: 1,
   adminPassword: null,
   adminUsername: null,
   awsRegion: 'us-west-2',
-  thumbnailSize: 300, // thumbnail size, in kilobytes
+  sendgridApiKey: null,
+  sendgridFrom: 'info@hotosm.org',
+  thumbnailSize: 300, // (very) approximate thumbnail size, in kilobytes
+  maxWorkers: 1,
+  emailNotification: {
+    subject: '[ OAM Uploader ] Imagery upload submitted',
+    text: 'Your upload has been successfully submitted and is now being ' +
+      'processed. You can check on the status of the upload at ' +
+      'http://upload.openaerialmap.org/#/status/{UPLOAD_ID}.'
+  },
   logOptions: {
     opsInterval: 3000,
     reporters: [{
@@ -37,7 +45,9 @@ var environment = {
   adminUsername: process.env.ADMIN_USERNAME,
   awsKeyId: process.env.AWS_SECRET_KEY_ID,
   awsAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  awsRegion: process.env.AWS_REGION
+  awsRegion: process.env.AWS_REGION,
+  sendgridApiKey: process.env.SENDGRID_API_KEY,
+  sendgridFrom: process.env.SENDGRID_FROM
 };
 
 var config = xtend(defaults);
