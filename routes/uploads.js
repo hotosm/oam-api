@@ -30,7 +30,7 @@ function includeImages (db, scene, callback) {
   })
   .toArray(function (err, images) {
     scene.images = images;
-    callback(err, images);
+    callback(err, scene);
   });
 }
 
@@ -77,7 +77,17 @@ module.exports = [
       db.collection('uploads').findOne({
         _id: new ObjectID(request.params.id)
       })
-      .then(reply)
+      .then(function (upload) {
+        var q = queue();
+        upload.scenes.forEach(function (scene) {
+          q.defer(includeImages, db, scene);
+        });
+
+        q.awaitAll(function (err) {
+          if (err) { return reply(Boom.wrap(err)); }
+          reply(upload);
+        });
+      })
       .catch(function (err) { reply(Boom.wrap(err)); });
     }
   },
