@@ -57,6 +57,7 @@
     "ecstatic": "^0.8.0",
     "lab": "^5.15.0",
     "nodemon": "^1.4.1",
+    "omit-deep": "^0.1.2",
     "semistandard": "^7.0.2",
     "tape": "^4.0.3"
   },

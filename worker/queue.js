@@ -50,10 +50,16 @@ JobQueue.prototype._setupQueries = function _setupQueries () {
     $set: { status: 'processing', _workerId: this.workerId },
     $currentDate: { startedAt: true }
   };
-  this.update.jobFinished = {
-    $set: { status: 'finished' },
-    $unset: { _workerId: '' },
-    $currentDate: { stoppedAt: true }
+  this.update.jobFinished = function jobFinished (processed) {
+    return {
+      $set: {
+        status: 'finished',
+        messages: processed.messages,
+        metadata: processed.metadata
+      },
+      $unset: { _workerId: '' },
+      $currentDate: { stoppedAt: true }
+    };
   };
   this.update.jobErrored = function jobErrored (error) {
     error = {
@@ -117,9 +123,9 @@ JobQueue.prototype._mainloop = function mainloop () {
       // this should never happen
       throw new Error('Could not find the scene for image ' + image._id);
     })
-    .then(() => {
+    .then((processed) => {
       // mark the job as finished
-      return this.images.findOneAndUpdate(result.value, this.update.jobFinished);
+      return this.images.findOneAndUpdate(result.value, this.update.jobFinished(processed));
     })
     .then(() => {
       // update this worker's timestamp
