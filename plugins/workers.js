@@ -3,6 +3,7 @@
 var fork = require('child_process').fork;
 var path = require('path');
 var ObjectID = require('mongodb').ObjectID;
+var Promise = require('es6-promise').Promise;
 var config = require('../config');
 
 module.exports = function register (server, options, next) {
@@ -20,6 +21,7 @@ module.exports = function register (server, options, next) {
       ' max: ' + config.maxWorkers);
     if (available.length < config.maxWorkers) {
       spawnWorker();
+      return Promise.resolve();
     } else if (config.maxWorkers > 0) {
       var id = available[0];
       server.log(['debug'], 'Attempting to pause ' + id);

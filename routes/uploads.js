@@ -156,8 +156,12 @@ module.exports = [
         q.awaitAll(function (err) {
           if (err) { return reply(Boom.wrap(err)); }
           db.collection('uploads').insertOne(data)
-          .then(request.server.plugins.workers.spawn)
-          .then(function () { reply('Success'); })
+          .then(function (result) {
+            return request.server.plugins.workers.spawn()
+            .then(function () {
+              reply({ upload: data._id });
+            });
+          })
           .catch(function (err) { reply(Boom.wrap(err)); });
         });
       });
