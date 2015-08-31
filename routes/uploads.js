@@ -42,6 +42,8 @@ module.exports = [
    * @api {get} /uploads List uploads of currently authenticated user.
    * @apiGroup uploads
    * @apiSuccess {Object[]} results
+   * @apiUse uploadStatusSuccess
+   * @apiPermission Token
    */
   {
     method: 'GET',
@@ -69,6 +71,12 @@ module.exports = [
       });
     }
   },
+  /**
+   * @api {get} /uploads/:id Get the status of a given upload
+   * @apiGroup uploads
+   * @apiParam {String} id The id of the upload
+   * @apiUse uploadStatusSuccess
+   */
   {
     method: 'GET',
     path: '/uploads/{id}',
@@ -97,6 +105,7 @@ module.exports = [
   /**
    * @api {post} /uploads Add an upload to the queue
    * @apiGroup uploads
+   * @apiPermission Token
    *
    * @apiParam {Object} uploaderInfo
    * @pariParam {string} uploaderInfo.name
@@ -110,20 +119,42 @@ module.exports = [
    *
    * @apiExample {js} Example post
    * {
-   *   "uploaderInfo": {
-   *     "name": "Anand",
-   *     "email": "me@foo.com"
-   *   },
-   *   "contactInfo": {
-   *     "name": "Anand",
-   *     "email": "me@foo.com"
+   *   "uploader": {
+   *     "name": "Lady Stardust",
+   *     "email": "lady@stardust.xyz"
    *   },
    *   "scenes": [
    *     {
-   *       "metadata": {},
+   *       "contact": {
+   *         "name": "Sat E Lyte",
+   *         "email": "foo@bar.com"
+   *       },
+   *       "title": "A scene title",
+   *       "platform": "UAV",
+   *       "provider": "Drones R Us",
+   *       "sensor": "DroneModel01",
+   *       "acquisition_start": "2015-04-01T00:00:00.000",
+   *       "acquisition_end": "2015-04-30T00:00:00.000",
    *       "urls": [
-   *         "http://myimagery.com/image01.tif",
-   *         "http://myimagery.com/image02.tif"
+   *         "http://dron.es/image1.tif",
+   *         "http://dron.es/image2.tif",
+   *         "http://dron.es/image3.tif",
+   *       ]
+   *     },
+   *     {
+   *       "contact": {
+   *         "name": "Someone Else",
+   *         "email": "birds@eye.view.com"
+   *       },
+   *       "title": "Another title",
+   *       "platform": "satellite",
+   *       "provider": "Satellites R Us",
+   *       "sensor": "SATELLITE_I",
+   *       "acquisition_start": "2015-04-01T00:00:00.000",
+   *       "acquisition_end": "2015-04-30T00:00:00.000",
+   *       "urls": [
+   *         "http://satellit.es/image1.tif",
+   *         "http://satellit.es/image2.tif",
    *       ]
    *     }
    *   ]

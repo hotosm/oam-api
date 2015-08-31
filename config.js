@@ -1,18 +1,20 @@
 var xtend = require('xtend');
 
+// Default configuration options used by the app.  Most of these can be
+// overriden by environment variables (see below).
 var defaults = {
-  host: '0.0.0.0',
-  port: 3000,
-  oinBucket: 'oam-uploader',
+  host: '0.0.0.0', // cosmetic
+  port: 3000, // port to listen on
   dbUri: process.env.NODE_ENV === 'test' ?
-    'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader',
-  adminPassword: null,
-  adminUsername: null,
-  awsRegion: 'us-west-2',
-  sendgridApiKey: null,
-  sendgridFrom: 'info@hotosm.org',
+    'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader', // the mongodb database uri (mongodb://user:pass@host:port/db)
+  adminPassword: null, // the administrator username
+  adminUsername: null, // the administrator password
+  oinBucket: 'oam-uploader', // name of the OpenImageryNetwork bucket to which imagery should be uploaded
+  awsRegion: 'us-west-2', // the AWS region of the oinBucket
   thumbnailSize: 300, // (very) approximate thumbnail size, in kilobytes
-  maxWorkers: 1,
+  maxWorkers: 1, // the maximum number of workers
+  sendgridApiKey: null, // sendgrid API key, for sending notification emails
+  sendgridFrom: 'info@hotosm.org', // the email address from which to send notification emails
   emailNotification: {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
@@ -34,6 +36,7 @@ var defaults = {
   }
 };
 
+// Environment variable overrides
 var environment = {
   port: process.env.PORT,
   host: process.env.HOST,
@@ -57,7 +60,7 @@ for (var k in environment) {
   }
 }
 
-// override json.stringify behavior so we don't accidentally log keys
+// override json.stringify behavior so we don't accidentally log secret keys
 config.toJSON = function () {
   return '[ hidden ]';
 };

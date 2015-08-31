@@ -26,6 +26,7 @@ The API exposes endpoints used to access information form the system via a RESTf
 
 ### Environment Variables
 
+- `PORT` - the port to listen on
 - `OIN_BUCKET` - The OIN bucket that will receive the uploads
 - `AWS_REGION` - AWS region of OIN_BUCKET
 - `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN bucket
@@ -35,6 +36,8 @@ The API exposes endpoints used to access information form the system via a RESTf
 - `DBURI` - MongoDB connection url
 - `DBURI_TEST` - MongoDB connection to the test database (not needed for
   production)
+- `SENDGRID_API_KEY` - sendgrid API key, for sending notification emails
+- `SENDGRID_FROM` - email address from which to send notification emails
 
 ### Install via Docker
 
