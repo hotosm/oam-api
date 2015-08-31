@@ -29,6 +29,7 @@ function _processImage (s3, scene, url, key, callback) {
     var downloadStatus;
     request(url)
     .on('response', function (resp) { downloadStatus = resp.statusCode; })
+    .on('error', callback)
     .pipe(fs.createWriteStream(path))
     .on('finish', function () {
       if (downloadStatus < 200 || downloadStatus >= 400) {

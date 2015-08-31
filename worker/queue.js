@@ -98,10 +98,10 @@ JobQueue.prototype._mainloop = function mainloop () {
     }
 
     // we got a job!
-    log(['info'], 'Processing job', image);
     var now = moment().format('YYYY-MM-DD');
     var image = result.value;
     var s3 = this.s3;
+    log(['info'], 'Processing job', image);
     return this.db.collection('uploads')
     // find the upload / scene that contains this image
     .findOne({ 'scenes.images': image._id })
