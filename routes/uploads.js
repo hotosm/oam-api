@@ -7,7 +7,7 @@ var Joi = require('joi');
 var uploadSchema = require('../models/upload');
 var config = require('../config');
 
-var sendgrid = require('sendgrid')(config.sendridApiKey);
+var sendgrid = require('sendgrid')(config.sendgridApiKey);
 
 function insertImages (db, scene, callback) {
   var imageIds = [];
