@@ -109,7 +109,7 @@ function generateMetadata (scene, path, key, callback) {
       acquisition_end: scene.acquisition_end,
       platform: scene.platform,
       provider: scene.provider,
-      contact: scene.contact,
+      contact: [scene.contact.name.replace(',', ';'), scene.contact.email].join(','),
       properties: {
         tms: scene.tms,
         sensor: scene.sensor
