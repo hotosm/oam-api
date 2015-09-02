@@ -23,18 +23,14 @@ var s3 = new AWS.S3();
 var queue = new JobQueue(s3);
 
 onExit(function () {
-  process.removeAllListeners();
   queue.cleanup()
   .then(process.exit.bind(process, 0))
   .catch(process.exit.bind(process, 1));
 });
 
 queue.run()
-.then(function () {
-  process.removeAllListeners();
-  process.exit();
-})
-.catch(function () {
-  process.removeAllListeners();
+.then(function () { process.exit(); })
+.catch(function (err) {
+  console.error(err);
   process.exit(1);
 });

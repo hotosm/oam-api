@@ -8,7 +8,8 @@
     "docker-install": ".build_scripts/docker/run.sh /install.sh",
     "docker-test": ".build_scripts/docker/run.sh /test.sh",
     "docker-start": ".build_scripts/docker/run.sh /start.sh",
-    "start": "nodemon index.js",
+    "docker-console": ".build_scripts/docker/run.sh bash",
+    "start": "TMPDIR=/tmp node index.js",
     "test": "semistandard && npm run lab",
     "lab": "lab -T test/babel.js test/test__*.js",
     "docs": "apidoc -i routes/ -o docs/"
@@ -57,7 +58,6 @@
     "chai": "^2.3.0",
     "ecstatic": "^0.8.0",
     "lab": "^5.15.0",
-    "nodemon": "^1.4.1",
     "omit-deep": "^0.1.2",
     "semistandard": "^7.0.2",
     "tape": "^4.0.3"

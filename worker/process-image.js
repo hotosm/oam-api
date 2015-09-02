@@ -20,8 +20,13 @@ module.exports = promisify(_processImage);
  * Fully process one URL.
  * Callback called with (err, { metadata, messages })
  */
-function _processImage (s3, scene, url, key, callback) {
+function _processImage (s3, scene, url, key, cb) {
   tmp.file({ postfix: '.tif' }, function (err, path, fd, cleanup) {
+    function callback (err, data) {
+      cleanup();
+      cb(err, data);
+    }
+
     if (err) { return callback(err); }
 
     log(['debug'], 'Downloading ' + url + ' to ' + path);
@@ -47,7 +52,6 @@ function _processImage (s3, scene, url, key, callback) {
             thumbPath = null;
           }
           uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
-            cleanup(); // delete tempfile
             callback(err, { metadata: metadata, messages: messages });
           });
         });
@@ -129,7 +133,7 @@ function generateMetadata (scene, path, key, callback) {
 }
 
 function makeThumbnail (imagePath, callback) {
-  tmp.file({ postfix: '.png' }, function (err, path, fd, cleanup) {
+  tmp.file({ postfix: '.png' }, function (err, path, fd) {
     if (err) { return callback(err); }
     log(['debug'], 'Generating thumbnail', path);
 

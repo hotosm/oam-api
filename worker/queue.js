@@ -145,10 +145,11 @@ JobQueue.prototype._mainloop = function mainloop () {
 };
 
 JobQueue.prototype.cleanup = function cleanup (err) {
+  if (this._cleanupCalled) { return Promise.resolve(true); }
+  this._cleanupCalled = true;
   log('Cleaning up.');
-
   if (err) { log(['error'], err, err.stack); }
-  if (!this.db) { return; }
+  if (!this.db) { return Promise.resolve(true); }
   if (!this.workerId) { return this.db.close(); }
 
   return this.workers.deleteOne({ _id: this.workerId })
