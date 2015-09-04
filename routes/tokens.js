@@ -26,9 +26,9 @@ module.exports = [
           message: null,
           data: tokens
         });
-
       });
     }
+
   },
 
   {
@@ -54,7 +54,7 @@ module.exports = [
       hmac.end();
 
       var data = request.payload;
-      data.token = hmac.read();
+      data.token = hmac.read().substring(64);
       data.created = new Date();
       data.updated = null;
 
