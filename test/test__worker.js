@@ -126,5 +126,4 @@ suite('test worker', function () {
       });
     });
   });
-
 });

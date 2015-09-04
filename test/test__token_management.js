@@ -18,7 +18,6 @@ var activeToken = null;
 var validateToken = null;
 
 suite('test tokens', function () {
-
   before(function (done) {
     assert.match(config.dbUri, /test$/, 'use the test database');
     // Get a reference to the server.
@@ -39,7 +38,7 @@ suite('test tokens', function () {
             name: 'Primary token',
             expiration: false,
             status: 'active',
-            token: '067e6c88d03021957a13b6406ca753b805a03331c914f36a33539de38622a90f87f10851e0e70eeb76f4e652ab282f0502ce3f420522d7c7d68f0fada19adb14',
+            token: '87f10851e0e70eeb76f4e652ab282f0502ce3f420522d7c7d68f0fada19adb14',
             created: new Date('2015-08-10T13:38:48.684Z'),
             updated: null
           },
@@ -48,7 +47,7 @@ suite('test tokens', function () {
             name: 'Secondary token',
             expiration: new Date('2020-08-10T13:38:48.684Z'),
             status: 'active',
-            token: '112fec071ca3414f8e1a7538eab67bfaf3d6fc3376147434b6f0ac9923c4a145b35d33e0970adf0a71110473dec4299cd2c6abcdf7d06dab6f344e5d14951a0d',
+            token: 'b35d33e0970adf0a71110473dec4299cd2c6abcdf7d06dab6f344e5d14951a0d',
             created: new Date('2015-08-10T13:38:48.684Z'),
             updated: null
           }
@@ -429,9 +428,6 @@ suite('test tokens', function () {
         assert.lengthOf(result.data, 2);
         done();
       });
-
     });
   });
-
 });
-

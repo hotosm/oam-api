@@ -5,8 +5,7 @@ var xtend = require('xtend');
 var defaults = {
   host: '0.0.0.0', // cosmetic
   port: 3000, // port to listen on
-  dbUri: process.env.NODE_ENV === 'test' ?
-    'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader', // the mongodb database uri (mongodb://user:pass@host:port/db)
+  dbUri: process.env.NODE_ENV === 'test' ? 'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader', // the mongodb database uri (mongodb://user:pass@host:port/db)
   adminPassword: null, // the administrator username
   adminUsername: null, // the administrator password
   oinBucket: 'oam-uploader', // name of the OpenImageryNetwork bucket to which imagery should be uploaded
@@ -41,8 +40,7 @@ var environment = {
   port: process.env.PORT,
   host: process.env.HOST,
   oinBucket: process.env.OIN_BUCKET,
-  dbUri: process.env.NODE_ENV === 'test' ?
-    process.env.DBURI_TEST : process.env.DBURI,
+  dbUri: process.env.NODE_ENV === 'test' ? process.env.DBURI_TEST : process.env.DBURI,
   maxWorkers: process.env.MAX_WORKERS,
   adminPassword: process.env.ADMIN_PASSWORD,
   adminUsername: process.env.ADMIN_USERNAME,
