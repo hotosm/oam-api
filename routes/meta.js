@@ -11,7 +11,7 @@ var meta = require('../controllers/meta.js');
  * @apiDescription Add an image to the catalog. **This is an authenticated endpoint.**
  *
  * @apiParam {string} [uuid] Location of image.
- * @apiParam {string} [footpring] GeoJSON footpring of image.
+ * @apiParam {string} [footprint] GeoJSON footprint of image.
  * @apiParam {string} [bbox] Bounding box of image
  *
  * @apiUse metaSuccess
