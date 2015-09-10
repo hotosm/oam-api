@@ -1,0 +1,9 @@
+{
+  "name": "oam-catalog-performance",
+  "description": "Collection of scripts to load test the OAM Catalog API.",
+  "version": "1.0.0",
+  "dependencies": {
+    "node-uuid": "^1.4.3",
+    "rimraf": "^2.4.3"
+  }
+}
