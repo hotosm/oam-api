@@ -8,7 +8,7 @@ var infoSchema = Joi.object().keys({
 var sceneSchema = Joi.object().keys({
   contact: infoSchema.required(),
   title: Joi.string().min(1).required(),
-  provider: Joi.string(),
+  provider: Joi.string().min(1).required(),
   platform: Joi.any().allow('satellite', 'aircraft', 'UAV', 'balloon', 'kite').required(),
   sensor: Joi.string(),
   acquisition_start: Joi.date().required(),

@@ -173,7 +173,10 @@ module.exports = [
     },
     handler: function (request, reply) {
       Joi.validate(request.payload, uploadSchema, function (err, data) {
-        if (err) { return reply(Boom.badRequest(err)); }
+        if (err) {
+          request.log(['info'], err);
+          return reply(Boom.badRequest(err));
+        }
 
         var db = request.server.plugins.db.connection;
 
