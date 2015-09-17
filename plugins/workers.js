@@ -49,6 +49,8 @@ module.exports = function register (server, options, next) {
         }
       });
     }
+
+    return Promise.resolve();
   }
 
   function spawnWorker () {
