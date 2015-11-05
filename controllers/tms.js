@@ -29,27 +29,30 @@ module.exports.query = function (payload, page, limit, cb) {
 module.exports.addUpdate = function (payload, cb) {
 
   var images = [];
-
-  async.each(payload.images, function (image, callback) {
-    meta.addUpdateTms(image.uuid, payload.uri, function (err, meta) {
-      images.push(meta);
-      return callback(err);
-    });
-  }, function (err) {
-    if (err) {
-      return cb(err);
-    }
-
-    var options = { upsert: true, new: true };
-    var query = { uri: payload.uri };
-    payload.images = images;
-    Model.findOneAndUpdate(query, payload, options, function (err, record) {
+  if (!(payload.uri instanceof Array)) {
+    payload.uri = [payload.uri];
+  }
+  async.each(payload.uri, function (uri) {
+    async.each(payload.images, function (image, callback) {
+      meta.addUpdateTms(image.uuid, uri, function (err, meta) {
+        images.push(meta);
+        return callback(err);
+      });
+    }, function (err) {
       if (err) {
         return cb(err);
       }
 
-      cb(err, record);
-    });
+      var options = { upsert: true, new: true };
+      var query = { uri: payload.uri };
+      payload.images = images;
+      Model.findOneAndUpdate(query, payload, options, function (err, record) {
+        if (err) {
+          return cb(err);
+        }
 
+        cb(err, record);
+      });
+    });
   });
 };
