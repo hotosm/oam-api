@@ -37,6 +37,16 @@ describe('TMS endpoint', function () {
     ]
   };
 
+  var tms4 = {
+    uri: [
+      'http://www.example.com/some_tms3.tms',
+      'http://www.example.com/some_tms4.tms'
+    ],
+    images: [
+      {uuid: 'http://www.example.com/some_image2.tif'}
+    ]
+  };
+
   before(function (done) {
     self.db = new Conn(testDb);
     self.db.start(function (err) {
@@ -112,6 +122,16 @@ describe('TMS endpoint', function () {
           expect(httpResponse.statusCode).to.equal(200);
           cb(err);
         });
+      },
+      function (cb) {
+        options.form = tms4;
+        request.post(options, function (err, httpResponse) {
+          if (err) {
+            console.log(err);
+          }
+          expect(httpResponse.statusCode).to.equal(200);
+          cb(err);
+        });
       }
     ], function (err) {
       expect(err).to.be.null;
@@ -126,7 +146,7 @@ describe('TMS endpoint', function () {
         console.log(err);
       }
       var res = JSON.parse(body);
-      expect(res.results.length).to.equal(3);
+      expect(res.results.length).to.equal(4);
       expect(res.results[0].uri).to.equal(tms1.uri);
       done();
     });
