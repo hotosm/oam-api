@@ -13,7 +13,7 @@ var sceneSchema = Joi.object().keys({
   sensor: Joi.string(),
   acquisition_start: Joi.date().required(),
   acquisition_end: Joi.date().required(),
-  tms: Joi.string().uri(),
+  tms: Joi.string(),
   urls: Joi.array().items(Joi.string().uri({scheme: ['http', 'https']}))
     .min(1).required()
 });
