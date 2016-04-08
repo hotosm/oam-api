@@ -52,23 +52,23 @@ suite('test tokens', function () {
             updated: null
           }
         ], function (err, res) {
-            if (err) throw err;
-            // Cookie
-            var options = {
-              method: 'POST',
-              url: '/login',
-              payload: {
-                username: 'admin',
-                password: 'admin'
-              }
-            };
+          if (err) throw err;
+          // Cookie
+          var options = {
+            method: 'POST',
+            url: '/login',
+            payload: {
+              username: 'admin',
+              password: 'admin'
+            }
+          };
 
-            server.inject(options, function (response) {
-              // Store the cookie to use on next requests
-              cookie = response.headers['set-cookie'][0].split(' ')[0];
-              done();
-            });
+          server.inject(options, function (response) {
+            // Store the cookie to use on next requests
+            cookie = response.headers['set-cookie'][0].split(' ')[0];
+            done();
           });
+        });
       });
     });
   });
