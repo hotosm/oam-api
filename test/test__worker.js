@@ -113,7 +113,16 @@ suite('test worker', function () {
         url: '/uploads/' + uploadId,
         credentials: { user: { id: -1 } }
       }, function (response) {
-        var omitted = [ '_id', 'startedAt', 'createdAt', 'stoppedAt', 'uuid', 'thumbnail' ];
+        var omitted = [
+          '_id',
+          'startedAt',
+          'createdAt',
+          'stoppedAt',
+          'uuid',
+          'thumbnail',
+          'user',
+          'tms'
+        ];
         var status = JSON.parse(response.payload);
         var expected = require('./fixture/upload-status.json');
         status = omit(status, omitted);
