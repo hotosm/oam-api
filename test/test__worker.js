@@ -85,11 +85,12 @@ suite('test worker', function () {
       .findOne({ url: 'http://localhost:8080/NE1_50M_SR.tif' })
       .then(function (image) {
         assert(image.status === 'finished');
-        assert.equal(JSON.stringify(metadata), JSON.stringify(image.metadata),
+        assert.equal(JSON.stringify(metadata),
+                     JSON.stringify(image.metadata),
           'the uploaded metadata is stored in the db entry for an image');
         assert.match(metadata.uuid, /http:\/\/oam-uploader.s3.amazonaws.com\/uploads\/.*\/.*\/scene\/0\/scene-0-image-0-NE1_50M_SR\.tif/);
         assert.match(metadata.properties.thumbnail, /thumb\.(png|jpe?g)$/);
-        var omitted = ['uuid', 'thumbnail'];
+        var omitted = ['uuid', 'thumbnail', 'tms'];
         assert.deepEqual(omit(metadata, omitted), omit(expected, omitted),
           'generated metadata');
 
