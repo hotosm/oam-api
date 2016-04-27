@@ -49,7 +49,6 @@ var getBucketList = function (cb) {
       buckets = _.flatten(buckets);
       cb(buckets);
     });
-
   }).on('error', function (e) {
     return console.error(e);
   });
