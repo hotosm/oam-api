@@ -22,7 +22,7 @@ module.exports.query = function (payload, page, limit, cb) {
       var coordinates = payload.bbox.split(',').map(parseFloat);
       var geometry = bboxPolygon(coordinates).geometry;
       payload.geojson = {
-         $geoIntersects: { $geometry: geometry }
+        $geoIntersects: { $geometry: geometry }
       };
 
       // remove bbox from payload
@@ -180,7 +180,6 @@ module.exports.addUpdateTms = function (remoteUri, tmsUri, cb) {
       );
       return cb(err);
     } else {
-
       var custom = [];
 
       if (typeof meta.custom_tms === 'undefined') {
