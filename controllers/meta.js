@@ -22,7 +22,7 @@ module.exports.query = function (payload, page, limit, cb) {
       var coordinates = payload.bbox.split(',').map(parseFloat);
       var geometry = bboxPolygon(coordinates).geometry;
       payload.geojson = {
-         $geoIntersects: { $geometry: geometry }
+        $geoIntersects: { $geometry: geometry }
       };
 
       // remove bbox from payload
@@ -71,7 +71,10 @@ module.exports.query = function (payload, page, limit, cb) {
   }
 
   if (_.has(payload, 'has_tiled')) {
-    payload['properties.tms'] = { $exists: true };
+    payload['$or'] = [
+      {'properties.tms': { $exists: true }},
+      {'custom_tms': { $exists: true }}
+    ];
 
     // sanitized payload
     payload = _.omit(payload, 'has_tiled');
@@ -180,7 +183,6 @@ module.exports.addUpdateTms = function (remoteUri, tmsUri, cb) {
       );
       return cb(err);
     } else {
-
       var custom = [];
 
       if (typeof meta.custom_tms === 'undefined') {

@@ -30,10 +30,10 @@ Server.prototype.start = function (cb) {
     if (err) throw err;
 
     self.hapi.auth.strategy('simple', 'bearer-access-token', {
-        allowQueryToken: true,              // optional, true by default
-        allowMultipleHeaders: false,        // optional, false by default
-        accessTokenName: 'access_token',    // optional, 'access_token' by default
-        validateFunc: auth
+      allowQueryToken: true,              // optional, true by default
+      allowMultipleHeaders: false,        // optional, false by default
+      accessTokenName: 'access_token',    // optional, 'access_token' by default
+      validateFunc: auth
     });
   });
 

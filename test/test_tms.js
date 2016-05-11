@@ -137,7 +137,6 @@ describe('TMS endpoint', function () {
       expect(err).to.be.null;
       done();
     });
-
   });
 
   it('list tms', function (done) {

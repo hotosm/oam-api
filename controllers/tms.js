@@ -27,7 +27,6 @@ module.exports.query = function (payload, page, limit, cb) {
 };
 
 module.exports.addUpdate = function (payload, cb) {
-
   var images = [];
   if (!(payload.uri instanceof Array)) {
     payload.uri = [payload.uri];
