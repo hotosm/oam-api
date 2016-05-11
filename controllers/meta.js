@@ -71,7 +71,10 @@ module.exports.query = function (payload, page, limit, cb) {
   }
 
   if (_.has(payload, 'has_tiled')) {
-    payload['properties.tms'] = { $exists: true };
+    payload['$or'] = [
+      {'properties.tms': { $exists: true }},
+      {'custom_tms': { $exists: true }}
+    ];
 
     // sanitized payload
     payload = _.omit(payload, 'has_tiled');
