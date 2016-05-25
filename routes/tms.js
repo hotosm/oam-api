@@ -9,7 +9,7 @@ var tms = require('../controllers/tms.js');
  * @apiGroup TMS
  * @apiDescription Add a TMS (Tiled Map Service) endpoint to the catalog. **This is an authenticated endpoint.**
  *
- * @apiHeader {string} [Authorization] Bear Token for authentication
+ * @apiHeader {string} [Authorization] Bearer Token for authentication
  *
  * @apiHeaderExample {json} Request-Example:
  *                      { "Authorization": "Bearer token" }

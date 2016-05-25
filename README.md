@@ -130,3 +130,6 @@ default is `100`.
 
 ### Docs Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
+
+##License
+Oam Catalog is licensed under **BSD 3-Clause License**, see the [LICENSE](LICENSE) file for more details.
