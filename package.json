@@ -13,7 +13,7 @@
     "url": "https://github.com/hotosm/oam-catalog.git"
   },
   "author": "Development Seed",
-  "license": "CC01",
+  "license": "BSD 3-Clause",
   "bugs": {
     "url": "https://github.com/hotosm/oam-catalog/issues"
   },
