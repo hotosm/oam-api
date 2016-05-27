@@ -101,3 +101,6 @@ exit
 Now you can use `deploy -c .build_scripts/deploy.conf ENV` at any time to
 deploy your local branch.
 
+## License
+Oam Uploader Api is licensed under **BSD 3-Clause License**, see the [LICENSE](LICENSE) file for more details.
+
