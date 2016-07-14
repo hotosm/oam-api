@@ -31,7 +31,7 @@ module.exports = [
         Meta.distinct('provider'),
         Meta.distinct('properties.sensor')
       ]).then(function (metrics) {
-        let results = {};
+        var results = {};
         results['images'] = metrics[0];
         results['providers'] = metrics[1].length;
         results['sensors'] = metrics[2].length;
