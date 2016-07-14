@@ -26,26 +26,19 @@ module.exports = [
     method: 'GET',
     path: '/summary',
     handler: function (request, reply) {
-      const handleError = function (err) {
-        console.log(err);
-        return reply(err.message);
-      };
-      let results = {};
       return Promise.all([
-        Meta.count(function (err, images) {
-          if (err) handleError(err);
-        }),
-        Meta.distinct('provider').exec(function (err, providers) {
-          if (err) handleError(err);
-        }),
-        Meta.distinct('properties.sensor').exec(function (err, sensors) {
-          if (err) handleError(err);
-        })
+        Meta.count(),
+        Meta.distinct('provider'),
+        Meta.distinct('properties.sensor')
       ]).then(function (metrics) {
+        let results = {};
         results['images'] = metrics[0];
         results['providers'] = metrics[1].length;
         results['sensors'] = metrics[2].length;
         return reply(results);
+      }).catch(function (err) {
+        console.log(err);
+        return reply(err.message);
       });
     }
   }
