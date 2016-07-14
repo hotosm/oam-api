@@ -25,22 +25,23 @@ module.exports = [
   {
     method: 'GET',
     path: '/summary',
-    handler: (request, reply) => {
-      const handleError = (err) => {
-        console.log(err); return reply(err.message);
+    handler: function (request, reply) {
+      const handleError = function (err) {
+        console.log(err);
+        return reply(err.message);
       };
+      let results = {};
       return Promise.all([
-        Meta.count((err, images) => {
+        Meta.count(function (err, images) {
           if (err) handleError(err);
         }),
-        Meta.distinct('provider').exec((err, providers) => {
+        Meta.distinct('provider').exec(function (err, providers) {
           if (err) handleError(err);
         }),
-        Meta.distinct('properties.sensor').exec((err, sensors) => {
+        Meta.distinct('properties.sensor').exec(function (err, sensors) {
           if (err) handleError(err);
         })
-      ]).then((metrics) => {
-        let results = {};
+      ]).then(function (metrics) {
         results['images'] = metrics[0];
         results['providers'] = metrics[1].length;
         results['sensors'] = metrics[2].length;
