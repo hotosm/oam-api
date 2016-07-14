@@ -32,9 +32,9 @@ module.exports = [
         Meta.distinct('properties.sensor')
       ]).then(function (metrics) {
         var results = {};
-        results['images'] = metrics[0];
-        results['providers'] = metrics[1].length;
-        results['sensors'] = metrics[2].length;
+        results.images = metrics[0];
+        results.providers = metrics[1].length;
+        results.sensors = metrics[2].length;
         return reply(results);
       }).catch(function (err) {
         console.log(err);
