@@ -3,23 +3,22 @@
 var Meta = require('../models/meta.js');
 
 /**
- * @api {get} /analytics Platform metadata
- * @apiGroup Analytics
- * @apiDescription Provides metadata about the catalog
+ * @api {get} /summary Platform summary stats
+ * @apiGroup Summary
+ * @apiDescription Provides counts of unique images, providers, and sensors
+ * in the catalog
  *
- * @apiSuccess {integer}   count      Number of images in catalog
- * @apiSuccess {date}      date       Date and time of data point
+ * @apiSuccess {integer}   images     Number of unique images in catalog
+ * @apiSuccess {integer}   providers  Number of unique providers in catalog
+ * @apiSuccess {integer}   sensors    Number of unique sensors in catalog
  *
  * @apiSuccessExample {json} Success Response:
  *      HTTP/1.1 200 OK
- *      [{
- *       "date": "2015-07-17T18:49:22.452Z",
- *       "count": 856,
- *      },
  *      {
- *       "date": "2015-07-17T17:49:22.452Z",
- *       "count": 856,
- *      }]
+ *       "images": 2892,
+ *       "providers": 18,
+ *       "sensors": 13
+ *      }
  */
 
 module.exports = [
@@ -31,7 +30,7 @@ module.exports = [
         console.log(err); return reply(err.message);
       };
       return Promise.all([
-        Meta.count((err, totalCount) => {
+        Meta.count((err, images) => {
           if (err) handleError(err);
         }),
         Meta.distinct('provider').exec((err, providers) => {
@@ -42,7 +41,7 @@ module.exports = [
         })
       ]).then((metrics) => {
         let results = {};
-        results['total_count'] = metrics[0];
+        results['images'] = metrics[0];
         results['providers'] = metrics[1].length;
         results['sensors'] = metrics[2].length;
         return reply(results);
