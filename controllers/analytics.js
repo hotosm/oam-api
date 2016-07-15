@@ -30,14 +30,20 @@ module.exports.query = function (page, limit, cb) {
 *
 * @param {int} count - The number of images in the system
 */
-module.exports.addAnalyticsRecord = function (count, cb) {
-  var record = new Analytics({ date: Date.now(), count: count });
+module.exports.addAnalyticsRecord = function (counts, cb) {
+  var record = new Analytics({
+    date: Date.now(),
+    count: counts.image_count,
+    sensor_count: counts.sensor_count,
+    provider_count: counts.provider_count
+  });
+  console.log(record);
   record.save(function (err, record) {
     if (err) {
       cb(err);
       return console.log(err);
     }
-
+    console.log(record);
     cb(null);
   });
 };

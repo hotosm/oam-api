@@ -10,7 +10,8 @@ var async = require('async');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
 
-var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
+// var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
+var registerURL = 'https://rawgit.com/nbumbarger/ca7e50163da61f3dede36d34f3748236/raw/4d5ed98e08a65aec9ba541cc5a13f16d87d04fab/master-hotosm.json';
 
 var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
 db.start();
@@ -68,18 +69,25 @@ var readBuckets = function (tasks) {
     }
     console.info('--- Finished indexing all buckets ---');
     // Get total record count and save to analytics collection
-    Meta.count(null, function (err, count) {
-      if (err) {
-        db.close();
-        return console.error(err);
-      }
-      analytics.addAnalyticsRecord(count, function (err) {
+    return Promise.all([
+      Meta.count(),
+      Meta.distinct('provider'),
+      Meta.distinct('properties.sensor')
+    ]).then(function (res) {
+      var counts = {};
+      counts.image_count = res[0];
+      counts.provider_count = res[1].length;
+      counts.sensor_count = res[2].length;
+      analytics.addAnalyticsRecord(counts, function (err) {
         if (err) {
           console.error(err);
         }
         console.info('--- Added new analytics record ---');
         db.close();
       });
+    }).catch(function (err) {
+      db.close();
+      return console.error(err);
     });
   });
 };
