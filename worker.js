@@ -68,23 +68,26 @@ var readBuckets = function (tasks) {
       return console.error(err);
     }
     console.info('--- Finished indexing all buckets ---');
-    // Get total record count and save to analytics collection
+    // Get total image, sensor, and provider counts and save
+    // to analytics collection
     return Promise.all([
       Meta.count(),
-      Meta.distinct('provider'),
-      Meta.distinct('properties.sensor')
+      Meta.distinct('properties.sensor'),
+      Meta.distinct('provider')
     ]).then(function (res) {
       var counts = {};
       counts.image_count = res[0];
-      counts.provider_count = res[1].length;
-      counts.sensor_count = res[2].length;
+      counts.sensor_count = res[1].length;
+      counts.provider_count = res[2].length;
       analytics.addAnalyticsRecord(counts, function (err) {
+        // Catch error in record addition
         if (err) {
           console.error(err);
         }
         console.info('--- Added new analytics record ---');
         db.close();
       });
+    // Catch error in db query promises
     }).catch(function (err) {
       db.close();
       return console.error(err);
