@@ -4,14 +4,12 @@ require('envloader').load();
 
 var https = require('https');
 var _ = require('lodash');
-
 var Conn = require('./services/db.js');
 var S3 = require('./services/s3.js');
 var async = require('async');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
-// mongoose has deprecated built-in promise library (mpromise)
-// replace with bluebird
+// Replace mongoose's deprecated promise library (mpromise) with bluebird
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
@@ -72,8 +70,7 @@ var readBuckets = function (tasks) {
       return console.error(err);
     }
     console.info('--- Finished indexing all buckets ---');
-    // Get total image, sensor, and provider counts and save
-    // to analytics collection
+    // Get image, sensor, and provider counts and save to analytics collection
     return Promise.all([
       Meta.count(),
       Meta.distinct('properties.sensor'),
