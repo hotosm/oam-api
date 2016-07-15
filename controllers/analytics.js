@@ -45,7 +45,6 @@ module.exports.addAnalyticsRecord = function (counts, cb) {
       cb(err);
       return console.log(err);
     }
-    console.log(record);
     cb(null);
   });
 };

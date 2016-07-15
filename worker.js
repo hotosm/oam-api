@@ -4,14 +4,18 @@ require('envloader').load();
 
 var https = require('https');
 var _ = require('lodash');
+
 var Conn = require('./services/db.js');
 var S3 = require('./services/s3.js');
 var async = require('async');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
+// mongoose has deprecated built-in promise library (mpromise)
+// replace with bluebird
+var mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
 
-// var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
-var registerURL = 'https://rawgit.com/nbumbarger/ca7e50163da61f3dede36d34f3748236/raw/4d5ed98e08a65aec9ba541cc5a13f16d87d04fab/master-hotosm.json';
+var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 
 var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
 db.start();
