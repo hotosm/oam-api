@@ -9,6 +9,9 @@ var S3 = require('./services/s3.js');
 var async = require('async');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
+// Replace mongoose's deprecated promise library (mpromise) with bluebird
+var mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
 
 var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 
@@ -67,19 +70,28 @@ var readBuckets = function (tasks) {
       return console.error(err);
     }
     console.info('--- Finished indexing all buckets ---');
-    // Get total record count and save to analytics collection
-    Meta.count(null, function (err, count) {
-      if (err) {
-        db.close();
-        return console.error(err);
-      }
-      analytics.addAnalyticsRecord(count, function (err) {
+    // Get image, sensor, and provider counts and save to analytics collection
+    return Promise.all([
+      Meta.count(),
+      Meta.distinct('properties.sensor'),
+      Meta.distinct('provider')
+    ]).then(function (res) {
+      var counts = {};
+      counts.image_count = res[0];
+      counts.sensor_count = res[1].length;
+      counts.provider_count = res[2].length;
+      analytics.addAnalyticsRecord(counts, function (err) {
+        // Catch error in record addition
         if (err) {
           console.error(err);
         }
         console.info('--- Added new analytics record ---');
         db.close();
       });
+    // Catch error in db query promises
+    }).catch(function (err) {
+      db.close();
+      return console.error(err);
     });
   });
 };

@@ -28,10 +28,18 @@ module.exports.query = function (page, limit, cb) {
 /**
 * Add a analytics record to the database.
 *
-* @param {int} count - The number of images in the system
+* @param {int} counts - An object containing
+*                .image_count - number of images in system
+*                .sensor_count - number of unique sensors in system
+*                .provider_count - number of unique providers in system
 */
-module.exports.addAnalyticsRecord = function (count, cb) {
-  var record = new Analytics({ date: Date.now(), count: count });
+module.exports.addAnalyticsRecord = function (counts, cb) {
+  var record = new Analytics({
+    date: Date.now(),
+    count: counts.image_count,
+    sensor_count: counts.sensor_count,
+    provider_count: counts.provider_count
+  });
   record.save(function (err, record) {
     if (err) {
       cb(err);

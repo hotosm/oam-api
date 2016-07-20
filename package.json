@@ -13,13 +13,14 @@
     "url": "https://github.com/hotosm/oam-catalog.git"
   },
   "author": "Development Seed",
-  "license": "CC01",
+  "license": "BSD 3-Clause",
   "bugs": {
     "url": "https://github.com/hotosm/oam-catalog/issues"
   },
   "homepage": "https://github.com/hotosm/oam-catalog",
   "dependencies": {
     "async": "^1.3.0",
+    "bluebird": "^3.4.1",
     "boom": "^2.7.1",
     "envloader": "0.0.2",
     "fs-extra": "^0.18.2",
