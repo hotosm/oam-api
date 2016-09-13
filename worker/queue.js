@@ -111,6 +111,11 @@ JobQueue.prototype._mainloop = function mainloop () {
         scene.images.forEach(function (id, j) {
           if (image._id.equals(id)) {
             var filename = image.url.split('/').pop() || 'untitled';
+            var qmIndex = filename.indexOf('?');
+            if (qmIndex !== -1) {
+              filename = filename.substring(0, qmIndex);
+            }
+            filename = filename.replace(/[^a-zA-Z0-9 _\-\\.]/g, '').replace(/ /g, '-');
             filename = ['scene', i, 'image', j, filename].join('-');
             var key = ['uploads', now, upload._id, 'scene', i, filename].join('/');
             // now that we have the scene, we can process the image
