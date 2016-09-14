@@ -11,21 +11,18 @@ env:
   - GH_REF=github.com/hotosm/oam-uploader-api.git
   - PRODUCTION_BRANCH=master
   - secure: W0eGs5Lg+fZOIEYKLIFJZPsw7qFUNFTAUtPS/2UmlWwlQtzvYCYnNu4dd62kZKivzCuWZiwdwsm58l2r6tB6zRv7/3S4mhkiA1SrYFC3p34CXXV9XaJeEgOQ1SXoJuAW1ThSmq7CJu9dsk3Aix+KA4MggzBgTPG2RXyYhgr3Qzhcil1BX6KNqW4TP7cPaJTUCEhoDcyVLNvmjvUDQNwwJjCu1hifDptlyZt88jDshIVPi4wd2ITy10O22dkwvVaes79A7yYrpRyBJyAhb8w/fPZsCwT+9wQz28x1Q47at/eERrpeAVGOUbXE+5cla/dCCVG3rMlyJnaRP0HagaUQK71GJMYe/nnOEirmF3vtpYzRTmzbvaahEtWr6EbdVWqXB8WJCBShgEF2NICwQAYwgIsYyzIAI3wDvVyrdhbSqqARlUqRwEN4NUFAXfVYkXssYWiTz/s0Eaktg3I/Z0wL2lgBy0hz2JN9BcSCjSdzzj9FWaoWjFSDamb/M5U1R6h9rTGe2bgoDGsZbo4TV/QCXIsKvqjX5lC/W5GFyoUOyTrqtGyPIpOdkTg8Nf1V2ZPuAznln6YYchMdO64eABy7w5tKErM6JP8N4pHFgkgIPJI4gZdAlUELFe+mgqp/kl1GEuSd8TtlIdZ/ErvsmhH5ubYifIdBkpSZfUMRM/vueXI=
-services: mongodb
 before_install:
 - echo "Installing libvips..."
 - sudo add-apt-repository -y ppa:lovell/precise-backport-vips
 - sudo apt-get update
 - sudo apt-get install -y libvips-dev
 - echo "Completed libvips installation."
+- echo "Installing latest mongodb"
+- sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+- echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+- sudo apt-get update && sudo apt-get install -y mongodb-org
+- sudo service mongod restart
+- echo "Completed installing mongodb"
 - chmod +x ./.build_scripts/docs.sh
 after_success:
 - "./.build_scripts/docs.sh"
-deploy:
-  provider: heroku
-  app: oam-uploader-api
-  on:
-    repo: hotosm/oam-uploader-api
-    branch: master
-  api_key:
-    secure: VHwJSkfvBAAXl1BPcgV2RvoQFSV62B5gJJ+RK9fiBv++IO6pJpJErStljwxv/LTedT0lp3NHWlK12NpJc6fWQg/hQo4KzxHP6NEqsZx/lNQ5te4KDQNZcOQjFV6miSArWm1VbVv2DvJoAOATuPcR7+daleWNd/H/EDZ+692hqAp4zcQ/ek6q7+TezxKFdUY43f3hN77u+umTbHd7mqwJEuSkUR29oq/fsh9Ik1+6UR3jlfs8mn47yUXbD74g81/5oSogt8uBzVNsfuhEWdpJ7GTdS4dXM5fci5PsvVZfc9lrcsex7vItu+LmggFLOkr2HI4+Hnvd0v5b9ML0khMxFtEY+lb0vDqMch4O5aT1pA1bi73g8UluuB8K/PTbhVsuVA2AXJ5PEznlNUZPpgZg3jNDV1Xrcc0Nmoi7s6dGJyCcWtat4aqi7Lo6zF9tzDlRS2vWrNeWG/oTGnSZhWozOCxavJZ6Z9eKVE2MIenCqYrkhL+E952mQwS++5IhpE5ibvPq/84FfAzjUgGRCu1r3LyYPISLKFrpyfqT7PEMOK1YqgOH6tAIClrxagcB+80i40NG9hu3mo3Sg3ckGMBsxaXR13VH8gHcCAKxv79a6jwzMKdlsOlGLjIUL2adewUToN7ssVQtCRwXKM+ZW92kMgtLxImbMwySshCkRK5vNYc=

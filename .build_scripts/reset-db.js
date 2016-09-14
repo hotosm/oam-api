@@ -9,17 +9,32 @@ var rl = readline.createInterface({
   output: process.stdout
 });
 
-rl.question("Type 'yes' if you really want to clear the database.", function (answer) {
+rl.question("Type 'yes' if you really want to clear the database: ", function (answer) {
   if (answer === 'yes') {
     console.log('Okay, doing it!');
     MongoClient.connect(dbUri, function (err, connection) {
       if (err) throw err;
-      connection.collection('workers').deleteMany({})
+      console.log('Connected to db.');
+      console.log('Dropping workers');
+      connection.dropCollection('workers')
       .then(function () {
-        return connection.collection('uploads').deleteMany({});
+        console.log('Dropping uploads');
+        return connection.dropCollection('uploads');
+      })
+      .then(function () {
+        console.log('Dropping tokens');
+        return connection.dropCollection('tokens');
+      })
+      .then(function () {
+        console.log('Dropping images');
+        return connection.dropCollection('images');
       })
       .then(function () {
         console.log('Done.');
+        connection.close();
+      })
+      .catch(function (err) {
+        console.error(err);
         connection.close();
       });
     });

@@ -14,7 +14,6 @@ var assert = chai.assert;
 var cookie = null;
 
 suite('test authentication', function () {
-
   before(function (done) {
     // Get a reference to the server.
     // Wait for everything to load.

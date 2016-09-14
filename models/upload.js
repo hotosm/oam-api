@@ -8,12 +8,12 @@ var infoSchema = Joi.object().keys({
 var sceneSchema = Joi.object().keys({
   contact: infoSchema.required(),
   title: Joi.string().min(1).required(),
-  provider: Joi.string(),
+  provider: Joi.string().min(1).required(),
   platform: Joi.any().allow('satellite', 'aircraft', 'UAV', 'balloon', 'kite').required(),
   sensor: Joi.string(),
   acquisition_start: Joi.date().required(),
   acquisition_end: Joi.date().required(),
-  tms: Joi.string().uri(),
+  tms: Joi.string().allow(null),
   urls: Joi.array().items(Joi.string().uri({scheme: ['http', 'https']}))
     .min(1).required()
 });

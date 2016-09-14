@@ -8,7 +8,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['oam-uploader', 'server'],
+  app_name: ['oam-uploader', 'worker'],
   /**
    * Your New Relic license key.
    */

@@ -60,7 +60,8 @@ var OAMUploader = function (readyCb) {
       {
         register: require('hapi-router'),
         options: {
-          routes: './routes/*.js'
+          routes: './routes/*.js',
+          ignore: './routes/_apidoc.js'
         }
       }
     ], function (err) {
@@ -69,7 +70,6 @@ var OAMUploader = function (readyCb) {
       readyCb(hapi);
     });
   });
-
 };
 
 // https://medium.com/the-spumko-suite/testing-hapi-services-with-lab-96ac463c490a
@@ -82,6 +82,9 @@ if (!module.parent) {
     // Start the server.
     hapi.start(function () {
       hapi.log(['info'], 'Server running at:' + hapi.info.uri);
+      // spawn a worker to handle any unprocessed uploads that may be sitting
+      // around in the database
+      hapi.plugins.workers.spawn();
     });
   });
 }

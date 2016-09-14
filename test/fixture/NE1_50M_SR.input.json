@@ -1,0 +1,24 @@
+{
+  "uploader": {
+    "name": "Lady Stardust",
+    "email": "lady@stardust.xyz"
+  },
+  "scenes": [
+    {
+      "contact": {
+        "name": "Ziggy",
+        "email": "ziggy@bowie.net"
+      },
+      "title": "Natural Earth Image",
+      "provider": "Natural Earth",
+      "sensor": "Some Algorithm",
+      "platform": "satellite",
+      "acquisition_start": "2015-04-01T00:00:00.000",
+      "acquisition_end": "2015-04-30T00:00:00.000",
+      "tms": null,
+      "urls": [
+        "http://localhost:8080/NE1_50M_SR.tif"
+      ]
+    }
+  ]
+}
