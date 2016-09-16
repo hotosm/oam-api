@@ -4,7 +4,7 @@ var xtend = require('xtend');
 // overriden by environment variables (see below).
 var defaults = {
   host: '0.0.0.0', // cosmetic
-  port: 3000, // port to listen on
+  port: 4000, // port to listen on
   dbUri: process.env.NODE_ENV === 'test' ? 'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader', // the mongodb database uri (mongodb://user:pass@host:port/db)
   adminPassword: null, // the administrator username
   adminUsername: null, // the administrator password
