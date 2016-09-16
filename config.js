@@ -14,6 +14,7 @@ var defaults = {
   maxWorkers: 1, // the maximum number of workers
   sendgridApiKey: null, // sendgrid API key, for sending notification emails
   sendgridFrom: 'info@hotosm.org', // the email address from which to send notification emails
+  gdriveKey: null,
   emailNotification: {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
@@ -48,7 +49,8 @@ var environment = {
   awsAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   awsRegion: process.env.AWS_REGION,
   sendgridApiKey: process.env.SENDGRID_API_KEY,
-  sendgridFrom: process.env.SENDGRID_FROM
+  sendgridFrom: process.env.SENDGRID_FROM,
+  gdriveKey: process.env.GDRIVE_KEY
 };
 
 var config = xtend(defaults);
