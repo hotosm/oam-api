@@ -4,7 +4,7 @@ var xtend = require('xtend');
 // overriden by environment variables (see below).
 var defaults = {
   host: '0.0.0.0', // cosmetic
-  port: 3000, // port to listen on
+  port: 4000, // port to listen on
   dbUri: process.env.NODE_ENV === 'test' ? 'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader', // the mongodb database uri (mongodb://user:pass@host:port/db)
   adminPassword: null, // the administrator username
   adminUsername: null, // the administrator password
@@ -14,6 +14,7 @@ var defaults = {
   maxWorkers: 1, // the maximum number of workers
   sendgridApiKey: null, // sendgrid API key, for sending notification emails
   sendgridFrom: 'info@hotosm.org', // the email address from which to send notification emails
+  gdriveKey: null,
   emailNotification: {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
@@ -48,7 +49,8 @@ var environment = {
   awsAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   awsRegion: process.env.AWS_REGION,
   sendgridApiKey: process.env.SENDGRID_API_KEY,
-  sendgridFrom: process.env.SENDGRID_FROM
+  sendgridFrom: process.env.SENDGRID_FROM,
+  gdriveKey: process.env.GDRIVE_KEY
 };
 
 var config = xtend(defaults);
