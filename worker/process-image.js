@@ -53,8 +53,16 @@ function _processImage (s3, scene, url, key, cb) {
       if (ext === '.jp2') {
         var parsedPath = pathTools.parse(path);
         var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
-        cp.execSync(`${translateExe} -of GTiff ${path} ${outPath}`);
-        fs.unlinkSync(path);
+        var cmd = `${translateExe} -of GTiff ${path} ${outPath} ` +
+                  '-co TILED=yes ' +
+                  '-co COMPRESS=DEFLATE ' +
+                  '-co PREDICTOR=2 ' +
+                  '-co SPARSE_OK=yes ' +
+                  '-co BLOCKXSIZE=256 ' +
+                  '-co BLOCKYSIZE=256 ' +
+                  '-co INTERLEAVE=band ' +
+                  '-co NUM_THREADS=ALL_CPUS';
+        cp.execSync(cmd);
         path = outPath;
       }
 
