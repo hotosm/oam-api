@@ -120,14 +120,8 @@ function translateJPEG2000 (ext, path, key, callback) {
               '-co BLOCKYSIZE=256 ' +
               '-co INTERLEAVE=band ' +
               '-co NUM_THREADS=ALL_CPUS';
-
     cp.execSync(cmd);
 
-    // cp.exec(cmd, (err, stdout, stderr) => {
-    //   if (err) { return callback(err); }
-    //   console.log(`\n\n\nstdout: ${stdout}`);
-    //   console.log(`\n\n\nstderr: ${stderr}`);
-    // });
     const parsedKey = pathTools.parse(key);
     key = pathTools.join(parsedKey.dir, parsedKey.name) + '.tif';
     path = outPath;
