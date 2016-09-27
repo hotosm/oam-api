@@ -1,6 +1,8 @@
 'use strict';
 
 var fs = require('fs');
+var pathTools = require('path');
+var cp = require('child_process');
 var tmp = require('tmp');
 var promisify = require('es6-promisify');
 var request = require('request');
@@ -10,6 +12,8 @@ var applyGdalinfo = require('oam-meta-generator/lib/apply-gdalinfo');
 var sharp = require('sharp');
 var log = require('./log');
 var config = require('../config');
+// Must be modified to match the local path to the gdal_translate executable
+var translateExe = '/Library/Frameworks/GDAL.framework/Versions/2.1/Programs/gdal_translate';
 
 var s3bucket = config.oinBucket;
 // desired size in kilobytes * 1000 bytes/kb / (~.75 byte/pixel)
@@ -21,7 +25,8 @@ module.exports = promisify(_processImage);
  * Callback called with (err, { metadata, messages })
  */
 function _processImage (s3, scene, url, key, cb) {
-  tmp.file({ postfix: '.tif' }, function (err, path, fd, cleanup) {
+  var ext = pathTools.extname(url).toLowerCase();
+  tmp.file({ postfix: ext }, function (err, path, fd, cleanup) {
     function callback (err, data) {
       cleanup();
       cb(err, data);
@@ -43,6 +48,16 @@ function _processImage (s3, scene, url, key, cb) {
       }
 
       var messages = [];
+
+      // Convert JPEG2000 to TIFF, if applicable
+      if (ext === '.jp2') {
+        var parsedPath = pathTools.parse(path);
+        var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
+        cp.execSync(`${translateExe} -of GTiff ${path} ${outPath}`);
+        fs.unlinkSync(path);
+        path = outPath;
+      }
+
       // we've successfully downloaded the file.  now do stuff with it.
       generateMetadata(scene, path, key, function (err, metadata) {
         if (err) { return callback(err); }
@@ -162,4 +177,3 @@ function makeThumbnail (imagePath, callback) {
 function publicUrl (bucketName, key) {
   return 'http://' + bucketName + '.s3.amazonaws.com/' + key;
 }
-
