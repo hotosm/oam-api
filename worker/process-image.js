@@ -49,33 +49,19 @@ function _processImage (s3, scene, url, key, cb) {
 
       var messages = [];
 
-      // Convert JPEG2000 to TIFF, if applicable
-      if (ext === '.jp2') {
-        var parsedPath = pathTools.parse(path);
-        var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
-        var cmd = `${translateExe} -of GTiff ${path} ${outPath} ` +
-                  '-co TILED=yes ' +
-                  '-co COMPRESS=DEFLATE ' +
-                  '-co PREDICTOR=2 ' +
-                  '-co SPARSE_OK=yes ' +
-                  '-co BLOCKXSIZE=256 ' +
-                  '-co BLOCKYSIZE=256 ' +
-                  '-co INTERLEAVE=band ' +
-                  '-co NUM_THREADS=ALL_CPUS';
-        cp.execSync(cmd);
-        path = outPath;
-      }
-
       // we've successfully downloaded the file.  now do stuff with it.
-      generateMetadata(scene, path, key, function (err, metadata) {
+      translateJPEG2000(ext, path, key, function (err, path, key) {
         if (err) { return callback(err); }
-        makeThumbnail(path, function (thumbErr, thumbPath) {
-          if (thumbErr) {
-            messages.push('Could not generate thumbnail: ' + thumbErr.message);
-            thumbPath = null;
-          }
-          uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
-            callback(err, { metadata: metadata, messages: messages });
+        generateMetadata(scene, path, key, function (err, metadata) {
+          if (err) { return callback(err); }
+          makeThumbnail(path, function (thumbErr, thumbPath) {
+            if (thumbErr) {
+              messages.push('Could not generate thumbnail: ' + thumbErr.message);
+              thumbPath = null;
+            }
+            uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
+              callback(err, { metadata: metadata, messages: messages });
+            });
           });
         });
       });
@@ -117,6 +103,37 @@ function uploadToS3 (s3, path, key, metadata, thumbPath, callback) {
     log(['debug'], 'Finished uploading');
     callback();
   });
+}
+
+function translateJPEG2000 (ext, path, key, callback) {
+  if (ext === '.jp2') {
+    log(['debug'], 'Converting JPEG2000 to TIFF.');
+    var parsedPath = pathTools.parse(path);
+    var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
+
+    var cmd = `${translateExe} -of GTiff ${path} ${outPath} ` +
+              '-co TILED=yes ' +
+              '-co COMPRESS=DEFLATE ' +
+              '-co PREDICTOR=2 ' +
+              '-co SPARSE_OK=yes ' +
+              '-co BLOCKXSIZE=256 ' +
+              '-co BLOCKYSIZE=256 ' +
+              '-co INTERLEAVE=band ' +
+              '-co NUM_THREADS=ALL_CPUS';
+
+    cp.execSync(cmd);
+
+    // cp.exec(cmd, (err, stdout, stderr) => {
+    //   if (err) { return callback(err); }
+    //   console.log(`\n\n\nstdout: ${stdout}`);
+    //   console.log(`\n\n\nstderr: ${stderr}`);
+    // });
+    const parsedKey = pathTools.parse(key);
+    key = pathTools.join(parsedKey.dir, parsedKey.name) + '.tif';
+    path = outPath;
+    log(['debug'], 'Converted JPEG2000 to TIFF: ', path);
+  }
+  callback(null, path, key);
 }
 
 function generateMetadata (scene, path, key, callback) {
