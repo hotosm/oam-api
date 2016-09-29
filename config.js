@@ -51,7 +51,7 @@ var environment = {
   awsRegion: process.env.AWS_REGION,
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   sendgridFrom: process.env.SENDGRID_FROM,
-  gdalTranslateBin: process.env.GDAL_TRANSLATE_BIN
+  gdalTranslateBin: process.env.GDAL_TRANSLATE_BIN,
   gdriveKey: process.env.GDRIVE_KEY
 };
 
