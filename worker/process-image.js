@@ -62,7 +62,6 @@ function _processImage (s3, scene, url, key, cb) {
           makeThumbnail(path, function (thumbErr, thumbPath) {
             if (thumbErr) {
               messages.push('Could not generate thumbnail: ' + thumbErr.message);
-              thumbPath = null;
             }
             uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
               callback(err, { metadata: metadata, messages: messages });
@@ -123,17 +122,20 @@ function translateJPEG2000 (ext, path, key, callback) {
   var parsedPath = pathTools.parse(path);
   var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
 
-  var cmd = `${config.gdalTranslateBin} -of GTiff ${path} ${outPath} ` +
-            '-co TILED=yes ' +
-            '-co COMPRESS=DEFLATE ' +
-            '-co PREDICTOR=2 ' +
-            '-co SPARSE_OK=yes ' +
-            '-co BLOCKXSIZE=256 ' +
-            '-co BLOCKYSIZE=256 ' +
-            '-co INTERLEAVE=band ' +
-            '-co NUM_THREADS=ALL_CPUS';
+  var args = [
+    '-of', 'GTiff',
+    path, outPath,
+    '-co', 'TILED=yes',
+    '-co', 'COMPRESS=DEFLATE',
+    '-co', 'PREDICTOR=2',
+    '-co', 'SPARSE_OK=yes',
+    '-co', 'BLOCKXSIZE=256',
+    '-co', 'BLOCKYSIZE=256',
+    '-co', 'INTERLEAVE=band',
+    '-co', 'NUM_THREADS=ALL_CPUS'
+  ];
 
-  cp.exec(cmd, function (err, stdout, stderr) {
+  cp.execFile(config.gdalTranslateBin, args, function (err, stdout, stderr) {
     if (err) { return callback(err); }
     const parsedKey = pathTools.parse(key);
     key = pathTools.join(parsedKey.dir, parsedKey.name) + '.tif';
