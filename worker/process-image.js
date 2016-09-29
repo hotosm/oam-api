@@ -12,8 +12,6 @@ var applyGdalinfo = require('oam-meta-generator/lib/apply-gdalinfo');
 var sharp = require('sharp');
 var log = require('./log');
 var config = require('../config');
-// Must be modified to match the local path to the gdal_translate executable
-var translateExe = '/Library/Frameworks/GDAL.framework/Versions/2.1/Programs/gdal_translate';
 
 var s3bucket = config.oinBucket;
 // desired size in kilobytes * 1000 bytes/kb / (~.75 byte/pixel)
@@ -106,28 +104,36 @@ function uploadToS3 (s3, path, key, metadata, thumbPath, callback) {
 }
 
 function translateJPEG2000 (ext, path, key, callback) {
-  if (ext === '.jp2') {
-    log(['debug'], 'Converting JPEG2000 to TIFF.');
-    var parsedPath = pathTools.parse(path);
-    var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
+  if (ext !== '.jp2') {
+    return callback(null, path, key);
+  }
 
-    var cmd = `${translateExe} -of GTiff ${path} ${outPath} ` +
-              '-co TILED=yes ' +
-              '-co COMPRESS=DEFLATE ' +
-              '-co PREDICTOR=2 ' +
-              '-co SPARSE_OK=yes ' +
-              '-co BLOCKXSIZE=256 ' +
-              '-co BLOCKYSIZE=256 ' +
-              '-co INTERLEAVE=band ' +
-              '-co NUM_THREADS=ALL_CPUS';
-    cp.execSync(cmd);
+  if (!config.gdalTranslateBin) {
+    throw new Error('GDAL bin path missing.');
+  }
 
+  log(['debug'], 'Converting JPEG2000 to TIFF.');
+  var parsedPath = pathTools.parse(path);
+  var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
+
+  var cmd = `${config.gdalTranslateBin} -of GTiff ${path} ${outPath} ` +
+            '-co TILED=yes ' +
+            '-co COMPRESS=DEFLATE ' +
+            '-co PREDICTOR=2 ' +
+            '-co SPARSE_OK=yes ' +
+            '-co BLOCKXSIZE=256 ' +
+            '-co BLOCKYSIZE=256 ' +
+            '-co INTERLEAVE=band ' +
+            '-co NUM_THREADS=ALL_CPUS';
+
+  cp.exec(cmd, function (err, stdout, stderr) {
+    if (err) { return callback(err); }
     const parsedKey = pathTools.parse(key);
     key = pathTools.join(parsedKey.dir, parsedKey.name) + '.tif';
     path = outPath;
     log(['debug'], 'Converted JPEG2000 to TIFF: ', path);
-  }
-  callback(null, path, key);
+    return callback(null, path, key);
+  });
 }
 
 function generateMetadata (scene, path, key, callback) {

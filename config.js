@@ -48,7 +48,8 @@ var environment = {
   awsAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   awsRegion: process.env.AWS_REGION,
   sendgridApiKey: process.env.SENDGRID_API_KEY,
-  sendgridFrom: process.env.SENDGRID_FROM
+  sendgridFrom: process.env.SENDGRID_FROM,
+  gdalTranslateBin: process.env.GDAL_TRANSLATE_BIN
 };
 
 var config = xtend(defaults);
