@@ -131,7 +131,6 @@ function translateJPEG2000 (ext, path, key, callback) {
     '-co', 'SPARSE_OK=yes',
     '-co', 'BLOCKXSIZE=256',
     '-co', 'BLOCKYSIZE=256',
-    '-co', 'INTERLEAVE=band',
     '-co', 'NUM_THREADS=ALL_CPUS'
   ];
 
