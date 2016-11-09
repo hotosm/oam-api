@@ -29,6 +29,13 @@ function _processImage (s3, scene, url, key, cb) {
 
     if (err) { return callback(err); }
 
+    // Google drive url comes in the form of gdrive://FILE_ID
+    // We need this because large files can only be downloaded with an api key.
+    var pieces = url.match(/gdrive:\/\/(.+)/);
+    if (pieces) {
+      url = `https://www.googleapis.com/drive/v3/files/${pieces[1]}?alt=media&key=${config.gdriveKey}`;
+    }
+
     log(['debug'], 'Downloading ' + url + ' to ' + path);
 
     var downloadStatus;
