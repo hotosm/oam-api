@@ -12,6 +12,10 @@ The steps below will walk you through setting up your own instance of the oam-up
 - [Node.js](https://nodejs.org/)
 - [libvips](https://github.com/jcupitt/libvips)
 
+Using [homebrew](http://brew.sh/), you can install MongoDB and `libvips` using:
+
+    $ brew bundle
+
 ### Install Application Dependencies
 
     $ npm install
