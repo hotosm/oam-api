@@ -24,11 +24,11 @@ module.exports = promisify(_processImage);
  */
 function _processImage (s3, scene, url, key, cb) {
   var ext = pathTools.extname(url).toLowerCase();
-  tmp.file({ postfix: ext }, function (err, path, fd, cleanup) {
-    function callback (err, data) {
-      cleanup();
+  tmp.file({ postfix: ext }, function (err, path, fd, cleanupSource) {
+    var callback = function (err, data) {
+      cleanupSource();
       cb(err, data);
-    }
+    };
 
     if (err) { return callback(err); }
 
@@ -55,22 +55,32 @@ function _processImage (s3, scene, url, key, cb) {
       var messages = [];
 
       // we've successfully downloaded the file.  now do stuff with it.
-      translateJPEG2000(ext, path, key, function (err, path, key) {
+      tmp.file({ postfix: '.tif' }, function (err, tifPath, fd, cleanupTif) {
         if (err) { return callback(err); }
-        generateMetadata(scene, path, key, function (err, metadata) {
+
+        translateImage(ext, path, tifPath, function (err, path) {
+          callback = function (err, data) {
+            cleanupSource();
+            cleanupTif();
+            cb(err, data);
+          };
+
           if (err) { return callback(err); }
-          makeThumbnail(path, function (thumbErr, thumbPath) {
-            if (thumbErr) {
-              messages.push('Could not generate thumbnail: ' + thumbErr.message);
-            }
-            uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
-              callback(err, { metadata: metadata, messages: messages });
+
+          generateMetadata(scene, path, key, function (err, metadata) {
+            if (err) { return callback(err); }
+            makeThumbnail(path, function (thumbErr, thumbPath) {
+              if (thumbErr) {
+                messages.push('Could not generate thumbnail: ' + thumbErr.message);
+              }
+              uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
+                callback(err, { metadata: metadata, messages: messages });
+              });
             });
           });
         });
       });
-    })
-    .on('error', callback);
+    }).on('error', callback);
   });
 }
 
@@ -109,22 +119,14 @@ function uploadToS3 (s3, path, key, metadata, thumbPath, callback) {
   });
 }
 
-function translateJPEG2000 (ext, path, key, callback) {
-  if (ext !== '.jp2') {
-    return callback(null, path, key);
-  }
-
+function translateImage (ext, path, tifPath, callback) {
   if (!config.gdalTranslateBin) {
     throw new Error('GDAL bin path missing.');
   }
-
-  log(['debug'], 'Converting JPEG2000 to TIFF.');
-  var parsedPath = pathTools.parse(path);
-  var outPath = pathTools.join(parsedPath.dir, parsedPath.name) + '.tif';
-
+  log(['debug'], 'Converting image to OAM standard format.');
   var args = [
     '-of', 'GTiff',
-    path, outPath,
+    path, tifPath,
     '-co', 'TILED=yes',
     '-co', 'COMPRESS=DEFLATE',
     '-co', 'PREDICTOR=2',
@@ -136,11 +138,8 @@ function translateJPEG2000 (ext, path, key, callback) {
 
   cp.execFile(config.gdalTranslateBin, args, function (err, stdout, stderr) {
     if (err) { return callback(err); }
-    const parsedKey = pathTools.parse(key);
-    key = pathTools.join(parsedKey.dir, parsedKey.name) + '.tif';
-    path = outPath;
-    log(['debug'], 'Converted JPEG2000 to TIFF: ', path);
-    return callback(null, path, key);
+    log(['debug'], 'Converted image to OAM standard format. Input: ', path, 'Output: ', tifPath);
+    return callback(null, tifPath);
   });
 }
 
