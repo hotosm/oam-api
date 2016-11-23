@@ -20,7 +20,7 @@ The steps below will walk you through setting up your own instance of the oam-up
 
 #### Starting the API:
 
-    $ node index.js
+    $ npm start
 
 The API exposes endpoints used to access information form the system via a RESTful interface.
 
