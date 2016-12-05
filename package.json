@@ -69,7 +69,7 @@
     "title": "OAM API",
     "name": "OpenAerialMap Uploader API",
     "description": "",
-    "url": "https://oam-uploader-api.herokuapp.com",
+    "url": "https://upload-api.openaerialmap.org/",
     "template": {
       "withCompare": false
     },
