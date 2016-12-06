@@ -14,6 +14,12 @@ The steps below will walk you through setting up your own instance of the oam-up
 
 ### Install Application Dependencies
 
+If you use [`nvm`](https://github.com/creationix/nvm), activate the desired Node version:
+
+    $ nvm install
+
+Install Node modules:
+
     $ npm install
 
 ### Usage
