@@ -15,7 +15,7 @@ var defaults = {
   sendgridApiKey: null, // sendgrid API key, for sending notification emails
   sendgridFrom: 'info@hotosm.org', // the email address from which to send notification emails
   gdriveKey: null,
-  gdalTranslateBin: null,
+  gdalTranslateBin: '/usr/bin/gdal_translate',
   emailNotification: {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
