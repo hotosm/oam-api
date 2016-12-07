@@ -25,7 +25,6 @@ before_install:
 - sudo service mongod restart
 - echo "Completed installing mongodb"
 - echo "Installing gdal-bin"
-- sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update
 - sudo apt-get install gdal-bin
 - echo "Completed installing gdal-bin"
 - chmod +x ./.build_scripts/docs.sh
