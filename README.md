@@ -31,11 +31,15 @@ The steps below will walk you through setting up your own instance of the oam-up
 
 If you use [`nvm`](https://github.com/creationix/nvm), activate the desired Node version:
 
-$ nvm install
+```
+nvm install
+```
 
 Install Node modules:
 
-$ npm install
+```
+npm install
+```
 
 ### Usage
 You need to set environment variables before starting the API. We suggest you copy `local.sample.env` to `local.env` and modify it. Before starting the API you can run `source local.env` to export the environment variables to the shell.
@@ -57,7 +61,9 @@ You need to set environment variables before starting the API. We suggest you co
 
 #### Starting the API:
 
-$ npm start
+```
+npm start
+```
 
 The API exposes endpoints used to access information form the system via a RESTful interface.
 
