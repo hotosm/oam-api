@@ -1,6 +1,21 @@
-# OAM Uploader API [![Build Status](https://travis-ci.org/hotosm/oam-uploader-api.svg)](https://travis-ci.org/hotosm/oam-uploader-api) 
+<h1 align="center">OAM Uploader API
+  <a href="https://travis-ci.org/hotosm/oam-uploader-api">
+    <img src="https://travis-ci.org/hotosm/oam-uploader-api.svg" alt="Build Status"></img>
+  </a></h1>
 
-## [API Docs](http://hotosm.github.io/oam-uploader-api/)
+<div align="center">
+  <h3>
+  <a href="https://docs.openaerialmap.org/ecosystem/getting-started">Ecosystem</a>
+  <span> | </span>
+  <a href="http://hotosm.github.io/oam-uploader-api/">API Docs</a>
+  <span> | </span>
+  <a href="https://github.com/hotosm/oam-uploader">Uploader Interface</a>
+  <span> | </span>
+  <a href="https://github.com/hotosm/oam-uploader-admin">Token Manager</a>
+  </h3>
+</div>
+
+The Uploader API powers the [Uploader Interface](https://github.com/hotosm/oam-uploader) by issuing authentication tokens and receiving imagery uploads. Before proceeding, we suggest you read the ecosystem docs.
 
 ## Installation and Usage
 
@@ -9,28 +24,27 @@ The steps below will walk you through setting up your own instance of the oam-up
 ### Install Project Dependencies
 
 - [MongoDB](https://www.mongodb.org/)
-- [Node.js](https://nodejs.org/)
-- [libvips](https://github.com/jcupitt/libvips)
+- [Node.js](https://nodejs.org/) v0.12
+- [libvips](https://github.com/jcupitt/libvips) (Make sure to read the instructions specific to your OS)
 
 ### Install Application Dependencies
 
 If you use [`nvm`](https://github.com/creationix/nvm), activate the desired Node version:
 
-    $ nvm install
+```
+nvm install
+```
 
 Install Node modules:
 
-    $ npm install
+```
+npm install
+```
 
 ### Usage
+You need to set environment variables before starting the API. We suggest you copy `local.sample.env` to `local.env` and modify it. Before starting the API you can run `source local.env` to export the environment variables to the shell.
 
-#### Starting the API:
-
-    $ npm start
-
-The API exposes endpoints used to access information form the system via a RESTful interface.
-
-### Environment Variables
+#### Environment Variables
 
 - `PORT` - the port to listen on
 - `OIN_BUCKET` - The OIN bucket that will receive the uploads
@@ -41,9 +55,17 @@ The API exposes endpoints used to access information form the system via a RESTf
 - `ADMIN_PASSWORD` - Token management Admin password
 - `DBURI` - MongoDB connection url
 - `DBURI_TEST` - MongoDB connection to the test database (not needed for
-  production)
+    production)
 - `SENDGRID_API_KEY` - sendgrid API key, for sending notification emails
 - `SENDGRID_FROM` - email address from which to send notification emails
+
+#### Starting the API:
+
+```
+npm start
+```
+
+The API exposes endpoints used to access information form the system via a RESTful interface.
 
 ### Install via Docker
 
@@ -51,7 +73,6 @@ Alternatively, if you've got a mongo instance running elsewhere, install and
 run on a fresh instance using docker as follows:
 
 [Install Docker](https://docs.docker.com/installation/)
-
 
 One-time setup:
 
