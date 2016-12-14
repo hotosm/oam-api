@@ -2,14 +2,12 @@
   "name": "oam-uploader-api",
   "version": "1.0.0",
   "description": "An uploader API for Open Aerial Map Imagery",
-  "main": "index.js",
   "scripts": {
     "docker-build": "docker build -t oam-uploader-api .build_scripts/docker",
     "docker-install": ".build_scripts/docker/run.sh /install.sh",
     "docker-test": ".build_scripts/docker/run.sh /test.sh",
     "docker-start": ".build_scripts/docker/run.sh /start.sh",
     "docker-console": ".build_scripts/docker/run.sh bash",
-    "start": "TMPDIR=/tmp node index.js",
     "test": "semistandard && npm run lab",
     "lab": "lab -T test/babel.js test/test__*.js",
     "docs": "apidoc -i routes/ -o docs/"
@@ -19,7 +17,7 @@
     "url": "https://github.com/hotosm/oam-uploader-api.git"
   },
   "author": "Development Seed",
-  "license": "BSD 3-Clause",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/hotosm/oam-uploader-api/issues"
   },
@@ -57,6 +55,13 @@
     "apidoc": "^0.13.1",
     "chai": "^2.3.0",
     "ecstatic": "^0.8.0",
+    "eslint": "^3.10.2",
+    "eslint-config-semistandard": "^7.0.0",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-config-standard-react": "^4.2.0",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-react": "^6.7.1",
+    "eslint-plugin-standard": "^2.0.1",
     "lab": "^5.15.0",
     "omit-deep": "^0.1.2",
     "semistandard": "^7.0.2",
@@ -69,7 +74,7 @@
     "title": "OAM API",
     "name": "OpenAerialMap Uploader API",
     "description": "",
-    "url": "https://oam-uploader-api.herokuapp.com",
+    "url": "https://upload-api.openaerialmap.org/",
     "template": {
       "withCompare": false
     },
