@@ -1,6 +1,8 @@
 'use strict';
 
 var fs = require('fs');
+var pathTools = require('path');
+var cp = require('child_process');
 var tmp = require('tmp');
 var promisify = require('es6-promisify');
 var request = require('request');
@@ -21,11 +23,12 @@ module.exports = promisify(_processImage);
  * Callback called with (err, { metadata, messages })
  */
 function _processImage (s3, scene, url, key, cb) {
-  tmp.file({ postfix: '.tif' }, function (err, path, fd, cleanup) {
-    function callback (err, data) {
-      cleanup();
+  var ext = pathTools.extname(url).toLowerCase();
+  tmp.file({ postfix: ext }, function (err, path, fd, cleanupSource) {
+    var callback = function (err, data) {
+      cleanupSource();
       cb(err, data);
-    }
+    };
 
     if (err) { return callback(err); }
 
@@ -50,21 +53,34 @@ function _processImage (s3, scene, url, key, cb) {
       }
 
       var messages = [];
+
       // we've successfully downloaded the file.  now do stuff with it.
-      generateMetadata(scene, path, key, function (err, metadata) {
+      tmp.file({ postfix: '.tif' }, function (err, tifPath, fd, cleanupTif) {
         if (err) { return callback(err); }
-        makeThumbnail(path, function (thumbErr, thumbPath) {
-          if (thumbErr) {
-            messages.push('Could not generate thumbnail: ' + thumbErr.message);
-            thumbPath = null;
-          }
-          uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
-            callback(err, { metadata: metadata, messages: messages });
+
+        translateImage(ext, path, tifPath, function (err, path) {
+          callback = function (err, data) {
+            cleanupSource();
+            cleanupTif();
+            cb(err, data);
+          };
+
+          if (err) { return callback(err); }
+
+          generateMetadata(scene, path, key, function (err, metadata) {
+            if (err) { return callback(err); }
+            makeThumbnail(path, function (thumbErr, thumbPath) {
+              if (thumbErr) {
+                messages.push('Could not generate thumbnail: ' + thumbErr.message);
+              }
+              uploadToS3(s3, path, key, metadata, thumbPath, function (err) {
+                callback(err, { metadata: metadata, messages: messages });
+              });
+            });
           });
         });
       });
-    })
-    .on('error', callback);
+    }).on('error', callback);
   });
 }
 
@@ -100,6 +116,30 @@ function uploadToS3 (s3, path, key, metadata, thumbPath, callback) {
     if (err) { return callback(err); }
     log(['debug'], 'Finished uploading');
     callback();
+  });
+}
+
+function translateImage (ext, path, tifPath, callback) {
+  if (!config.gdalTranslateBin) {
+    throw new Error('GDAL bin path missing.');
+  }
+  log(['debug'], 'Converting image to OAM standard format.');
+  var args = [
+    '-of', 'GTiff',
+    path, tifPath,
+    '-co', 'TILED=yes',
+    '-co', 'COMPRESS=DEFLATE',
+    '-co', 'PREDICTOR=2',
+    '-co', 'SPARSE_OK=yes',
+    '-co', 'BLOCKXSIZE=512',
+    '-co', 'BLOCKYSIZE=512',
+    '-co', 'NUM_THREADS=ALL_CPUS'
+  ];
+
+  cp.execFile(config.gdalTranslateBin, args, function (err, stdout, stderr) {
+    if (err) { return callback(err); }
+    log(['debug'], 'Converted image to OAM standard format. Input: ', path, 'Output: ', tifPath);
+    return callback(null, tifPath);
   });
 }
 
@@ -169,4 +209,3 @@ function makeThumbnail (imagePath, callback) {
 function publicUrl (bucketName, key) {
   return 'http://' + bucketName + '.s3.amazonaws.com/' + key;
 }
-

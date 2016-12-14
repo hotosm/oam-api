@@ -26,6 +26,7 @@ The steps below will walk you through setting up your own instance of the oam-up
 - [MongoDB](https://www.mongodb.org/)
 - [Node.js](https://nodejs.org/) v0.12
 - [libvips](https://github.com/jcupitt/libvips) (Make sure to read the instructions specific to your OS)
+- [gdal](http://www.sarasafavi.com/installing-gdalogr-on-ubuntu.html)
 
 ### Install Application Dependencies
 

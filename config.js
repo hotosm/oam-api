@@ -15,6 +15,7 @@ var defaults = {
   sendgridApiKey: null, // sendgrid API key, for sending notification emails
   sendgridFrom: 'info@hotosm.org', // the email address from which to send notification emails
   gdriveKey: null,
+  gdalTranslateBin: '/usr/bin/gdal_translate',
   emailNotification: {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
@@ -50,6 +51,7 @@ var environment = {
   awsRegion: process.env.AWS_REGION,
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   sendgridFrom: process.env.SENDGRID_FROM,
+  gdalTranslateBin: process.env.GDAL_TRANSLATE_BIN,
   gdriveKey: process.env.GDRIVE_KEY
 };
 
