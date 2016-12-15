@@ -13,7 +13,7 @@ var Meta = require('./models/meta.js');
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
-var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
+var registerURL = process.env.OIN_REGISTER_URL || 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 
 var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
 db.start();

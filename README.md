@@ -55,6 +55,7 @@ The worker process runs on a schedule and checks for new data, update database w
 - `OAM_DEBUG` - Debug mode `true` or `false` (default)
 - `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN buckets
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN buckets
+- `OIN_REGISTER_URL` - URL to register file containing location of imagery buckets
 - `DBURI` - MongoDB connection url
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 
