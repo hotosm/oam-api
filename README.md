@@ -1,4 +1,17 @@
-# OAM Catalog [![Build Status](https://travis-ci.org/hotosm/oam-catalog.svg)](https://travis-ci.org/hotosm/oam-catalog) 
+<h1 align="center">OAM Catalog API
+  <a href="https://travis-ci.org/hotosm/oam-catalog">
+    <img src="https://api.travis-ci.org/hotosm/oam-catalog.svg" alt="Build Status"></img>
+  </a></h1>
+
+<div align="center">
+  <h3>
+  <a href="https://docs.openaerialmap.org/ecosystem/getting-started">Ecosystem</a>
+  <span> | </span>
+  <a href="https://github.com/hotosm/oam-browser">Imagery Browser</a>
+  <span> | </span>
+  <a href="https://github.com/hotosm/openaerialmap.org">OAM Homepage</a>
+  </h3>
+</div>
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
