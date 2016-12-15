@@ -28,6 +28,10 @@ The steps below will walk you through setting up your own instance of the oam-up
 - [libvips](https://github.com/jcupitt/libvips) (Make sure to read the instructions specific to your OS)
 - [gdal](http://www.sarasafavi.com/installing-gdalogr-on-ubuntu.html)
 
+Using [homebrew](http://brew.sh/), you can install MongoDB and `libvips` using:
+
+    $ brew bundle
+
 ### Install Application Dependencies
 
 If you use [`nvm`](https://github.com/creationix/nvm), activate the desired Node version:
