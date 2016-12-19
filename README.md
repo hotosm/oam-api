@@ -5,7 +5,7 @@
 
 <div align="center">
   <h3>
-  <a href="https://docs.openaerialmap.org/ecosystem/getting-started">Ecosystem</a>
+  <a href="https://docs.openaerialmap.org/ecosystem/getting-started/">Ecosystem</a>
   <span> | </span>
   <a href="http://hotosm.github.io/oam-uploader-api/">API Docs</a>
   <span> | </span>
