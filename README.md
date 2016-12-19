@@ -5,7 +5,7 @@
 
 <div align="center">
   <h3>
-  <a href="https://docs.openaerialmap.org/ecosystem/getting-started">Ecosystem</a>
+  <a href="https://docs.openaerialmap.org/ecosystem/getting-started/">Ecosystem</a>
   <span> | </span>
   <a href="https://github.com/hotosm/oam-browser">Imagery Browser</a>
   <span> | </span>
@@ -15,7 +15,7 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
-A catalog for OpenAerialMap imagery. The application indexes all metadata available within Open Imagery Network and creates an API to search and find imagery. The API powers the frontend search tool, OAM Imagery Browser. Read the [ecosystem documentation](https://docs.openaerialmap.org/ecosystem/getting-started) for more information about OpenAerialMap.
+A catalog for OpenAerialMap imagery. The application indexes all metadata available within Open Imagery Network and creates an API to search and find imagery. The API powers the frontend search tool, OAM Imagery Browser. Read the [ecosystem documentation](https://docs.openaerialmap.org/ecosystem/getting-started/) for more information about OpenAerialMap.
 
 ## Installation and Usage
 
