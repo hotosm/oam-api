@@ -138,9 +138,14 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
           var payload = JSON.parse(body);
           payload.meta_uri = remoteUri;
 
-          // create a geojson object from footprint and bbox
-          payload.geojson = parse(payload.footprint);
-          payload.geojson.bbox = payload.bbox;
+          if (payload.projection.indexOf('AUTHORITY["EPSG","3857"]') === -1){
+            // create a geojson object from footprint and bbox
+            payload.geojson = parse(payload.footprint);
+            payload.geojson.bbox = payload.bbox;
+          }
+          else {
+            payload.geojson = null
+          }
 
           var query = { uuid: payload.uuid };
           var options = { upsert: true, new: true, select: { uuid: 1 } };
