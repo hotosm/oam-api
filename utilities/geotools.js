@@ -51,14 +51,17 @@ module.exports.transformBbox = function(numEPSGIn, numEPSGOut, bboxInArray) {
   var srcIn = gdal.SpatialReference.fromEPSG(numEPSGIn)
   var srcOut = gdal.SpatialReference.fromEPSG(numEPSGOut)
 
-  var originalLT = new Array(bboxInArray[0], bboxInArray[1])
-  var originalRB = new Array(bboxInArray[2], bboxInArray[3])
+  var originalLonMinLatMin = new Array(bboxInArray[0], bboxInArray[1])
+  var originalLonMaxLatMax = new Array(bboxInArray[2], bboxInArray[3])
 
   var ct = new gdal.CoordinateTransformation(srcIn, srcOut);
-  var ptLT = ct.transformPoint(originalLT[0], originalLT[1])
-  var ptRB = ct.transformPoint(originalRB[0], originalRB[1])
+  var transformedLonMinLatMin = ct.transformPoint(originalLonMinLatMin[0], originalLonMinLatMin[1])
+  var transformedLonMaxLatMax = ct.transformPoint(originalLonMaxLatMax[0], originalLonMaxLatMax[1])
 
-  var bboxTransformed = [ptLT['x'], ptLT['y'], ptRB['x'], ptRB['y']]
+  var bboxTransformed = [transformedLonMinLatMin['x'],
+                         transformedLonMinLatMin['y'],
+                         transformedLonMaxLatMax['x'],
+                         transformedLonMaxLatMax['y']]
   //console.log(bboxTransformed)
   return bboxTransformed
 }
