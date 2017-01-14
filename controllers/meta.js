@@ -138,6 +138,12 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
           return cb(err);
         }
         if (response.statusCode === 200) {
+          if (payload.uuid == null) {
+            // not OIN metadata
+            // TODO specify oin-metadata (or something) with a version number
+            return cb();
+          }
+
           payload.meta_uri = remoteUri;
 
           // create a geojson object from footprint and bbox
