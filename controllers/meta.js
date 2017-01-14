@@ -130,12 +130,14 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
     // if the meta file doesn't exist then add, if the meta file is more recent
     // than our last update, then update
     if (meta === null || lastModified > lastSystemUpdate) {
-      request(remoteUri, function (err, response, body) {
+      request({
+        json: true,
+        uri: remoteUri
+      }, function (err, response, payload) {
         if (err) {
           return cb(err);
         }
         if (response.statusCode === 200) {
-          var payload = JSON.parse(body);
           payload.meta_uri = remoteUri;
 
           // create a geojson object from footprint and bbox
