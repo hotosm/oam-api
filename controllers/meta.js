@@ -152,9 +152,11 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
             }
 
             var status = (meta === null) ? ' added' : ' updated';
-            cb(err, record.uuid + status + '!');
+            return cb(null, record.uuid + status + '!');
           });
         }
+
+        return cb();
       });
     } else {
       return cb(null);
