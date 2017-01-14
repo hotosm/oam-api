@@ -146,7 +146,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
           var query = { uuid: payload.uuid };
           var options = { upsert: true, new: true, select: { uuid: 1 } };
-          Meta.findOneAndUpdate(query, payload, options, function (err, record) {
+          return Meta.findOneAndUpdate(query, payload, options, function (err, record) {
             if (err) {
               return cb(err);
             }
@@ -159,7 +159,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
         return cb();
       });
     } else {
-      return cb(null);
+      return cb();
     }
   });
 };
