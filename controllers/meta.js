@@ -130,7 +130,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
     // if the meta file doesn't exist then add, if the meta file is more recent
     // than our last update, then update
     if (meta === null || lastModified > lastSystemUpdate) {
-      request({
+      return request({
         json: true,
         uri: remoteUri
       }, function (err, response, payload) {
@@ -165,9 +165,9 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
         return cb();
       });
-    } else {
-      return cb();
     }
+
+    return cb();
   });
 };
 
