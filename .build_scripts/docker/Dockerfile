@@ -3,34 +3,30 @@ FROM marcbachmann/libvips:8.0.2
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
 # Install base dependencies
-RUN apt-get update && apt-get install -y -q --no-install-recommends \
-        apt-transport-https \
-        build-essential \
-        ca-certificates \
-        curl \
-        git \
-        libssl-dev \
-        python \
-        rsync \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install nvm with node and npm
-# http://stackoverflow.com/questions/25899912/install-nvm-in-docker
-ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 0.12
-RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.26.0/install.sh | bash \
-    && source $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
-ENV PATH      $NVM_BIN:$PATH
+RUN \
+  apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y -q --no-install-recommends \
+    apt-transport-https \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    libssl-dev \
+    python \
+    software-properties-common \
+  && curl -sf https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
+  && add-apt-repository -s "deb https://deb.nodesource.com/node_4.x $(lsb_release -c -s) main" \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y nodejs \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean
 
 # Go ahead and install nodemon for convenience while developing
-RUN source $NVM_DIR/nvm.sh && npm install -g nodemon
+RUN \
+  npm install -g nodemon \
+  && rm -rf /root/.npm
 
 # Set TMPDIR environment variable
 ENV TMPDIR /tmp
