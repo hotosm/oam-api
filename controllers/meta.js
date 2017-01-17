@@ -137,7 +137,8 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
         if (err) {
           return cb(err);
         }
-        if (response.statusCode === 200) {
+
+        if (response.statusCode === 200 && payload != null) {
           if (payload.uuid == null) {
             // not OIN metadata
             // TODO specify oin-metadata (or something) with a version number
