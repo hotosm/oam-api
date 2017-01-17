@@ -164,7 +164,8 @@ function generateMetadata (scene, path, key, callback) {
       properties: {
         tms: scene.tms,
         sensor: scene.sensor
-      }
+      },
+      uploaded_at: new Date()
     };
 
     gdalinfo.local(path, function (err, gdaldata) {
