@@ -25,10 +25,8 @@ The steps below will walk you through setting up your own instance of the oam-up
 
 - [MongoDB](https://www.mongodb.org/)
 - [Node.js](https://nodejs.org/) v0.12
-- [libvips](https://github.com/jcupitt/libvips) (Make sure to read the instructions specific to your OS)
-- [gdal](http://www.sarasafavi.com/installing-gdalogr-on-ubuntu.html)
 
-Using [homebrew](http://brew.sh/), you can install MongoDB and `libvips` using:
+Using [homebrew](http://brew.sh/), you can install MongoDB and other dependencies:
 
     $ brew bundle
 
@@ -54,7 +52,7 @@ You need to set environment variables before starting the API. We suggest you co
 - `PORT` - the port to listen on
 - `OIN_BUCKET` - The OIN bucket that will receive the uploads
 - `AWS_REGION` - AWS region of OIN_BUCKET
-- `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN bucket
+- `AWS_ACCESS_KEY_ID` - AWS access key id for reading OIN bucket
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN bucket
 - `ADMIN_USERNAME` - Token management Admin username
 - `ADMIN_PASSWORD` - Token management Admin password
@@ -63,6 +61,7 @@ You need to set environment variables before starting the API. We suggest you co
     production)
 - `SENDGRID_API_KEY` - sendgrid API key, for sending notification emails
 - `SENDGRID_FROM` - email address from which to send notification emails
+- `TILER_BASE_URL` - Base URL for dynamic TMS/WMTS endpoints. Defaults to `http://tiles.openaerialmap.org`.
 
 #### Starting the API:
 
@@ -87,7 +86,7 @@ git clone https://github.com/hotosm/oam-uploader-api
 
 # build the docker image
 cd oam-uploader-api
-docker build -t oam-uploader-api .build_scripts/docker
+docker build -t oam-uploader-api .
 
 # set up environment vars:
 cp local.sample.env local.env

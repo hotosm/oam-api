@@ -8,9 +8,8 @@ var config = require('../config');
 
 module.exports = JobQueue;
 
-function JobQueue (s3) {
-  if (!(this instanceof JobQueue)) { return new JobQueue(s3); }
-  this.s3 = s3;
+function JobQueue () {
+  if (!(this instanceof JobQueue)) { return new JobQueue(); }
 }
 
 JobQueue.prototype.run = function () {
@@ -99,7 +98,6 @@ JobQueue.prototype._mainloop = function mainloop () {
 
     // we got a job!
     var image = result.value;
-    var s3 = this.s3;
     log(['info'], 'Processing job', image);
     return this.db.collection('uploads')
     // find the upload / scene that contains this image
@@ -111,7 +109,7 @@ JobQueue.prototype._mainloop = function mainloop () {
           var key = [upload._id, i, uuidV4()].join('/');
 
           // now that we have the scene, we can process the image
-          found = processImage(aws, scene, image.url, key);
+          found = processImage(scene, image.url, key);
         });
       });
 

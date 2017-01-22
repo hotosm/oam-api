@@ -1,0 +1,14 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+  web:
+    build: .
+    environment:
+      - DBURI=mongodb://mongo/oam-uploader
+    env_file:
+      - local.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongo

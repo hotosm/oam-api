@@ -7,20 +7,10 @@ require('babel/register');
  * A worker that queries the db for new uploads and process 'em.
  */
 
-var AWS = require('aws-sdk');
 var JobQueue = require('./queue');
 var onExit = require('exit-hook');
-var config = require('../config');
 
-AWS.config = {
-  accessKeyId: config.awsKeyId,
-  secretAccessKey: config.awsAccessKey,
-  region: config.awsRegion,
-  sslEnabled: true
-};
-
-var s3 = new AWS.S3();
-var queue = new JobQueue(s3);
+var queue = new JobQueue();
 
 onExit(function () {
   queue.cleanup()

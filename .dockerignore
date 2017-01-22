@@ -1,2 +1,4 @@
 .env
 .git
+local.env
+node_modules
