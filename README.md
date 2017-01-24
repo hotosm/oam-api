@@ -72,6 +72,10 @@ npm start
 
 The API exposes endpoints used to access information form the system via a RESTful interface.
 
+### Tokens
+The uploader endpoints are protected via a token authentication system.
+Tokens are issued using the [oam-uploader-admin](https://github.com/hotosm/oam-uploader-admin), a friendly user interface for token management. Follow the [instructions](https://github.com/hotosm/oam-uploader-admin) to set it up. To understand better how all the components interact refer to the [Ecosystem Docs](https://docs.openaerialmap.org/ecosystem/getting-started/).
+
 ### Install via Docker
 
 Alternatively, if you've got a mongo instance running elsewhere, install and
@@ -135,4 +139,5 @@ deploy your local branch.
 
 ## License
 Oam Uploader Api is licensed under **BSD 3-Clause License**, see the [LICENSE](LICENSE) file for more details.
+
 
