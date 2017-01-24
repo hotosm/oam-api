@@ -42,6 +42,14 @@ function _processImage (scene, sourceUrl, targetPrefix, callback) {
     args.push('-m', `sensor=${scene.sensor}`);
   }
 
+  if (scene.license) {
+    args.push('-m', `license=${scene.license}`);
+  }
+
+  if (scene.tags) {
+    args.push('-m', `tags=${scene.tags}`);
+  }
+
   var output = `s3://${s3bucket}/${targetPrefix}`;
   args.push(sourceUrl, output);
 

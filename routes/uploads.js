@@ -33,6 +33,8 @@ function includeImages (db, scene, callback) {
   })
   .toArray(function (err, images) {
     scene.images = images;
+    delete scene.tags;
+    delete scene.license;
     callback(err, scene);
   });
 }
