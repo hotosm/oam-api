@@ -24,7 +24,7 @@ The steps below will walk you through setting up your own instance of the oam-ca
 ### Install Project Dependencies
 
 - [MongoDB](https://www.mongodb.org/)
-- [Node.js](https://nodejs.org/)
+- [Node.js](https://nodejs.org/) (v4.5.x)
 
 ### Install Application Dependencies
 
