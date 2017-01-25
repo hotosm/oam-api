@@ -28,8 +28,8 @@ function _processImage (scene, sourceUrl, targetPrefix, callback) {
     '-t', scene.title,
     '-a', scene.acquisition_start.toISOString(),
     '-A', scene.acquisition_end.toISOString(),
-    '-p', scene.provider,
-    '-P', scene.platform,
+    '--provider', scene.provider,
+    '--platform', scene.platform,
     '-c', [scene.contact.name.replace(',', ';'), scene.contact.email].join(','),
     '-U', new Date().toISOString()
   ];
