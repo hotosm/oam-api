@@ -51,18 +51,24 @@ You need to set environment variables before starting the API. We suggest you co
 
 #### Environment Variables
 
-- `PORT` - the port to listen on
-- `OIN_BUCKET` - The OIN bucket that will receive the uploads
-- `AWS_REGION` - AWS region of OIN_BUCKET
-- `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN bucket
-- `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN bucket
-- `ADMIN_USERNAME` - Token management Admin username
-- `ADMIN_PASSWORD` - Token management Admin password
-- `DBURI` - MongoDB connection url
-- `DBURI_TEST` - MongoDB connection to the test database (not needed for
-    production)
-- `SENDGRID_API_KEY` - sendgrid API key, for sending notification emails
-- `SENDGRID_FROM` - email address from which to send notification emails
+- `PORT` - The port to listen on (Default to 4000).
+- `HOST` - The hostname or ip address (Default to 0.0.0.0)
+- `AWS_SECRET_KEY_ID` - AWS secret key id for reading `OIN_BUCKET`.
+- `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading `OIN_BUCKET`.
+- `AWS_REGION` - AWS region of `OIN_BUCKET` (Default to us-west-2).
+- `SENDGRID_API_KEY` - Sendgrid API key, for sending notification emails.
+- `SENDGRID_FROM` - Email address from which to send notification emails (Default to info@hotosm.org).
+- `OIN_BUCKET` - The OIN bucket that will receive the uploads (Default to oam-uploader).
+- `DBURI` - MongoDB connection url (Default to mongodb://localhost/oam-uploader)
+- `DBURI_TEST` - MongoDB connection url for tests. Will be loaded when `NODE_ENV` is `test`. It's not needed for production. (Default to mongodb://localhost/oam-uploader-test)
+- `ADMIN_USERNAME` - Username to access the [Token Management](https://github.com/hotosm/oam-uploader-admin) panel.
+- `ADMIN_PASSWORD` - Password to access the [Token Management](https://github.com/hotosm/oam-uploader-admin) panel.
+- `GDRIVE_KEY` - Google Api key. Needed to use the upload from google drive functionality.
+- `GDAL_TRANSLATE_BIN` - Full path to the gdal bin (Default to /usr/bin/gdal_translate)
+- `MAX_WORKERS` - Max number of workers used to process the uploads (Default to 1)
+- `NEW_RELIC_LICENSE_KEY` - New relic license key.
+
+For a quick local setup for development the following variables can be omitted: `SENDGRID_API_KEY`, `SENDGRID_FROM`, `GDRIVE_KEY`, `NEW_RELIC_LICENSE_KEY`. Be aware that although the system will work some functionalities will not be available and errors may be triggered.
 
 #### Starting the API:
 
