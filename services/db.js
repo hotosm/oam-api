@@ -25,6 +25,8 @@ Connection.prototype.start = function (cb) {
 };
 
 Connection.prototype.deleteDb = function (cb) {
+  cb = cb || function () {};
+
   this.db.db.dropDatabase(function (err) {
     if (err) {
       console.log(err);
