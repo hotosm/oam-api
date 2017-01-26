@@ -152,7 +152,11 @@ npm run docs
 ```
 This will compile the documentation and place it inside `docs`. The docs site can then be run by any web server.
 
-The documentation is also automatically built and deployed by [Travis CI](https://travis-ci.org/) whenever a Pull Request is merged to the production branch (in this case `master`). The deployment is done to `gh-pages`.
+The documentation is also automatically built and deployed by [Travis CI](https://travis-ci.org/) whenever a Pull Request is merged to the production branch (in this case `master`). The deployment is done to `gh-pages`. (http://hotosm.github.io/oam-catalog/)
+
+### Deployment
+
+Changes to master branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
 
 ## License
 Oam Catalog is licensed under **BSD 3-Clause License**, see the [LICENSE](LICENSE) file for more details.
