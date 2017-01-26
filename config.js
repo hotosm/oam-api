@@ -22,6 +22,7 @@ var defaults = {
       'processed. You can check on the status of the upload at ' +
       'http://upload.openaerialmap.org/#/status/{UPLOAD_ID}.'
   },
+  cookiePassword: '3b296ce42ec560abeabaef',
   logOptions: {
     opsInterval: 3000,
     reporters: [{
@@ -52,7 +53,8 @@ var environment = {
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   sendgridFrom: process.env.SENDGRID_FROM,
   gdalTranslateBin: process.env.GDAL_TRANSLATE_BIN,
-  gdriveKey: process.env.GDRIVE_KEY
+  gdriveKey: process.env.GDRIVE_KEY,
+  cookiePassword: process.env.COOKIE_PASSWORD
 };
 
 var config = xtend(defaults);

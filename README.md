@@ -51,8 +51,10 @@ You need to set environment variables before starting the API. We suggest you co
 
 #### Environment Variables
 
+- `NODE_ENV` - Node environment. When in production should be set to `production`, otherwise can be ignored.
 - `PORT` - The port to listen on (Default to 4000).
-- `HOST` - The hostname or ip address (Default to 0.0.0.0)
+- `HOST` - The hostname or ip address (Default to 0.0.0.0).
+- `COOKIE_PASSWORD` - Password used for cookie encoding. Should be at least 32 characters long. IMPORTANT to change the default one for production.
 - `AWS_SECRET_KEY_ID` - AWS secret key id for reading `OIN_BUCKET`.
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading `OIN_BUCKET`.
 - `AWS_REGION` - AWS region of `OIN_BUCKET` (Default to us-west-2).
