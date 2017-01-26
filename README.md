@@ -24,29 +24,45 @@ The steps below will walk you through setting up your own instance of the oam-ca
 ### Install Project Dependencies
 
 - [MongoDB](https://www.mongodb.org/)
-- [Node.js](https://nodejs.org/)
+- [Node.js](https://nodejs.org/) (v4.5.x)
 
 ### Install Application Dependencies
 
-    $ npm install
+If you use [`nvm`](https://github.com/creationix/nvm), activate the desired Node version:
+
+```
+nvm install
+```
+
+Install Node modules:
+
+```
+npm install
+```
 
 ### Usage
 
 #### Starting the database:
 
-    $ mongod
+```
+mongod
+```
 
 The database is responsible for storing metadata about the imagery and analytics.
 
 #### Starting the API:
 
-    $ node index.js
+```
+node index.js
+```
 
 The API exposes endpoints used to access information form the system via a RESTful interface.
 
 #### Starting the backgound worker:
 
-    $ node worker.js
+```
+node worker.js
+```
 
 The worker process runs on a schedule and checks for new data, update database when it finds anything to add.
 
