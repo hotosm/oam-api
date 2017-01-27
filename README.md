@@ -161,6 +161,16 @@ default is `100`.
 ### Docs Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
 
+## Docker
+To package the app as a container:
+
+- Ensure that docker and docker-compose are installed
+- Copy `local.sample.env` to `local.env` and fill the values according to the instructions above.
+- Run `docker-compose up`.
+
+The app will be available at `http://localhost:4000`
+
+
 ## License
 Oam Catalog is licensed under **BSD 3-Clause License**, see the [LICENSE](LICENSE) file for more details.
 
