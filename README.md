@@ -58,7 +58,7 @@ node index.js
 
 The API exposes endpoints used to access information form the system via a RESTful interface.
 
-#### Starting the backgound worker:
+#### Starting the background worker:
 
 ```
 node worker.js
@@ -74,6 +74,9 @@ The worker process runs on a schedule and checks for new data, update database w
 - `OIN_REGISTER_URL` - URL to register file containing location of imagery buckets
 - `DBURI` - MongoDB connection url
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
+- `NEW_RELIC_LICENSE_KEY` - Your New Relic API monitoring license key
+
+For development purposes, `NEW_RELIC_LICENSE_KEY` can be omitted.
 
 ## Endpoints and Parameters
 
@@ -158,7 +161,7 @@ default is `100`.
 
 *Note that `sort` and `order_by` are required together and one alone will not be recognized. Default is to show higher resolution and newer imagery first.*
 
-### Docs Deployment
+### Deployment
 Changes to `master` branch are automatically deployed via Travis to https://oam-catalog.herokuapp.com.
 
 ## Docker
