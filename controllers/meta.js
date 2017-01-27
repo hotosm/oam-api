@@ -130,12 +130,21 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
     // if the meta file doesn't exist then add, if the meta file is more recent
     // than our last update, then update
     if (meta === null || lastModified > lastSystemUpdate) {
-      request(remoteUri, function (err, response, body) {
+      return request({
+        json: true,
+        uri: remoteUri
+      }, function (err, response, payload) {
         if (err) {
           return cb(err);
         }
-        if (response.statusCode === 200) {
-          var payload = JSON.parse(body);
+
+        if (response.statusCode === 200 && payload != null) {
+          if (payload.uuid == null) {
+            // not OIN metadata
+            // TODO specify oin-metadata (or something) with a version number
+            return cb();
+          }
+
           payload.meta_uri = remoteUri;
 
           // create a geojson object from footprint and bbox
@@ -144,19 +153,21 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
           var query = { uuid: payload.uuid };
           var options = { upsert: true, new: true, select: { uuid: 1 } };
-          Meta.findOneAndUpdate(query, payload, options, function (err, record) {
+          return Meta.findOneAndUpdate(query, payload, options, function (err, record) {
             if (err) {
               return cb(err);
             }
 
             var status = (meta === null) ? ' added' : ' updated';
-            cb(err, record.uuid + status + '!');
+            return cb(null, record.uuid + status + '!');
           });
         }
+
+        return cb();
       });
-    } else {
-      return cb(null);
     }
+
+    return cb();
   });
 };
 

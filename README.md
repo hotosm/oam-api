@@ -1,8 +1,21 @@
-# OAM Catalog [![Build Status](https://travis-ci.org/hotosm/oam-catalog.svg)](https://travis-ci.org/hotosm/oam-catalog) 
+<h1 align="center">OAM Catalog API
+  <a href="https://travis-ci.org/hotosm/oam-catalog">
+    <img src="https://api.travis-ci.org/hotosm/oam-catalog.svg?branch=master" alt="Build Status"></img>
+  </a></h1>
+
+<div align="center">
+  <h3>
+  <a href="https://docs.openaerialmap.org/ecosystem/getting-started/">Ecosystem</a>
+  <span> | </span>
+  <a href="https://github.com/hotosm/oam-browser">Imagery Browser</a>
+  <span> | </span>
+  <a href="https://github.com/hotosm/openaerialmap.org">OAM Homepage</a>
+  </h3>
+</div>
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
-A catalog for OpenAerialMap imagery. The application indexes all metadata available within Open Imagery Network and creates an API to search and find imagery. The API powers the frontend search tool, OAM Browser. 
+A catalog for OpenAerialMap imagery. The application indexes all metadata available within Open Imagery Network and creates an API to search and find imagery. The API powers the frontend search tool, OAM Imagery Browser. Read the [ecosystem documentation](https://docs.openaerialmap.org/ecosystem/getting-started/) for more information about OpenAerialMap.
 
 ## Installation and Usage
 
@@ -11,29 +24,45 @@ The steps below will walk you through setting up your own instance of the oam-ca
 ### Install Project Dependencies
 
 - [MongoDB](https://www.mongodb.org/)
-- [Node.js](https://nodejs.org/)
+- [Node.js](https://nodejs.org/) (v4.5.x)
 
 ### Install Application Dependencies
 
-    $ npm install
+If you use [`nvm`](https://github.com/creationix/nvm), activate the desired Node version:
+
+```
+nvm install
+```
+
+Install Node modules:
+
+```
+npm install
+```
 
 ### Usage
 
 #### Starting the database:
 
-    $ mongod
+```
+mongod
+```
 
 The database is responsible for storing metadata about the imagery and analytics.
 
 #### Starting the API:
 
-    $ node index.js
+```
+node index.js
+```
 
 The API exposes endpoints used to access information form the system via a RESTful interface.
 
 #### Starting the backgound worker:
 
-    $ node worker.js
+```
+node worker.js
+```
 
 The worker process runs on a schedule and checks for new data, update database when it finds anything to add.
 
@@ -42,6 +71,7 @@ The worker process runs on a schedule and checks for new data, update database w
 - `OAM_DEBUG` - Debug mode `true` or `false` (default)
 - `AWS_SECRET_KEY_ID` - AWS secret key id for reading OIN buckets
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN buckets
+- `OIN_REGISTER_URL` - URL to register file containing location of imagery buckets
 - `DBURI` - MongoDB connection url
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 

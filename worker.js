@@ -2,7 +2,6 @@
 
 require('envloader').load();
 
-var https = require('https');
 var _ = require('lodash');
 var Conn = require('./services/db.js');
 var S3 = require('./services/s3.js');
@@ -12,8 +11,9 @@ var Meta = require('./models/meta.js');
 // Replace mongoose's deprecated promise library (mpromise) with bluebird
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
+var request = require('request');
 
-var registerURL = 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
+var registerURL = process.env.OIN_REGISTER_URL || 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 
 var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
 db.start();
@@ -32,28 +32,25 @@ var consoleLog = function (err, msg) {
 * of buckets.
 */
 var getBucketList = function (cb) {
-  https.get(registerURL, function (res) {
+  request.get({
+    json: true,
+    uri: registerURL
+  }, function (err, res, data) {
+    if (err) {
+      return cb(err);
+    }
+
     if (res.statusCode !== 200) {
       return console.error('Unable to get register list.');
     }
 
-    var data = '';
-    res.on('data', function (d) {
-      data += d;
-    });
-
-    res.on('end', function () {
-      data = JSON.parse(data);
-      var buckets = _.map(data.nodes, function (node) {
-        return _.map(node.locations, function (location) {
-          return location.bucket_name;
-        });
+    var buckets = _.map(data.nodes, function (node) {
+      return _.map(node.locations, function (location) {
+        return location.bucket_name;
       });
-      buckets = _.flatten(buckets);
-      cb(buckets);
     });
-  }).on('error', function (e) {
-    return console.error(e);
+    buckets = _.flatten(buckets);
+    cb(null, buckets);
   });
 };
 
@@ -107,7 +104,11 @@ var getListAndReadBuckets = function () {
     }
 
     console.info('Last system update time:', lastSystemUpdate);
-    getBucketList(function (buckets) {
+    getBucketList(function (err, buckets) {
+      if (err) {
+        return console.error(err.stack);
+      }
+
       // Generate array of tasks to run in parallel
       var tasks = _.map(buckets, function (bucket) {
         return function (done) {
