@@ -49,6 +49,6 @@ exec docker run $MODE --rm \
   -e AWS_SECRET_ACCESS_KEY \
   -e AWS_REGION \
   --net=\"host\" \
-  -v $(pwd):/local \
+  -v $(pwd):/app \
   $ARGS \
   oam-uploader-api $COMMAND

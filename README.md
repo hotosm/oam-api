@@ -25,10 +25,8 @@ The steps below will walk you through setting up your own instance of the oam-up
 
 - [MongoDB](https://www.mongodb.org/)
 - [Node.js](https://nodejs.org/) v0.12
-- [libvips](https://github.com/jcupitt/libvips) (Make sure to read the instructions specific to your OS)
-- [gdal](http://www.sarasafavi.com/installing-gdalogr-on-ubuntu.html)
 
-Using [homebrew](http://brew.sh/), you can install MongoDB and `libvips` using:
+Using [homebrew](http://brew.sh/), you can install MongoDB and other dependencies:
 
     $ brew bundle
 
@@ -55,7 +53,7 @@ You need to set environment variables before starting the API. We suggest you co
 - `PORT` - The port to listen on (Default to 4000).
 - `HOST` - The hostname or ip address (Default to 0.0.0.0).
 - `COOKIE_PASSWORD` - Password used for cookie encoding. Should be at least 32 characters long. IMPORTANT to change the default one for production.
-- `AWS_SECRET_KEY_ID` - AWS secret key id for reading `OIN_BUCKET`.
+- `AWS_ACCESS_KEY_ID` - AWS secret key id for reading `OIN_BUCKET`.
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading `OIN_BUCKET`.
 - `AWS_REGION` - AWS region of `OIN_BUCKET` (Default to us-west-2).
 - `SENDGRID_API_KEY` - Sendgrid API key, for sending notification emails.
@@ -69,6 +67,7 @@ You need to set environment variables before starting the API. We suggest you co
 - `GDAL_TRANSLATE_BIN` - Full path to the gdal bin (Default to /usr/bin/gdal_translate)
 - `MAX_WORKERS` - Max number of workers used to process the uploads (Default to 1)
 - `NEW_RELIC_LICENSE_KEY` - New relic license key.
+- `TILER_BASE_URL` - Base URL for dynamic TMS/WMTS endpoints. Defaults to `http://tiles.openaerialmap.org`.
 
 For a quick local setup for development the following variables can be omitted: `SENDGRID_API_KEY`, `SENDGRID_FROM`, `GDRIVE_KEY`, `NEW_RELIC_LICENSE_KEY`. Be aware that although the system will work some functionalities will not be available and errors may be triggered.
 
@@ -133,7 +132,7 @@ git clone https://github.com/hotosm/oam-uploader-api
 
 # build the docker image
 cd oam-uploader-api
-docker build -t oam-uploader-api .build_scripts/docker
+docker build -t oam-uploader-api .
 
 # set up environment vars:
 cp local.sample.env local.env

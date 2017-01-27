@@ -9,13 +9,11 @@ var defaults = {
   adminPassword: null, // the administrator username
   adminUsername: null, // the administrator password
   oinBucket: 'oam-uploader', // name of the OpenImageryNetwork bucket to which imagery should be uploaded
-  awsRegion: 'us-west-2', // the AWS region of the oinBucket
   thumbnailSize: 300, // (very) approximate thumbnail size, in kilobytes
   maxWorkers: 1, // the maximum number of workers
   sendgridApiKey: null, // sendgrid API key, for sending notification emails
   sendgridFrom: 'info@hotosm.org', // the email address from which to send notification emails
   gdriveKey: null,
-  gdalTranslateBin: '/usr/bin/gdal_translate',
   emailNotification: {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
@@ -35,7 +33,8 @@ var defaults = {
         log: '*'
       }
     }]
-  }
+  },
+  tilerBaseUrl: 'http://tiles.openaerialmap.org'
 };
 
 // Environment variable overrides
@@ -47,13 +46,10 @@ var environment = {
   maxWorkers: process.env.MAX_WORKERS,
   adminPassword: process.env.ADMIN_PASSWORD,
   adminUsername: process.env.ADMIN_USERNAME,
-  awsKeyId: process.env.AWS_SECRET_KEY_ID,
-  awsAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  awsRegion: process.env.AWS_REGION,
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   sendgridFrom: process.env.SENDGRID_FROM,
-  gdalTranslateBin: process.env.GDAL_TRANSLATE_BIN,
   gdriveKey: process.env.GDRIVE_KEY,
+  tilerBaseUrl: process.env.TILER_BASE_URL,
   cookiePassword: process.env.COOKIE_PASSWORD
 };
 
