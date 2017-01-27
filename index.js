@@ -47,11 +47,11 @@ var OAMUploader = function (readyCb) {
     // Setup cookie auth.
     // Hapi cookie plugin configuration.
     hapi.auth.strategy('session', 'cookie', {
-      password: '3b296ce42ec560abeabaef57379aee68249a6d7912ac19cf70f10a35021fc9df7453225c4dcd9f6defaf242e701f50bbd3f2b63616029bfcd8ddf53f406079d6',
+      password: config.cookiePassword,
       cookie: 'oam-uploader-api',
       redirectTo: false,
       // Change for production.
-      isSecure: false,
+      isSecure: process.env.NODE_ENV === 'production',
       validateFunc: validateUserCookie(hapi.plugins.db.connection)
     });
 

@@ -11,6 +11,7 @@ exports.config = {
   app_name: ['oam-uploader', 'worker'],
   /**
    * Your New Relic license key.
+   * The license key is set through the env variable NEW_RELIC_LICENSE_KEY
    */
   license_key: 'license key here',
   logging: {
