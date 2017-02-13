@@ -1,0 +1,5 @@
+node_modules
+newrelic_agent.log
+npm-debug.log
+.travis.yml
+.build_scripts

@@ -12,6 +12,7 @@ var Meta = require('./models/meta.js');
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 var request = require('request');
+var CronJob = require('cron').CronJob;
 
 var registerURL = process.env.OIN_REGISTER_URL || 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 
@@ -124,4 +125,11 @@ var getListAndReadBuckets = function () {
 };
 
 // Kick it all off
-getListAndReadBuckets();
+var job = new CronJob({
+  cronTime: process.env.CRON_TIME || '00 */5 * * * *', // Run every 5 minutes
+  onTick: function () {
+    getListAndReadBuckets();
+  }
+});
+
+job.start();
