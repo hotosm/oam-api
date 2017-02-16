@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/hotosm/oam-uploader-api",
   "dependencies": {
+    "amazon-s3-url-signer": "^0.1.0",
     "aws-sdk": "^2.1.44",
     "babel": "^5.8.21",
     "boom": "^2.8.0",
