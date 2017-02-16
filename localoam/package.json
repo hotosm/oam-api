@@ -1,0 +1,16 @@
+{
+  "name": "localoam",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Development Seed",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "filed": "^0.1.0",
+    "glob": "^7.1.1"
+  }
+}

@@ -1,0 +1,31 @@
+version: '2'
+services:
+  localoam:
+    build: localoam
+    ports:
+      - "4999:4999" 
+    volumes:
+      - ${LOCALOAM_VOLUME}:/data
+    environment:
+      - HOST=localoam
+  mongo:
+    image: mongo
+  worker:
+    build: .
+    environment:
+      - DBURI=mongodb://mongo/oam-uploader
+      - OIN_REGISTER_URL=http://localoam:4999/master.json
+    env_file:
+      - local.env
+    command: ['node', 'worker.js']
+  web:
+    build: .
+    environment:
+      - DBURI=mongodb://mongo/oam-uploader
+    env_file:
+      - local.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - localoam
+      - mongo

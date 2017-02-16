@@ -5,6 +5,7 @@ require('envloader').load();
 var _ = require('lodash');
 var Conn = require('./services/db.js');
 var S3 = require('./services/s3.js');
+var LocalOAM = require('./services/localoam.js');
 var async = require('async');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
@@ -46,9 +47,7 @@ var getBucketList = function (cb) {
     }
 
     var buckets = _.map(data.nodes, function (node) {
-      return _.map(node.locations, function (location) {
-        return location.bucket_name;
-      });
+      return node.locations;
     });
     buckets = _.flatten(buckets);
     cb(null, buckets);
@@ -112,10 +111,17 @@ var getListAndReadBuckets = function () {
 
       // Generate array of tasks to run in parallel
       var tasks = _.map(buckets, function (bucket) {
-        return function (done) {
-          var s3 = new S3(null, null, bucket);
-          s3.readBucket(lastSystemUpdate, consoleLog, done);
-        };
+        if (bucket.type === 's3') {
+          return function (done) {
+            var s3 = new S3(null, null, bucket.bucket_name);
+            s3.readBucket(lastSystemUpdate, consoleLog, done);
+          };
+        } else if (bucket.type === 'localoam') {
+          return function (done) {
+            var localOAM = new LocalOAM(bucket.url);
+            localOAM.readBucket(lastSystemUpdate, consoleLog, done);
+          };
+        }
       });
 
       // Read the buckets and store metadata
