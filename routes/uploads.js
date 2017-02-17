@@ -4,10 +4,21 @@ var ObjectID = require('mongodb').ObjectID;
 var queue = require('queue-async');
 var Boom = require('boom');
 var Joi = require('joi');
+var AWS = require('aws-sdk');
+
 var uploadSchema = require('../models/upload');
 var config = require('../config');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
+
+var awsConfig = new AWS.Config();
+awsConfig.update({
+  region: 'us-east-1',
+  credentials: {
+    'accessKeyId': config.awsSecretKeyId,
+    'secretAccessKey': config.awsSecretAccessKey
+  }
+});
 
 function insertImages (db, scene, callback) {
   var imageIds = [];
@@ -70,6 +81,39 @@ module.exports = [
           if (err) { return reply(Boom.wrap(err)); }
           reply({ results: uploads });
         });
+      });
+    }
+  },
+   /**
+    * @api {get} /uploads/url Get presigned URL for upload to S3
+    * @apiPermission Token
+    * @apiParam {Object} payload Parameters sent as object resolvable from request.payload
+    * @apiParam {string} payload.name The name of the file to be uploaded
+    * @apiParam {string} payload.type The content type of the file to be uploaded
+    * @apiUse uploadUrlStatusSuccess
+    */
+  {
+    method: 'POST',
+    path: '/uploads/url',
+    config: {
+      auth: 'api-token'
+    },
+    handler: function (request, reply) {
+      var payload = JSON.parse(request.payload);
+      var s3 = new AWS.S3();
+      var params = {
+        Bucket: config.oinBucket,
+        Key: payload.name,
+        ContentType: payload.type,
+        Expires: 60
+      };
+      s3.getSignedUrl('putObject', params, function (err, url) {
+        if (err) {
+          console.log(err);
+          return reply({code: 500, url: null});
+        } else {
+          return reply({code: 200, url: url});
+        }
       });
     }
   },

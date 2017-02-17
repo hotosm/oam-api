@@ -48,7 +48,9 @@ var environment = {
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   sendgridFrom: process.env.SENDGRID_FROM,
   gdriveKey: process.env.GDRIVE_KEY,
-  tilerBaseUrl: process.env.TILER_BASE_URL
+  tilerBaseUrl: process.env.TILER_BASE_URL,
+  awsSecretKeyId: process.env.AWS_SECRET_KEY_ID,
+  awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 };
 
 var config = xtend(defaults);

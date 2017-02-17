@@ -72,4 +72,21 @@ var OAMUploader = function (readyCb) {
   });
 };
 
+// https://medium.com/the-spumko-suite/testing-hapi-services-with-lab-96ac463c490a
+// The if (!module.parent) {…} conditional makes sure that if the script is
+// being required as a module by another script, we don’t start the server.
+// This is done to prevent the server from starting when we’re testing it.
+// With Hapi, we don’t need to have the server listening to test it.
+if (!module.parent) {
+  OAMUploader(function (hapi) {
+    // Start the server.
+    hapi.start(function () {
+      hapi.log(['info'], 'Server running at:' + hapi.info.uri);
+      // spawn a worker to handle any unprocessed uploads that may be sitting
+      // around in the database
+      hapi.plugins.workers.spawn();
+    });
+  });
+}
+
 module.exports = OAMUploader;
