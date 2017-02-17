@@ -187,6 +187,13 @@ To package the app as a container:
 The app will be available at `http://localhost:4000`
 
 
+### Local indexing
+For local indexing, an alternative `docker-compose` configuration file can be used. This assumes you have a folder with JSON metadata files that fit the OAM spec (with correct `uuid` fields).
+
+- Copy `.env.sample` to `.env` and add the path to the volume you want to index
+- Copy `local.sample.env` to `local.env` and fill the values according to the instructions above.
+- Run `docker-compose -f docker-compose-local.yml up`
+
 ## License
 Oam Catalog is licensed under **BSD 3-Clause License**, see the [LICENSE](LICENSE) file for more details.
 
