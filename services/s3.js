@@ -2,7 +2,6 @@
 
 var s3 = require('s3');
 var meta = require('../controllers/meta.js');
-var async = require('async');
 
 /**
 * S3 Constructor that handles intractions with S3
@@ -48,6 +47,7 @@ S3.prototype.readBucket = function (lastSystemUpdate, cb, done) {
 
   images.on('error', function (err) {
     cb(err);
+    done(err);
   });
 
   images.on('data', function (data) {
@@ -69,14 +69,7 @@ S3.prototype.readBucket = function (lastSystemUpdate, cb, done) {
   });
 
   images.on('end', function () {
-    async.parallel(self.tasks, function (err, results) {
-      results.forEach(function (result) {
-        if (result) {
-          console.info(result);
-        }
-      });
-      return done(err);
-    });
+    done(null, self.tasks);
   });
 };
 

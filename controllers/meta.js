@@ -124,6 +124,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
   // Check if the meta data is already added
   Meta.findOne({meta_uri: remoteUri}, function (err, meta) {
     if (err) {
+      console.error(err);
       return cb(err);
     }
 
@@ -159,7 +160,9 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
             }
 
             var status = (meta === null) ? ' added' : ' updated';
-            return cb(null, record.uuid + status + '!');
+            var message = record.uuid + status + '!';
+            console.log('[meta]', message);
+            return cb(null, message);
           });
         }
 

@@ -2,7 +2,6 @@
 
 var meta = require('../controllers/meta.js');
 var request = require('request');
-var async = require('async');
 
 /**
 * LocalOAM Constructor that handles intractions with local OAM bucket server
@@ -53,15 +52,7 @@ LocalOAM.prototype.readBucket = function (lastSystemUpdate, cb, done) {
           self.tasks.push(task);
         }
       });
-
-      async.parallel(self.tasks, function (err, results) {
-        results.forEach(function (result) {
-          if (result) {
-            console.info(result);
-          }
-        });
-        return done(err);
-      });
+      done(null, self.tasks);
     }
   });
 };

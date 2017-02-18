@@ -14,7 +14,7 @@ services:
     build: .
     environment:
       - DBURI=mongodb://mongo/oam-uploader
-      - OIN_REGISTER_URL=http://localoam:4999/master.json
+      - LOCAL_REGISTER_URL=http://localoam:4999/master.json
     env_file:
       - local.env
     command: ['node', 'worker.js']
