@@ -5,9 +5,10 @@ services:
     ports:
       - "4999:4999" 
     volumes:
-      - ${LOCALOAM_VOLUME}:/data
+      - ${LOCALOAM_VOLUME}:/usr/src/app/data
     environment:
       - HOST=localoam
+      - HOST_PREFIX=${HOST_PREFIX}
   mongo:
     image: mongo
   worker:

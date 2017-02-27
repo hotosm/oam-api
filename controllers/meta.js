@@ -124,7 +124,6 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
   // Check if the meta data is already added
   Meta.findOne({meta_uri: remoteUri}, function (err, meta) {
     if (err) {
-      console.error(err);
       return cb(err);
     }
 
@@ -146,7 +145,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
             return cb();
           }
 
-          payload.meta_uri = remoteUri;
+          payload.meta_uri = payload.meta_uri || remoteUri;
 
           // create a geojson object from footprint and bbox
           payload.geojson = parse(payload.footprint);

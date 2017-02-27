@@ -10,7 +10,10 @@
   "author": "Development Seed",
   "license": "BSD-3-Clause",
   "dependencies": {
+    "event-stream": "^3.3.4",
     "filed": "^0.1.0",
-    "glob": "^7.1.1"
+    "glob": "^7.1.1",
+    "oppressor": "0.0.1",
+    "response-stream": "0.0.0"
   }
 }

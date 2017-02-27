@@ -188,9 +188,9 @@ The app will be available at `http://localhost:4000`
 
 
 ### Local indexing
-For local indexing, an alternative `docker-compose` configuration file can be used. This assumes you have a folder with JSON metadata files that fit the OAM spec (with correct `uuid` fields).
+For local indexing, an alternative `docker-compose` configuration file can be used. This will launch an additional service, a file server for a folder with JSON metadata files that fit the OAM spec. The metadata files need a `HOST_PREFIX` (such as the default `http://localhost:4999`) that points to the location of the `localoam` service running on the network. 
 
-- Copy `.env.sample` to `.env` and add the path to the volume you want to index
+- Copy `.env.sample` to `.env` and add the path to the volume you want to index as well as the `HOST_PREFIX`
 - Copy `local.sample.env` to `local.env` and fill the values according to the instructions above.
 - Run `docker-compose -f docker-compose-local.yml up`
 
