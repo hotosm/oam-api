@@ -64,7 +64,7 @@ The API exposes endpoints used to access information form the system via a RESTf
 node worker.js
 ```
 
-The worker process runs on a schedule and checks for new data, update database when it finds anything to add.
+The worker process runs on a schedule (every 5 minutes by default) and checks for new data, update database when it finds anything to add.
 
 ### Environment Variables
 
@@ -73,6 +73,7 @@ The worker process runs on a schedule and checks for new data, update database w
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN buckets
 - `OIN_REGISTER_URL` - URL to register file containing location of imagery buckets
 - `DBURI` - MongoDB connection url
+- `CRON_TIME` - A valid cron string (default is every 5 minutes) for the worker schedule
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 - `NEW_RELIC_LICENSE_KEY` - Your New Relic API monitoring license key
 
