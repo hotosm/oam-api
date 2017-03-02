@@ -8,6 +8,7 @@ var path = require('path');
 var fs = require('fs');
 
 var HOST = process.env.HOST_PREFIX || 'http://localoam';
+var LOCAL_BUCKET_URL = process.env.LOCAL_BUCKET_URL || 'http://localoam:4999';
 
 var master = {
   'nodes': [
@@ -15,7 +16,7 @@ var master = {
       'locations': [
         {
           'type': 'localoam',
-          'url': 'http://localoam:4999'
+          'url': LOCAL_BUCKET_URL
         }
       ]
     }

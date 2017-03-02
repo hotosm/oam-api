@@ -1,6 +1,7 @@
 'use strict';
 
 var meta = require('../controllers/meta.js');
+var path = require('path');
 var request = require('request');
 
 /**
@@ -18,11 +19,10 @@ var LocalOAM = function (bucket) {
 /**
 * Read bucket method for LocalOAM. It reads the LocalOAM bucket and adds all the `.json` metadata to Meta model
 *
-* @param {responseCallback} cb - The callback that handles the response
-* @param {finishedCallback} finished - The callback that handles when reading is done
+* @param {finishedCallback} done - The callback that handles when reading is done
 */
 
-LocalOAM.prototype.readBucket = function (lastSystemUpdate, cb, done) {
+LocalOAM.prototype.readBucket = function (lastSystemUpdate, done) {
   console.info('--- Reading from bucket: ' + this.params.bucket + ' ---');
 
   var self = this;
@@ -33,15 +33,14 @@ LocalOAM.prototype.readBucket = function (lastSystemUpdate, cb, done) {
     json: true,
     uri: self.params.bucket + '/list'
   }, function (err, response, payload) {
-    if (err) { return cb(err); }
+    if (err) { return done(err); }
 
     // We have a successful response
     if (response.statusCode === 200 && payload != null) {
       payload.forEach(function (item) {
-        var format = item.file.split('.');
-        format = format[format.length - 1];
+        var format = path.extname(item.file);
 
-        if (format === 'json') {
+        if (format === '.json') {
           // Get the last time the metadata file was modified so we can determine
           // if we need to update it.
           var lastModified = item.LastModified;
@@ -57,18 +56,11 @@ LocalOAM.prototype.readBucket = function (lastSystemUpdate, cb, done) {
   });
 };
 
-/**
- * The response callback returns the error and success message.
- *
- * @callback responseCallback
- * @param {error} err - The error message
- * @param {string} msg - The success message
- */
-
  /**
- * The finished callback just calls back to the worker to let it know there is
- * no more data coming.
+ * The finished callback calls back to the worker with the list of tasks
  *
  * @callback finishedCallback
+ * @param {Error} err - The error
+ * @param {Function[]} tasks - The tasks
  */
 module.exports = LocalOAM;

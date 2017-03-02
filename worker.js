@@ -58,7 +58,7 @@ var getBucketList = function (cb) {
         uri: localRegisterURL
       }, function (err, res, localData) {
         if (err || (res.statusCode !== 200)) {
-          // There was an error retreiving local buckets
+          // There was an error retrieving local buckets
           // Return remote buckets
           cb(null, buckets);
           return console.error('Unable to get local register list.');
@@ -73,6 +73,8 @@ var getBucketList = function (cb) {
           cb(null, buckets);
         }
       });
+    } else {
+      cb(null, buckets);
     }
   });
 };
@@ -116,12 +118,12 @@ var readBuckets = function (tasks) {
               console.error(err);
             }
             console.info('--- Added new analytics record ---');
-            db.close();
           });
           // Catch error in db query promises
         }).catch(function (err) {
-          db.close();
           return console.error(err);
+        }).then(function () {
+          return db.close();
         });
       });
     });
@@ -153,7 +155,7 @@ var getListAndReadBuckets = function () {
         } else if (bucket.type === 'localoam') {
           return function (done) {
             var localOAM = new LocalOAM(bucket.url);
-            localOAM.readBucket(lastSystemUpdate, consoleLog, done);
+            localOAM.readBucket(lastSystemUpdate, done);
           };
         }
       });

@@ -77,6 +77,10 @@ The worker process runs on a schedule (every 5 minutes by default) and checks fo
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 - `NEW_RELIC_LICENSE_KEY` - Your New Relic API monitoring license key
 
+If you are running a local OAM bucket, here are additional environment variables you can configure (more information in the Docker > Local Indexing section)
+- `HOST_PREFIX`: - Used by the localoam service to construct URIs that point to the images (default: `http://localoam`)
+- `LOCAL_OAM_BUCKET`: - Used by the localoam service as the location of the HTTP server (default is a docker context service name: `http://localoam:4999`)
+
 For development purposes, `NEW_RELIC_LICENSE_KEY` can be omitted. Although the system will work some functionality will not be available and errors may be triggered.
 
 
