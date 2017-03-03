@@ -86,7 +86,7 @@ var getBucketList = function (cb) {
 */
 var readBuckets = function (tasks) {
   console.info('--- Started indexing all buckets ---');
-  async.parallel(tasks,
+  async.parallelLimit(tasks, 4,
     // Results is an [[tasks]]
     function (err, results) {
       if (err) {
