@@ -64,7 +64,7 @@ The API exposes endpoints used to access information form the system via a RESTf
 node worker.js
 ```
 
-The worker process runs on a schedule and checks for new data, update database when it finds anything to add.
+The worker process runs on a schedule (every 5 minutes by default) and checks for new data, update database when it finds anything to add.
 
 ### Environment Variables
 
@@ -73,8 +73,13 @@ The worker process runs on a schedule and checks for new data, update database w
 - `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading OIN buckets
 - `OIN_REGISTER_URL` - URL to register file containing location of imagery buckets
 - `DBURI` - MongoDB connection url
+- `CRON_TIME` - A valid cron string (default is every 5 minutes) for the worker schedule
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 - `NEW_RELIC_LICENSE_KEY` - Your New Relic API monitoring license key
+
+If you are running a local OAM bucket, here are additional environment variables you can configure (more information in the Docker > Local Indexing section)
+- `HOST_PREFIX`: - Used by the localoam service to construct URIs that point to the images (default: `http://localoam`)
+- `LOCAL_OAM_BUCKET`: - Used by the localoam service as the location of the HTTP server (default is a docker context service name: `http://localoam:4999`)
 
 For development purposes, `NEW_RELIC_LICENSE_KEY` can be omitted. Although the system will work some functionality will not be available and errors may be triggered.
 
@@ -186,6 +191,13 @@ To package the app as a container:
 
 The app will be available at `http://localhost:4000`
 
+
+### Local indexing
+For local indexing, an alternative `docker-compose` configuration file can be used. This will launch an additional service, a file server for a folder with JSON metadata files that fit the OAM spec. The metadata files need a `HOST_PREFIX` (such as the default `http://localhost:4999`) that points to the location of the `localoam` service running on the network. 
+
+- Copy `.env.sample` to `.env` and add the path to the volume you want to index as well as the `HOST_PREFIX`
+- Copy `local.sample.env` to `local.env` and fill the values according to the instructions above.
+- Run `docker-compose -f docker-compose-local.yml up`
 
 ## License
 Oam Catalog is licensed under **BSD 3-Clause License**, see the [LICENSE](LICENSE) file for more details.

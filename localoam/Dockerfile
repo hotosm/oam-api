@@ -12,6 +12,4 @@ WORKDIR /usr/src/app
 # Bundle app source
 ADD . /usr/src/app
 
-EXPOSE 4000
-
 CMD [ "node", "index.js" ]
