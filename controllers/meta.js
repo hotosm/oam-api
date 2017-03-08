@@ -6,6 +6,7 @@ var parse = require('wellknown');
 var bboxPolygon = require('turf-bbox-polygon');
 var Boom = require('boom');
 var Meta = require('../models/meta.js');
+var geotools = require('../utilities/geotools.js')
 
 /**
 * Query Meta model. Implements all protocols supported by /meta endpoint
@@ -147,9 +148,18 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
           payload.meta_uri = payload.meta_uri || remoteUri;
 
-          // create a geojson object from footprint and bbox
-          payload.geojson = parse(payload.footprint);
-          payload.geojson.bbox = payload.bbox;
+          if (payload.projection.indexOf('AUTHORITY["EPSG","3857"]') === -1){
+            // create a geojson object from footprint and bbox
+            payload.geojson = parse(payload.footprint);
+            payload.geojson.bbox = payload.bbox;
+          }
+          else {
+            // create a geojson object from footprint and bbox
+            // payload.geojson = null
+            var footprintTransformed =  geotools.transformWktPolygon(3857, 4326, payload.footprint)
+            payload.geojson = parse(footprintTransformed);
+            payload.geojson.bbox = geotools.transformBbox(3857, 4326, payload.bbox);
+          }
 
           var query = { uuid: payload.uuid };
           var options = { upsert: true, new: true, select: { uuid: 1 } };
