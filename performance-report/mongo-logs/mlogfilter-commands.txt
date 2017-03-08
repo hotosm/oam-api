@@ -1,0 +1,3 @@
+mlogfilter mongodb.log.* --slow 500 > mongo-queries-over-500ms.txt
+mlogfilter mongodb.log.* --slow 1000 > mongo-queries-over-1000ms.txt
+mlogfilter mongodb.log.* --slow 100 > mongo-queries-over-100ms.txt

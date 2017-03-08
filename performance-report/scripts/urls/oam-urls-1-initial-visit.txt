@@ -1,0 +1,2 @@
+http://api.openaerialmap.org/meta?limit=1
+http://api.openaerialmap.org/meta?limit=4000&bbox=21.86279296875%2C59.603875011292835%2C28.4326171875%2C60.73768583450925

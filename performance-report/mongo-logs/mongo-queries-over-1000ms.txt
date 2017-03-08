@@ -1,0 +1,65 @@
+ 2015-08-26T08:33:16.818-0700 [conn64106] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1189327 reslen:293 1189ms
+ 2015-08-26T08:33:18.897-0700 [conn64106] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:2077291 reslen:301 2077ms
+ 2015-08-26T08:33:20.236-0700 [conn64106] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1307753 reslen:303 1307ms
+ 2015-08-26T08:43:17.866-0700 [conn64167] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1519967 reslen:293 1520ms
+ 2015-08-26T08:43:19.709-0700 [conn64167] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1822193 reslen:301 1822ms
+ 2015-08-26T08:43:20.996-0700 [conn64167] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1282726 reslen:303 1282ms
+ 2015-08-26T08:52:09.916-0700 [conn64267] command heroku_815lj778.$cmd command: dbStats { dbstats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1409158 reslen:303 1409ms
+ 2015-08-26T08:53:19.820-0700 [conn64222] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:2302536 reslen:293 2302ms
+ 2015-08-26T08:53:20.955-0700 [conn64222] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1870145 reslen:301 1870ms
+ 2015-08-26T08:53:22.491-0700 [conn64222] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1490932 reslen:303 1490ms
+ 2015-08-26T09:05:28.875-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:203 nreturned:0 reslen:20 5425ms
+ 2015-08-26T11:04:15.407-0700 [conn65046] command heroku_815lj778.$cmd command: dbStats { dbstats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1276897 reslen:303 1276ms
+ 2015-08-26T11:04:15.408-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:217 nreturned:0 reslen:20 5331ms
+ 2015-08-26T18:03:41.953-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:1 locks(micros) r:222 nreturned:0 reslen:20 5429ms
+ 2015-08-27T00:04:23.273-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:165 nreturned:0 reslen:20 5317ms
+ 2015-08-27T00:14:27.703-0700 [conn69640] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1847798 reslen:303 1847ms
+ 2015-08-27T00:48:40.993-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:176 nreturned:0 reslen:20 5310ms
+ 2015-08-27T08:35:36.125-0700 [conn72533] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:2039886 reslen:293 2039ms
+ 2015-08-27T08:35:37.704-0700 [conn72533] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1576566 reslen:301 1576ms
+ 2015-08-27T08:35:37.704-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:1 locks(micros) r:188 nreturned:1 reslen:158 4669ms
+ 2015-08-27T08:35:37.712-0700 [conn72561] insert heroku_815lj778.analytics query: { date: new Date(1440689736129), count: 1097, _id: ObjectId('55df2e48dba4810300e1250f'), __v: 0 } ninserted:1 keyUpdates:0 numYields:0 locks(micros) w:1530675 1530ms
+ 2015-08-27T08:35:37.713-0700 [conn72561] command heroku_815lj778.$cmd command: insert { insert: "analytics", documents: [ { date: new Date(1440689736129), count: 1097, _id: ObjectId('55df2e48dba4810300e1250f'), __v: 0 } ], ordered: false, writeConcern: { w: 1 } } keyUpdates:0 numYields:0 locks(micros) w:8507 reslen:80 1539ms
+ 2015-08-27T08:35:39.848-0700 [conn72533] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:2133599 reslen:303 2133ms
+ 2015-08-27T08:45:37.347-0700 [conn72586] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1209176 reslen:303 1209ms
+ 2015-08-27T08:55:36.411-0700 [conn72643] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1097697 reslen:293 1097ms
+ 2015-08-27T08:55:38.451-0700 [conn72643] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1144429 reslen:303 1144ms
+ 2015-08-27T14:42:42.555-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:200 nreturned:0 reslen:20 5300ms
+ 2015-08-27T17:09:03.610-0700 [conn75391] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1683461 reslen:293 1683ms
+ 2015-08-27T17:09:03.650-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:1 locks(micros) r:234 nreturned:0 reslen:20 6106ms
+ 2015-08-27T17:09:04.446-0700 [conn75391] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1377441 reslen:301 1377ms
+ 2015-08-27T17:09:06.620-0700 [conn75391] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1607898 reslen:303 1607ms
+ 2015-08-28T05:03:18.339-0700 [conn79531] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1253112 reslen:293 1253ms
+ 2015-08-28T05:03:19.562-0700 [conn79531] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1215012 reslen:301 1215ms
+ 2015-08-28T05:03:19.562-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:2 locks(micros) r:221 nreturned:0 reslen:20 6014ms
+ 2015-08-28T05:03:20.795-0700 [conn79531] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1231183 reslen:303 1231ms
+ 2015-08-28T08:37:27.234-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:213 nreturned:0 reslen:20 5508ms
+ 2015-08-28T08:46:03.000-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:200 nreturned:0 reslen:20 5779ms
+ 2015-08-28T08:54:15.993-0700 [conn80953] command heroku_815lj778.$cmd command: dbStats { dbstats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1358885 reslen:303 1358ms
+ 2015-08-28T08:56:02.665-0700 [conn80910] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1029491 reslen:293 1029ms
+ 2015-08-28T08:56:03.737-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:1 locks(micros) r:304 nreturned:0 reslen:20 5993ms
+ 2015-08-28T08:56:03.738-0700 [conn80910] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1053452 reslen:301 1053ms
+ 2015-08-28T08:56:04.841-0700 [conn80910] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1101848 reslen:303 1101ms
+ 2015-08-28T11:04:07.380-0700 [conn81724] command heroku_815lj778.$cmd command: dbStats { dbstats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1712143 reslen:303 1712ms
+ 2015-08-28T11:36:28.107-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:1 locks(micros) r:207 nreturned:0 reslen:20 5466ms
+ 2015-08-28T17:08:14.243-0700 [conn83870] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1556871 reslen:293 1556ms
+ 2015-08-28T17:08:15.565-0700 [conn83870] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1316491 reslen:301 1316ms
+ 2015-08-28T17:08:15.566-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:1 locks(micros) r:198 nreturned:0 reslen:20 5891ms
+ 2015-08-28T17:08:17.363-0700 [conn83870] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1795806 reslen:303 1795ms
+ 2015-08-29T00:04:13.428-0700 [conn86373] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1382195 reslen:293 1382ms
+ 2015-08-29T00:04:14.857-0700 [conn86373] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1425360 reslen:301 1425ms
+ 2015-08-29T00:04:14.857-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:1 locks(micros) r:193 nreturned:0 reslen:20 5716ms
+ 2015-08-29T00:04:16.629-0700 [conn86373] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1764621 reslen:303 1764ms
+ 2015-08-29T08:30:48.375-0700 [conn89448] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1418589 reslen:293 1418ms
+ 2015-08-29T08:30:49.672-0700 [conn89448] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1287567 reslen:301 1287ms
+ 2015-08-29T08:30:50.896-0700 [conn89448] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1222524 reslen:303 1222ms
+ 2015-08-29T08:50:50.138-0700 [conn89565] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1047314 reslen:293 1047ms
+ 2015-08-29T17:10:06.403-0700 [conn92575] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1705955 reslen:293 1705ms
+ 2015-08-29T17:10:07.785-0700 [conn92575] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1374252 reslen:301 1374ms
+ 2015-08-29T17:10:07.787-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:2 locks(micros) r:214 nreturned:0 reslen:20 5515ms
+ 2015-08-29T17:10:08.997-0700 [conn92575] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1207415 reslen:303 1207ms
+ 2015-08-29T22:06:06.298-0700 [conn79] getmore local.oplog.rs query: { ts: { $gte: Timestamp 1439946880000|3 } } cursorid:18295908164 ntoreturn:0 keyUpdates:0 numYields:0 locks(micros) r:204 nreturned:0 reslen:20 5600ms
+ 2015-08-30T08:56:46.935-0700 [conn98252] command admin.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1627992 reslen:293 1628ms
+ 2015-08-30T08:56:48.313-0700 [conn98252] command local.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1374334 reslen:301 1374ms
+ 2015-08-30T08:56:49.617-0700 [conn98252] command heroku_815lj778.$cmd command: dbStats { dbStats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1300906 reslen:303 1300ms
+ 2015-08-30T11:03:59.495-0700 [conn99069] command heroku_815lj778.$cmd command: dbStats { dbstats: 1 } keyUpdates:0 numYields:0 locks(micros) r:1383115 reslen:303 1383ms
