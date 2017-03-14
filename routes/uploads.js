@@ -11,14 +11,11 @@ var config = require('../config');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
 
-var awsConfig = new AWS.Config();
-awsConfig.update({
+AWS.config = {
   region: 'us-east-1',
-  credentials: {
-    'accessKeyId': config.awsSecretKeyId,
-    'secretAccessKey': config.awsSecretAccessKey
-  }
-});
+  accessKeyId: config.awsSecretKeyId,
+  secretAccessKey: config.awsSecretAccessKey
+};
 
 function insertImages (db, scene, callback) {
   var imageIds = [];
