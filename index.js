@@ -47,11 +47,11 @@ var OAMUploader = function (readyCb) {
     // Setup cookie auth.
     // Hapi cookie plugin configuration.
     hapi.auth.strategy('session', 'cookie', {
-      password: '3b296ce42ec560abeabaef57379aee68249a6d7912ac19cf70f10a35021fc9df7453225c4dcd9f6defaf242e701f50bbd3f2b63616029bfcd8ddf53f406079d6',
+      password: config.cookiePassword,
       cookie: 'oam-uploader-api',
       redirectTo: false,
       // Change for production.
-      isSecure: false,
+      isSecure: process.env.NODE_ENV === 'production',
       validateFunc: validateUserCookie(hapi.plugins.db.connection)
     });
 
@@ -71,22 +71,5 @@ var OAMUploader = function (readyCb) {
     });
   });
 };
-
-// https://medium.com/the-spumko-suite/testing-hapi-services-with-lab-96ac463c490a
-// The if (!module.parent) {…} conditional makes sure that if the script is
-// being required as a module by another script, we don’t start the server.
-// This is done to prevent the server from starting when we’re testing it.
-// With Hapi, we don’t need to have the server listening to test it.
-if (!module.parent) {
-  OAMUploader(function (hapi) {
-    // Start the server.
-    hapi.start(function () {
-      hapi.log(['info'], 'Server running at:' + hapi.info.uri);
-      // spawn a worker to handle any unprocessed uploads that may be sitting
-      // around in the database
-      hapi.plugins.workers.spawn();
-    });
-  });
-}
 
 module.exports = OAMUploader;
