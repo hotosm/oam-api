@@ -99,7 +99,7 @@ module.exports = [
       var payload = JSON.parse(request.payload);
       var s3 = new AWS.S3();
       var params = {
-        Bucket: config.oinBucket,
+        Bucket: config.uploadBucket,
         Key: payload.name,
         ContentType: payload.type,
         Expires: 60
