@@ -53,18 +53,35 @@ function _processImage (scene, sourceUrl, targetPrefix, callback) {
   var output = `s3://${s3bucket}/${targetPrefix}`;
   args.push(sourceUrl, output);
 
-  return cp.execFile('process.sh', args, {
+  var child = cp.spawn('process.sh', args, {
     AWS_ACCESS_KEY_ID: AWS.config.credentials.accessKeyId,
     AWS_DEFAULT_REGION: AWS.config.region,
     AWS_SECRET_ACCESS_KEY: AWS.config.credentials.secretAccessKey,
     AWS_SESSION_TOKEN: AWS.config.credentials.sessionToken,
     THUMBNAIL_SIZE: config.thumbnailSize,
     TILER_BASE_URL: config.tilerBaseUrl
-  }, function (err, stdout, stderr) {
-    if (err) {
-      err.stdout = stdout;
-      err.stderr = stderr;
-      return callback(err);
+  });
+
+  var stderr = [];
+  child.stdout.pipe(process.stdout);
+  child.stderr.pipe(process.stderr);
+  child.stderr.on('data', chunk => stderr.push(chunk));
+
+  child.on('error', err => {
+    // prevent callback from being called twice
+    var _callback = callback;
+    callback = function () {};
+
+    return _callback(err);
+  });
+
+  child.on('exit', code => {
+    // prevent callback from being called twice
+    var _callback = callback;
+    callback = function () {};
+
+    if (code !== 0) {
+      return _callback(new Error('Exited with ' + code + ': ' + Buffer.concat(stderr).toString()));
     }
 
     log(['debug'], 'Converted image to OAM standard format. Input: ', sourceUrl, 'Output: ', output);
@@ -74,10 +91,10 @@ function _processImage (scene, sourceUrl, targetPrefix, callback) {
       uri: `http://${s3bucket}.s3.amazonaws.com/${targetPrefix}_meta.json`
     }, function (err, rsp, metadata) {
       if (err) {
-        return callback(err);
+        return _callback(err);
       }
 
-      return callback(null, {
+      return _callback(null, {
         metadata: metadata
       });
     });
