@@ -87,13 +87,13 @@ JobQueue.prototype._mainloop = function mainloop () {
       // avoid race condition by making sure our state wasn't changed from
       // 'working' to something else (by the server) before we actually quit.
       return this.workers.updateOne(this.query.myself, this.update.stopping)
-        .then((result) => {
-          // failed to set our state, so continue processing
-          if (result.modifiedCount === 0) { return this._mainloop(); }
-          // we're in the clear - clean up and exit
-          return this.cleanup();
-        })
-        .catch(this.cleanup.bind(this));
+      .then((result) => {
+        // failed to set our state, so continue processing
+        if (result.modifiedCount === 0) { return this._mainloop(); }
+        // we're in the clear - clean up and exit
+        return this.cleanup();
+      })
+      .catch(this.cleanup.bind(this));
     }
 
     // we got a job!
@@ -108,13 +108,13 @@ JobQueue.prototype._mainloop = function mainloop () {
 
       upload.scenes.forEach(function (scene, i) {
         scene.images
-          .filter(id => image._id.equals(id))
-          .forEach(function (id) {
-            var key = [upload._id, i, uuidV4()].join('/');
+        .filter(id => image._id.equals(id))
+        .forEach(function (id) {
+          var key = [upload._id, i, uuidV4()].join('/');
 
-            // now that we have the scene, we can process the image
-            found = processImage(scene, image.url, key);
-          });
+          // now that we have the scene, we can process the image
+          found = processImage(scene, image.url, key);
+        });
       });
 
       if (found) { return found; }
