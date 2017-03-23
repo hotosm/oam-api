@@ -99,13 +99,17 @@ JobQueue.prototype._mainloop = function mainloop () {
     // we got a job!
     var image = result.value;
     log(['info'], 'Processing job', image);
+
     return this.db.collection('uploads')
     // find the upload / scene that contains this image
     .findOne({ 'scenes.images': image._id })
     .then(function (upload) {
       var found;
+
       upload.scenes.forEach(function (scene, i) {
-        scene.images.forEach(function (id) {
+        scene.images
+        .filter(id => image._id.equals(id))
+        .forEach(function (id) {
           var key = [upload._id, i, uuidV4()].join('/');
 
           // now that we have the scene, we can process the image
