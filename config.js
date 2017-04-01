@@ -9,6 +9,7 @@ var defaults = {
   adminPassword: null, // the administrator username
   adminUsername: null, // the administrator password
   oinBucket: 'oam-uploader', // name of the OpenImageryNetwork bucket to which imagery should be uploaded
+  uploadBucket: 'oam-uploader-temp', // name of the bucket for temporary storage for direct uploads
   thumbnailSize: 300, // (very) approximate thumbnail size, in kilobytes
   maxWorkers: 1, // the maximum number of workers
   sendgridApiKey: null, // sendgrid API key, for sending notification emails
@@ -42,6 +43,7 @@ var environment = {
   port: process.env.PORT,
   host: process.env.HOST,
   oinBucket: process.env.OIN_BUCKET,
+  uploadBucket: process.env.UPLOAD_BUCKET,
   dbUri: process.env.NODE_ENV === 'test' ? process.env.DBURI_TEST : process.env.DBURI,
   maxWorkers: process.env.MAX_WORKERS,
   adminPassword: process.env.ADMIN_PASSWORD,
