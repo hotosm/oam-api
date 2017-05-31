@@ -11,6 +11,7 @@
       },
       "title": "Natural Earth Image",
       "provider": "Natural Earth",
+      "license": "CC-BY",
       "sensor": "Some Algorithm",
       "platform": "satellite",
       "acquisition_start": "2015-04-01T00:00:00.000",
