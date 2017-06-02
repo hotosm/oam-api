@@ -3,3 +3,6 @@ newrelic_agent.log
 npm-debug.log
 .travis.yml
 .build_scripts
+.env
+.git
+local.env

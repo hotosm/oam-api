@@ -77,6 +77,26 @@ The worker process runs on a schedule (every 5 minutes by default) and checks fo
 - `SECRET_TOKEN` - The token used for post requests to `/tms` endpoint
 - `NEW_RELIC_LICENSE_KEY` - Your New Relic API monitoring license key
 
+- `NODE_ENV` - Node environment. When in production should be set to `production`, otherwise can be ignored.
+- `PORT` - The port to listen on (Default to 4000).
+- `HOST` - The hostname or ip address (Default to 0.0.0.0).
+- `COOKIE_PASSWORD` - Password used for cookie encoding. Should be at least 32 characters long. IMPORTANT to change the default one for production.
+- `AWS_ACCESS_KEY_ID` - AWS secret key id for reading `OIN_BUCKET`.
+- `AWS_SECRET_ACCESS_KEY` - AWS secret access key for reading `OIN_BUCKET`.
+- `AWS_REGION` - AWS region of `OIN_BUCKET` (Default to us-west-2).
+- `SENDGRID_API_KEY` - Sendgrid API key, for sending notification emails.
+- `SENDGRID_FROM` - Email address from which to send notification emails (Default to info@hotosm.org).
+- `OIN_BUCKET` - The OIN bucket that will receive the uploads (Default to oam-uploader).
+- `DBURI` - MongoDB connection url (Default to mongodb://localhost/oam-uploader)
+- `DBURI_TEST` - MongoDB connection url for tests. Will be loaded when `NODE_ENV` is `test`. It's not needed for production. (Default to mongodb://localhost/oam-uploader-test)
+- `ADMIN_USERNAME` - Username to access the [Token Management](https://github.com/hotosm/oam-uploader-admin) panel.
+- `ADMIN_PASSWORD` - Password to access the [Token Management](https://github.com/hotosm/oam-uploader-admin) panel.
+- `GDRIVE_KEY` - Google Api key. Needed to use the upload from google drive functionality.
+- `GDAL_TRANSLATE_BIN` - Full path to the gdal bin (Default to /usr/bin/gdal_translate)
+- `MAX_WORKERS` - Max number of workers used to process the uploads (Default to 1)
+- `NEW_RELIC_LICENSE_KEY` - New relic license key.
+- `TILER_BASE_URL` - Base URL for dynamic TMS/WMTS endpoints. Defaults to `http://tiles.openaerialmap.org`.
+
 If you are running a local OAM bucket, here are additional environment variables you can configure (more information in the Docker > Local Indexing section)
 - `HOST_PREFIX`: - Used by the localoam service to construct URIs that point to the images (default: `http://localoam`)
 - `LOCAL_OAM_BUCKET`: - Used by the localoam service as the location of the HTTP server (default is a docker context service name: `http://localoam:4999`)
