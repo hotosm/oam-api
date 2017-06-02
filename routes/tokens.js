@@ -1,5 +1,6 @@
 'use strict';
 
+var db = require('mongoose').connection;
 var Joi = require('joi');
 var Boom = require('boom');
 var ObjectId = require('mongodb').ObjectID;
@@ -14,7 +15,7 @@ module.exports = [
       auth: 'session'
     },
     handler: function (request, reply) {
-      var tokensCol = request.server.plugins.db.connection.collection('tokens');
+      var tokensCol = db.collection('tokens');
 
       tokensCol.find().toArray(function (err, tokens) {
         if (err) {
@@ -45,7 +46,7 @@ module.exports = [
       }
     },
     handler: function (request, reply) {
-      var tokensCol = request.server.plugins.db.connection.collection('tokens');
+      var tokensCol = db.collection('tokens');
 
       // Generate a token.
       var hmac = crypto.createHmac('sha512', 'oam-upload-key');
@@ -89,7 +90,7 @@ module.exports = [
       }
     },
     handler: function (request, reply) {
-      var tokensCol = request.server.plugins.db.connection.collection('tokens');
+      var tokensCol = db.collection('tokens');
 
       var update = {$set: {}};
       if (request.payload.name !== undefined) {
@@ -137,7 +138,7 @@ module.exports = [
       }
     },
     handler: function (request, reply) {
-      var tokensCol = request.server.plugins.db.connection.collection('tokens');
+      var tokensCol = db.collection('tokens');
 
       tokensCol.remove({_id: new ObjectId(request.params.token_id)}, function (err, res) {
         if (err) {

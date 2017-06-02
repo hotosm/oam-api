@@ -1,6 +1,6 @@
 'use strict';
 
-var config = require('./config');
+var config = require('../config');
 var auth = require('../services/auth');
 var validateToken = require('../services/validate-token');
 var validateUserCookie = require('../services/validate-user-cookie');
@@ -8,8 +8,6 @@ var validateUserCookie = require('../services/validate-user-cookie');
 var Authentication = {
   register: function (server, options, next) {
     server.register([
-      // adds bearer-access-token scheme
-      { register: require('hapi-auth-bearer-token') },
       // Cookie auth.
       { register: require('hapi-auth-cookie') },
       // Basic token authentication plugin

@@ -1,5 +1,6 @@
 'use strict';
 
+var db = require('mongoose').connection;
 var fork = require('child_process').fork;
 var path = require('path');
 var ObjectID = require('mongodb').ObjectID;
@@ -16,7 +17,7 @@ module.exports = function register (server, options, next) {
 
   function spawn () {
     var available = Object.keys(myWorkers);
-    var workers = server.plugins.db.connection.collection('workers');
+    var workers = db.collection('workers');
     server.log(['worker', 'debug'], 'Maybe spawn... available: ' +
       available.length + ' max: ' + config.maxWorkers);
     if (available.length < config.maxWorkers) {

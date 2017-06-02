@@ -4,7 +4,7 @@ var config = require('../config');
  * @param {Object} db A connection to the database
  * @return {Function} A validation function that takes (req, session, callback) and calls the callback with (error, isValid, credentialsObject)
  */
-module.exports = function (db) {
+module.exports = function () {
   return function (req, session, callback) {
     if (session.username === config.adminUsername) {
       return callback(null, true, session);

@@ -15,7 +15,7 @@ describe('Meta endpoint', function () {
   var self = this;
 
   before(function (done) {
-    self.db = new Conn(testDb);
+    self.db = new Conn();
     self.db.start(function (err) {
       if (err) {
         console.log(err);

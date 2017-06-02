@@ -1,7 +1,5 @@
-
+var Conn = require('../services/db.js');
 var Lab = require('lab');
-var MongoClient = require('mongodb').MongoClient;
-var dbUri = require('../config').dbUri;
 var createValidateToken = require('../services/validate-token');
 var chai = require('chai');
 
@@ -68,15 +66,14 @@ var tokens = [
 
 suite('test token validation', function () {
   before(function (done) {
-    assert.match(dbUri, /test$/, 'use the test database');
-    MongoClient.connect(dbUri, function (err, db) {
+    var dbWrapper = new Conn();
+    dbWrapper.start();
+    var db = dbWrapper.db;
+    validateToken = createValidateToken(db);
+    db.collection('tokens').deleteMany({}, function (err) {
       if (err) { return done(err); }
-      validateToken = createValidateToken(db);
-      db.collection('tokens').deleteMany({}, function (err) {
-        if (err) { return done(err); }
-        db.collection('tokens').insert(tokens, function (err, res) {
-          done(err);
-        });
+      db.collection('tokens').insert(tokens, function (err, res) {
+        done(err);
       });
     });
   });

@@ -6,8 +6,8 @@ var defaults = {
   host: '0.0.0.0', // cosmetic
   port: 4000, // port to listen on
   dbUri: process.env.NODE_ENV === 'test' ? 'mongodb://localhost/oam-uploader-test' : 'mongodb://localhost/oam-uploader', // the mongodb database uri (mongodb://user:pass@host:port/db)
-  adminPassword: null, // the administrator username
-  adminUsername: null, // the administrator password
+  adminPassword: 'admin', // the administrator username
+  adminUsername: 'admin', // the administrator password
   oinBucket: 'oam-uploader', // name of the OpenImageryNetwork bucket to which imagery should be uploaded
   uploadBucket: 'oam-uploader-temp', // name of the bucket for temporary storage for direct uploads
   thumbnailSize: 300, // (very) approximate thumbnail size, in kilobytes
@@ -46,8 +46,8 @@ var environment = {
   uploadBucket: process.env.UPLOAD_BUCKET,
   dbUri: process.env.NODE_ENV === 'test' ? process.env.DBURI_TEST : process.env.DBURI,
   maxWorkers: process.env.MAX_WORKERS,
-  adminPassword: process.env.ADMIN_PASSWORD || 'admin',
-  adminUsername: process.env.ADMIN_USERNAME || 'admin',
+  adminPassword: process.env.ADMIN_PASSWORD,
+  adminUsername: process.env.ADMIN_USERNAME,
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   sendgridFrom: process.env.SENDGRID_FROM,
   gdriveKey: process.env.GDRIVE_KEY,

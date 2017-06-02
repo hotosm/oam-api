@@ -1,7 +1,6 @@
 'use strict';
 
 var Hapi = require('hapi');
-var auth = require('./auth.js');
 
 var Server = function (port) {
   this.port = port;
@@ -25,20 +24,9 @@ Server.prototype.start = function (cb) {
   var self = this;
   self.hapi.connection({ port: self.port });
 
-  // Basic token authentication plugin
-  self.hapi.register(require('hapi-auth-bearer-token'), function (err) {
-    if (err) throw err;
-
-    self.hapi.auth.strategy('simple', 'bearer-access-token', {
-      allowQueryToken: true,              // optional, true by default
-      allowMultipleHeaders: false,        // optional, false by default
-      accessTokenName: 'access_token',    // optional, 'access_token' by default
-      validateFunc: auth
-    });
-  });
-
-  // Register routes
   self.hapi.register([
+    { register: require('../plugins/workers') },
+    { register: require('../plugins/authentication') },
     {
       register: require('hapi-router'),
       options: {
@@ -62,6 +50,8 @@ Server.prototype.start = function (cb) {
   ], function (err) {
     if (err) throw err;
   });
+
+  self.hapi.plugins.workers.spawn();
 
   self.hapi.start(function () {
     console.log('Server running at:', self.hapi.info.uri);

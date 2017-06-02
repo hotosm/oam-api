@@ -1,9 +1,11 @@
+var db = require('mongoose').connection;
+
 /**
  * Given a connection to the db, create a token validator function
  * @param {Object} db A connection to the database
  * @return {Function} A validation function that takes (token, callback) and calls the callback with (error, isValid, credentialsObject)
  */
-module.exports = function (db) {
+module.exports = function () {
   return function (token, callback) {
     db.collection('tokens').findOne({
       token: token,

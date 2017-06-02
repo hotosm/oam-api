@@ -1,8 +1,10 @@
 'use strict';
 
 var Lab = require('lab');
-var server = require('../');
+var Server = require('../services/server');
+var Conn = require('../services/db.js');
 var config = require('../config');
+
 var createValidateToken = require('../services/validate-token');
 var chai = require('chai');
 var ObjectId = require('mongodb').ObjectID;
@@ -18,56 +20,59 @@ var activeToken = null;
 var validateToken = null;
 
 suite('test tokens', function () {
+  var server;
+
   before(function (done) {
     assert.match(config.dbUri, /test$/, 'use the test database');
     // Get a reference to the server.
     // Wait for everything to load.
     // Change to test db
-    server(function (hapi) {
-      server = hapi;
-      // Prepare db.
-      var db = hapi.plugins.db.connection;
-      validateToken = createValidateToken(db);
-      db.collection('tokens').deleteMany({}, function (err) {
-        if (err) { throw err; }
+    var serverWrapper = new Server(4000);
+    serverWrapper.start();
+    server = serverWrapper.hapi;
+    var dbWrapper = new Conn();
+    dbWrapper.start();
+    var db = dbWrapper.db;
+    validateToken = createValidateToken(db);
+    db.collection('tokens').deleteMany({}, function (err) {
+      if (err) { throw err; }
 
-        // Insert some data.
-        db.collection('tokens').insert([
-          {
-            _id: new ObjectId('55c88dddd2f727d042b097b4'),
-            name: 'Primary token',
-            expiration: false,
-            status: 'active',
-            token: '87f10851e0e70eeb76f4e652ab282f0502ce3f420522d7c7d68f0fada19adb14',
-            created: new Date('2015-08-10T13:38:48.684Z'),
-            updated: null
-          },
-          {
-            _id: new ObjectId('55c88eeee2f727d042b097b5'),
-            name: 'Secondary token',
-            expiration: new Date('2020-08-10T13:38:48.684Z'),
-            status: 'active',
-            token: 'b35d33e0970adf0a71110473dec4299cd2c6abcdf7d06dab6f344e5d14951a0d',
-            created: new Date('2015-08-10T13:38:48.684Z'),
-            updated: null
+      // Insert some data.
+      db.collection('tokens').insert([
+        {
+          _id: new ObjectId('55c88dddd2f727d042b097b4'),
+          name: 'Primary token',
+          expiration: false,
+          status: 'active',
+          token: '87f10851e0e70eeb76f4e652ab282f0502ce3f420522d7c7d68f0fada19adb14',
+          created: new Date('2015-08-10T13:38:48.684Z'),
+          updated: null
+        },
+        {
+          _id: new ObjectId('55c88eeee2f727d042b097b5'),
+          name: 'Secondary token',
+          expiration: new Date('2020-08-10T13:38:48.684Z'),
+          status: 'active',
+          token: 'b35d33e0970adf0a71110473dec4299cd2c6abcdf7d06dab6f344e5d14951a0d',
+          created: new Date('2015-08-10T13:38:48.684Z'),
+          updated: null
+        }
+      ], function (err, res) {
+        if (err) throw err;
+        // Cookie
+        var options = {
+          method: 'POST',
+          url: '/login',
+          payload: {
+            username: 'admin',
+            password: 'admin'
           }
-        ], function (err, res) {
-          if (err) throw err;
-          // Cookie
-          var options = {
-            method: 'POST',
-            url: '/login',
-            payload: {
-              username: 'admin',
-              password: 'admin'
-            }
-          };
+        };
 
-          server.inject(options, function (response) {
-            // Store the cookie to use on next requests
-            cookie = response.headers['set-cookie'][0].split(' ')[0];
-            done();
-          });
+        server.inject(options, function (response) {
+          // Store the cookie to use on next requests
+          cookie = response.headers['set-cookie'][0].split(' ')[0];
+          done();
         });
       });
     });
@@ -83,7 +88,7 @@ suite('test tokens', function () {
     };
 
     server.inject(options, function (response) {
-      var result = response.result;
+      var result = response.result.results;
       assert.equal(response.statusCode, 200);
 
       assert.lengthOf(result.data, 2);
@@ -252,7 +257,7 @@ suite('test tokens', function () {
     };
 
     server.inject(options, function (response) {
-      var result = response.result;
+      var result = response.result.results;
       assert.equal(response.statusCode, 201);
 
       assert.isDefined(result.data._id);
@@ -321,7 +326,7 @@ suite('test tokens', function () {
     };
 
     server.inject(options, function (response) {
-      var result = response.result;
+      var result = response.result.results;
       assert.equal(response.statusCode, 200);
 
       assert.equal(result.data.name, 'Secondary token modified');
@@ -344,7 +349,7 @@ suite('test tokens', function () {
     };
 
     server.inject(options, function (response) {
-      var result = response.result;
+      var result = response.result.results;
       assert.equal(response.statusCode, 200);
 
       assert.equal(result.data.name, 'Secondary token modified');
@@ -367,7 +372,7 @@ suite('test tokens', function () {
     };
 
     server.inject(options, function (response) {
-      var result = response.result;
+      var result = response.result.results;
       assert.equal(response.statusCode, 200);
 
       assert.equal(result.data.name, 'Secondary token modified');
@@ -392,7 +397,7 @@ suite('test tokens', function () {
     };
 
     server.inject(options, function (response) {
-      var result = response.result;
+      var result = response.result.results;
       assert.equal(response.statusCode, 200);
 
       assert.equal(result.data.name, 'Secondary token');
@@ -423,7 +428,7 @@ suite('test tokens', function () {
         }
       };
       server.inject(options, function (response) {
-        var result = response.result;
+        var result = response.result.results;
         assert.equal(response.statusCode, 200);
         assert.lengthOf(result.data, 2);
         done();

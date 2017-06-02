@@ -1,5 +1,6 @@
 'use strict';
 
+var db = require('mongoose').connection;
 var ObjectID = require('mongodb').ObjectID;
 var queue = require('queue-async');
 var Boom = require('boom');
@@ -63,7 +64,6 @@ module.exports = [
     },
     handler: function (request, reply) {
       var user = request.auth.credentials.id;
-      var db = request.server.plugins.db.connection;
       db.collection('uploads').find({ user: user })
       .toArray(function (err, uploads) {
         if (err) { return reply(Boom.wrap(err)); }
@@ -127,7 +127,6 @@ module.exports = [
       if (!ObjectID.isValid(request.params.id)) {
         return reply(Boom.badRequest('Invalid id: ' + request.params.id));
       }
-      var db = request.server.plugins.db.connection;
       db.collection('uploads').findOne({
         _id: new ObjectID(request.params.id)
       })
@@ -220,8 +219,6 @@ module.exports = [
           request.log(['info'], err);
           return reply(Boom.badRequest(err));
         }
-
-        var db = request.server.plugins.db.connection;
 
         data.user = request.auth.credentials.id;
         data.createdAt = new Date();

@@ -1,5 +1,6 @@
 'use strict';
 
+var Server = require('../services/server');
 var Lab = require('lab');
 var server = require('../');
 var chai = require('chai');
@@ -17,10 +18,9 @@ suite('test authentication', function () {
   before(function (done) {
     // Get a reference to the server.
     // Wait for everything to load.
-    server(function (hapi) {
-      server = hapi;
-      done();
-    });
+    var serverWrapper = new Server(4000);
+    serverWrapper.start(done);
+    server = serverWrapper.hapi;
   });
 
   test('should fail authentication with missing username and password', function (done) {
