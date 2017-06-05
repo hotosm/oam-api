@@ -1,11 +1,11 @@
 'use strict';
 
 var Lab = require('lab');
-var Server = require('../services/server');
-var Conn = require('../services/db.js');
-var config = require('../config');
+var Server = require('../../services/server');
+var Conn = require('../../services/db.js');
+var config = require('../../config');
 
-var createValidateToken = require('../services/validate-token');
+var createValidateToken = require('../../services/validate-token');
 var chai = require('chai');
 var ObjectId = require('mongodb').ObjectID;
 
@@ -13,6 +13,7 @@ var lab = exports.lab = Lab.script();
 var suite = lab.experiment;
 var test = lab.test;
 var before = lab.before;
+var after = lab.after;
 var assert = chai.assert;
 
 var cookie = null;
@@ -21,6 +22,7 @@ var validateToken = null;
 
 suite('test tokens', function () {
   var server;
+  var dbWrapper;
 
   before(function (done) {
     assert.match(config.dbUri, /test$/, 'use the test database');
@@ -30,7 +32,7 @@ suite('test tokens', function () {
     var serverWrapper = new Server(4000);
     serverWrapper.start();
     server = serverWrapper.hapi;
-    var dbWrapper = new Conn();
+    dbWrapper = new Conn();
     dbWrapper.start();
     var db = dbWrapper.db;
     validateToken = createValidateToken(db);
@@ -76,6 +78,11 @@ suite('test tokens', function () {
         });
       });
     });
+  });
+
+  after(function (done) {
+    dbWrapper.close();
+    done();
   });
 
   test('should list tokens', function (done) {

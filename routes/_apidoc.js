@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // -----------------------------------------------------------------------------
 // Meta success return values
 // -----------------------------------------------------------------------------
@@ -81,8 +80,7 @@
  *      ]
  *   }
  */
-||||||| merged common ancestors
-=======
+
 /**
  * @apiDefine Token API Token Authentication
  *  API token must be included either as an HTTP `Bearer: your-token` header or as a query
@@ -113,4 +111,3 @@
  * @apiSuccess {String} results.scenes.images.startedAt Date and time the processing started
  * @apiSuccess {String} results.scenes.images.stoppedAt Date and time the processing stopped
  */
->>>>>>> oam-uploader-api-repo/develop

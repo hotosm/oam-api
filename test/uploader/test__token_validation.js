@@ -1,12 +1,13 @@
-var Conn = require('../services/db.js');
+var Conn = require('../../services/db.js');
 var Lab = require('lab');
-var createValidateToken = require('../services/validate-token');
+var createValidateToken = require('../../services/validate-token');
 var chai = require('chai');
 
 var lab = exports.lab = Lab.script();
 var suite = lab.experiment;
 var test = lab.test;
 var before = lab.before;
+var after = lab.after;
 var assert = chai.assert;
 
 var validateToken = null;
@@ -65,8 +66,10 @@ var tokens = [
 ];
 
 suite('test token validation', function () {
+  var dbWrapper;
+
   before(function (done) {
-    var dbWrapper = new Conn();
+    dbWrapper = new Conn();
     dbWrapper.start();
     var db = dbWrapper.db;
     validateToken = createValidateToken(db);
@@ -76,6 +79,11 @@ suite('test token validation', function () {
         done(err);
       });
     });
+  });
+
+  after(function (done) {
+    dbWrapper.close();
+    done();
   });
 
   test('should validate active token', function (done) {

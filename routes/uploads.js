@@ -231,7 +231,10 @@ module.exports = [
         });
 
         q.awaitAll(function (err) {
-          if (err) { return reply(Boom.wrap(err)); }
+          if (err) {
+            console.log(err);
+            return reply(Boom.wrap(err));
+          }
           db.collection('uploads').insertOne(data)
           .then(function (result) {
             sendgrid.send({

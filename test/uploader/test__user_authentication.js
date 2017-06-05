@@ -1,20 +1,20 @@
 'use strict';
 
-var Server = require('../services/server');
+var Server = require('../../services/server');
 var Lab = require('lab');
-var server = require('../');
 var chai = require('chai');
 
 var lab = exports.lab = Lab.script();
 var suite = lab.experiment;
 var test = lab.test;
 var before = lab.before;
-// var after = lab.after;
 var assert = chai.assert;
 
 var cookie = null;
 
 suite('test authentication', function () {
+  var server;
+
   before(function (done) {
     // Get a reference to the server.
     // Wait for everything to load.

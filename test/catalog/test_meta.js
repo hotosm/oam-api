@@ -4,10 +4,9 @@
 var expect = require('chai').expect;
 // var should = require('chai').should();
 var request = require('request');
-var Conn = require('../services/db.js');
-var Server = require('../services/server.js');
+var Conn = require('../../services/db.js');
+var Server = require('../../services/server.js');
 var meta = require('./sample_meta.json');
-var testDb = 'oam_catalog_test';
 
 describe('Meta endpoint', function () {
   this.timeout(15000);

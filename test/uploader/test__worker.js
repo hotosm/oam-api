@@ -1,7 +1,7 @@
 'use strict';
 
-var Server = require('../services/server');
-var Conn = require('../services/db.js');
+var Server = require('../../services/server');
+var Conn = require('../../services/db.js');
 var Lab = require('lab');
 var chai = require('chai');
 var omit = require('omit-deep');
@@ -10,20 +10,26 @@ var lab = exports.lab = Lab.script();
 var suite = lab.experiment;
 var test = lab.test;
 var before = lab.before;
+var after = lab.after;
 var assert = chai.assert;
 
 suite('test worker', function () {
   var server;
+  var dbWrapper;
   var uploadId;
 
   before(function (done) {
     var serverWrapper = new Server(4000);
     serverWrapper.start();
     server = serverWrapper.hapi;
-    var dbWrapper = new Conn();
+    dbWrapper = new Conn();
     dbWrapper.start();
     var db = dbWrapper.db;
-    db.dropDatabase();
+    db.dropDatabase(done);
+  });
+
+  after(function (done) {
+    dbWrapper.close();
     done();
   });
 

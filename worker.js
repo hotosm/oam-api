@@ -3,7 +3,6 @@
 require('envloader').load();
 
 var _ = require('lodash');
-var Conn = require('./services/db.js');
 var S3 = require('./services/s3.js');
 var LocalOAM = require('./services/localoam.js');
 var async = require('async');
@@ -18,8 +17,7 @@ var cron = require('node-cron');
 var registerURL = process.env.OIN_REGISTER_URL || 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
 var localRegisterURL = process.env.LOCAL_REGISTER_URL || '';
 
-var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
-db.start();
+var db = mongoose.connection;
 
 var consoleLog = function (err, msg) {
   if (err) {
