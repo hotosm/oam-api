@@ -13,9 +13,9 @@ var config = require('../config');
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
 
 AWS.config = {
-  region: 'us-east-1',
-  accessKeyId: config.awsSecretKeyId,
-  secretAccessKey: config.awsSecretAccessKey
+  region: config.awsRegion,
+  accessKeyId: config.awsKey,
+  secretAccessKey: config.awsSecret
 };
 
 function insertImages (db, scene, callback) {

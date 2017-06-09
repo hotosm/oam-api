@@ -2,7 +2,6 @@
 
 var cp = require('child_process');
 
-var AWS = require('aws-sdk');
 var promisify = require('es6-promisify');
 var request = require('request');
 
@@ -54,10 +53,9 @@ function _processImage (scene, sourceUrl, targetPrefix, callback) {
   args.push(sourceUrl, output);
 
   var child = cp.spawn('process.sh', args, {
-    AWS_ACCESS_KEY_ID: AWS.config.credentials.accessKeyId,
-    AWS_DEFAULT_REGION: AWS.config.region,
-    AWS_SECRET_ACCESS_KEY: AWS.config.credentials.secretAccessKey,
-    AWS_SESSION_TOKEN: AWS.config.credentials.sessionToken,
+    AWS_ACCESS_KEY_ID: config.awsKey,
+    AWS_SECRET_ACCESS_KEY: config.awsSecret,
+    AWS_DEFAULT_REGION: config.awsRegion,
     THUMBNAIL_SIZE: config.thumbnailSize,
     TILER_BASE_URL: config.tilerBaseUrl
   });

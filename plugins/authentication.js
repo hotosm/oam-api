@@ -36,8 +36,6 @@ var Authentication = {
         password: config.cookiePassword,
         cookie: 'oam-uploader-api',
         redirectTo: false,
-        // Change for production.
-        isSecure: process.env.NODE_ENV === 'production',
         validateFunc: validateUserCookie()
       });
 

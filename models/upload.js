@@ -1,3 +1,5 @@
+// Not a mongoose model :/
+
 var Joi = require('joi');
 
 var infoSchema = Joi.object().keys({

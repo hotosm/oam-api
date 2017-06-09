@@ -20,7 +20,7 @@
             "images": [
                 {
                     "_id": "55e0c86a24c379c000544d23",
-                    "url": "http://localhost:8080/NE1_50M_SR.tif",
+                    "url": "http://localhost:8080/uploader/fixture/NE1_50M_SR.tif",
                     "status": "initial",
                     "messages": [],
                     "startedAt": "2015-08-28T20:45:31.062Z",

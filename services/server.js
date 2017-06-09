@@ -1,6 +1,7 @@
 'use strict';
 
 var Hapi = require('hapi');
+var config = require('../config');
 
 var Server = function (port) {
   this.port = port;
@@ -13,8 +14,8 @@ var Server = function (port) {
         stripTrailingSlash: true
       }
     },
-    debug: process.env.OAM_DEBUG ? {
-      log: [ 'error' ],
+    debug: config.debug === 'true' ? {
+      log: [ 'error', 'debug', 'info', 'worker' ],
       request: [ 'error', 'received', 'response' ]
     } : false
   });
@@ -51,10 +52,12 @@ Server.prototype.start = function (cb) {
     if (err) throw err;
   });
 
-  self.hapi.plugins.workers.spawn();
-
   self.hapi.start(function () {
-    console.log('Server running at:', self.hapi.info.uri);
+    console.log(
+      'Server (' + process.env.NODE_ENV + ') running at:',
+      self.hapi.info.uri
+    );
+    self.hapi.plugins.workers.spawn();
     if (cb) {
       cb();
     }

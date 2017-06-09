@@ -1,0 +1,29 @@
+# Run from project root with:
+# `docker-compose -f test/docker-compose.yml up`
+
+version: '2'
+services:
+  test-app:
+    extends:
+      service: app
+      file: ../docker-compose.yml
+
+    # So you can override from the CLI
+    environment:
+      NODE_ENV: $NODE_ENV
+      OAM_DEBUG: $OAM_DEBUG
+
+    # Make container's localhost the same as host's localhost.
+    # So the DB should either be on the host or remote, not in a
+    # docker container.
+    network_mode: "host"
+
+    # Mount your code live into the container so you don't need
+    # to rebuild the container everytime.
+    volumes:
+      - ../:/app
+
+    # Run both foreman and a static file server for testing purposes
+    command: /bin/sh -c
+      "./node_modules/.bin/http-server ./test &
+      ./node_modules/.bin/nf start"

@@ -1,3 +1,7 @@
+// Shouldn't really be here, but tests should be merged to
+// mocha soon.
+require('dotenv').config();
+
 var Babel = require('babel');
 
 module.exports = [

@@ -1,8 +1,6 @@
-/* global before, after, describe, it */
 'use strict';
 
 var expect = require('chai').expect;
-// var should = require('chai').should();
 var request = require('request');
 var Conn = require('../../services/db.js');
 var Server = require('../../services/server.js');

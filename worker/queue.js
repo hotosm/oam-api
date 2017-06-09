@@ -21,20 +21,21 @@ JobQueue.prototype._initialize = function init () {
   if (this._initialized) { return Promise.resolve(true); }
   this._initialized = true;
   return promisify(MongoClient.connect.bind(MongoClient))(config.dbUri)
-  .then((connection) => {
-    this.db = connection;
-    this.workers = this.db.collection('workers');
-    this.images = this.db.collection('images');
+    .then((connection) => {
+      console.log('Upload worker connected to: ' + config.dbUri);
+      this.db = connection;
+      this.workers = this.db.collection('workers');
+      this.images = this.db.collection('images');
 
-    return this.workers.insertOne({ state: 'working' })
-    .then((result) => {
-      this.workerId = result.ops[0]._id;
-      log.workerId = this.workerId;
-      this._setupQueries();
-      log('Initialized');
-    })
-    .catch(this.cleanup.bind(this));
-  });
+      return this.workers.insertOne({ state: 'working' })
+      .then((result) => {
+        this.workerId = result.ops[0]._id;
+        log.workerId = this.workerId;
+        this._setupQueries();
+        log('Initialized');
+      })
+      .catch(this.cleanup.bind(this));
+    });
 };
 
 JobQueue.prototype._setupQueries = function _setupQueries () {
@@ -81,7 +82,8 @@ JobQueue.prototype._mainloop = function mainloop () {
   .findOneAndUpdate({
     status: 'initial'
   }, this.update.jobClaimed, { returnOriginal: false })
-  .then((result) => {
+    .then((result) => {
+      log(['info'], result);
     if (!result.value) {
       // no jobs left; try to shut down.
       // avoid race condition by making sure our state wasn't changed from

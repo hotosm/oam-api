@@ -16,6 +16,7 @@ module.exports = function register (server, options, next) {
   next();
 
   function spawn () {
+    console.log('Running an upload worker');
     var available = Object.keys(myWorkers);
     var workers = db.collection('workers');
     server.log(['worker', 'debug'], 'Maybe spawn... available: ' +
@@ -56,14 +57,14 @@ module.exports = function register (server, options, next) {
 
   function spawnWorker () {
     server.log(['worker', 'info'], 'Spawning worker.');
-    var cp = fork(path.join(__dirname, '../worker'))
-    .on('message', function (msg) {
-      myWorkers[msg.workerId] = cp.pid;
-      myProcesses[cp.pid] = msg.workerId;
-      var id = msg.workerId.slice(0, 6);
-      var message = msg.message.length === 1 ? msg.message[0] : msg.message;
-      server.log(['worker', 'worker ' + id].concat(msg.tags), message);
-    })
+    var cp = fork(path.join(__dirname, '../worker/index.js'))
+      .on('message', function (msg) {
+        myWorkers[msg.workerId] = cp.pid;
+        myProcesses[cp.pid] = msg.workerId;
+        var id = msg.workerId.slice(0, 6);
+        var message = msg.message.length === 1 ? msg.message[0] : msg.message;
+        server.log(['worker', 'worker ' + id].concat(msg.tags), message);
+      })
     .on('exit', function (info) {
       server.log(['worker', 'debug'], 'Worker exited: ' + JSON.stringify(info));
       delete myWorkers[myProcesses[cp.pid]];

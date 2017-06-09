@@ -11,7 +11,7 @@ var Connection = function () {
 Connection.prototype.start = function (cb) {
   this.db.on('error', console.error.bind(console, 'connection error:'));
   this.db.once('open', function () {
-    console.log('Successfully connected to database.');
+    console.log('Successfully connected to ' + config.dbUri);
     if (cb) {
       cb();
     }
