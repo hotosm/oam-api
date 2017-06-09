@@ -84,25 +84,26 @@ JobQueue.prototype._mainloop = function mainloop () {
   }, this.update.jobClaimed, { returnOriginal: false })
     .then((result) => {
       log(['info'], result);
-    if (!result.value) {
-      // no jobs left; try to shut down.
-      // avoid race condition by making sure our state wasn't changed from
-      // 'working' to something else (by the server) before we actually quit.
-      return this.workers.updateOne(this.query.myself, this.update.stopping)
-      .then((result) => {
-        // failed to set our state, so continue processing
-        if (result.modifiedCount === 0) { return this._mainloop(); }
-        // we're in the clear - clean up and exit
-        return this.cleanup();
-      })
-      .catch(this.cleanup.bind(this));
-    }
+      if (!result.value) {
+        // no jobs left; try to shut down.
+        // avoid race condition by making sure our state wasn't changed from
+        // 'working' to something else (by the server) before we actually quit.
+        return this.workers.updateOne(this.query.myself, this.update.stopping)
+        .then((result) => {
+          // failed to set our state, so continue processing
+          if (result.modifiedCount === 0) { return this._mainloop(); }
+          // we're in the clear - clean up and exit
+          return this.cleanup();
+        })
+        .catch(this.cleanup.bind(this));
+      }
 
-    // we got a job!
-    var image = result.value;
-    log(['info'], 'Processing job', image);
+      // we got a job!
+      var image = result.value;
+      log(['info'], 'Processing job', image);
 
-    return this.db.collection('uploads')
+      return this.db.collection('uploads')
+
     // find the upload / scene that contains this image
     .findOne({ 'scenes.images': image._id })
     .then(function (upload) {
@@ -141,7 +142,7 @@ JobQueue.prototype._mainloop = function mainloop () {
       })
       .then(this._mainloop.bind(this));
     });
-  });
+    });
 };
 
 JobQueue.prototype.cleanup = function cleanup (err) {

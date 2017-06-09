@@ -16,7 +16,7 @@ module.exports = function register (server, options, next) {
   next();
 
   function spawn () {
-    console.log('Running an upload worker');
+    console.info('Running an upload worker');
     var available = Object.keys(myWorkers);
     var workers = db.collection('workers');
     server.log(['worker', 'debug'], 'Maybe spawn... available: ' +

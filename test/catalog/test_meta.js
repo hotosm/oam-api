@@ -14,6 +14,7 @@ describe('Meta endpoint', function () {
   before(function (done) {
     self.db = new Conn();
     self.db.start(function (err) {
+      self.db.db.dropDatabase();
       if (err) {
         console.log(err);
       }

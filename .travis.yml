@@ -1,15 +1,41 @@
+sudo: required
+
 language: node_js
 
 env:
   global:
-  # Config needed to push docs to Github Pages
-  - GH_REF=github.com/hotosm/oam-catalog.git
-  - PRODUCTION_BRANCH=master
-  # GH_TOKEN for pushing docs to Github Pages
-  - secure: AhiKIqAYPeXH1HjhYza/VdMJrp8wCri5WNRY+Kdkb4piYEK20dAQPVgcVT2EM1tvlyZL5Q0ZU4rtnATkJOU3k9DQHI99xVjk4MjnqfpkrM9iZtif6o9xDZwf9iWwBeuu9MmKH0tsvKhktxrJkzZ7vAThurZVz89ZPoCAXuudyqk=
+    # Set OAM_DEBUG=true in Travis UI to see debug output
+    - NODE_ENV=test
+    - GH_REF=github.com/hotosm/oam-catalog.git
+    - PRODUCTION_BRANCH=master
+    # GH_TOKEN for deploying docs to Github
+    - secure: AhiKIqAYPeXH1HjhYza/VdMJrp8wCri5WNRY+Kdkb4piYEK20dAQPVgcVT2EM1tvlyZL5Q0ZU4rtnATkJOU3k9DQHI99xVjk4MjnqfpkrM9iZtif6o9xDZwf9iWwBeuu9MmKH0tsvKhktxrJkzZ7vAThurZVz89ZPoCAXuudyqk=
+    # OAM API ENV
+    - secure: HCCPmMJQhYJ4hG+YCcZc9hmFDThpXsNZDO8ktMQjluvIZAarsoBn6BXOIyyATil9bkGgdzzQzKilimg2TNFFsGCjyd8vxsbSA7igrxahxmM0qSGsVoAzIoWKsqJJHY0muHto/7Mmg47xa0sI2CcHaX5aKIPC2l8FD5GLYcdn39c=
+    - secure: ZyTkxBgknlW11Aow0jQBv8pFdANlkrpe24QeWgKBh3LHVYqMBQoIbEWOAKL80tH+D7REOqLkZfvpqqGAkHLFBglbfT9D0V8w0zs7MzNlSYBH3txJ3NgI921GjeO/Z4dkp30C/jajKUWqEff3U6spp2RSNsv8rym1E3b/uKHeTI4=
 
-services: mongodb
+services:
+  - mongodb
+  - docker
+
+before_script:
+  - cp .env.sample .env
+  # docker-compose gives precedence to values in .env, so remove these empty values
+  - sed -i '/AWS_ACCESS/d' .env
+  - sed -i '/AWS_SECRET/d' .env
+  # Build and start the API with all workers and dynamic tiler processor
+  - docker-compose -f test/docker-compose.yml up -d
+
+script:
+  - npm test
+  - mocha test/integration
+
+after_failure:
+  - docker ps
+  - cat .env
+  - echo "Logs for Integration test server:"
+  # TODO: When Travis update docker-compose use `docker-compose logs` instead
+  - docker logs test_test-app_1
 
 after_success:
-  - ./.build_scripts/docs.sh
-
+  - "./.build_scripts/docs.sh"

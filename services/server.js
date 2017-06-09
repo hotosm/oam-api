@@ -53,7 +53,7 @@ Server.prototype.start = function (cb) {
   });
 
   self.hapi.start(function () {
-    console.log(
+    console.info(
       'Server (' + process.env.NODE_ENV + ') running at:',
       self.hapi.info.uri
     );

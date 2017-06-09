@@ -23,6 +23,7 @@
   "dependencies": {
     "amazon-s3-url-signer": "^0.1.0",
     "async": "2.1.4",
+    "aws-sdk": "^2.66.0",
     "babel": "^5.8.21",
     "bluebird": "^3.4.1",
     "boom": "^2.8.0",

@@ -6,6 +6,7 @@
 if (process.env.NODE_ENV === 'test') {
   process.env.DB_URI = 'mongodb://localhost:27017/oam-api-test';
   process.env.OAM_DEBUG = process.env.OAM_DEBUG || 'false';
+  process.env.NEW_RELIC_ENABLED = false;
 }
 
 //
