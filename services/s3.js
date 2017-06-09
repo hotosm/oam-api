@@ -24,7 +24,8 @@ var S3 = function (bucket) {
 
   this.params = {
     s3Params: {
-      Bucket: bucket
+      Bucket: bucket,
+      Prefix: config.oinBucketPrefix
     },
     recursive: true
   };

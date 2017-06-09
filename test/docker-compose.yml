@@ -8,8 +8,9 @@ services:
       service: app
       file: ../docker-compose.yml
 
-    # So you can override from the CLI
     environment:
+      OAM_BUCKET_PREFIX: test-$CIRCLE_BUILD_NUM
+      # So you can override from the CLI
       NODE_ENV: $NODE_ENV
       OAM_DEBUG: $OAM_DEBUG
 

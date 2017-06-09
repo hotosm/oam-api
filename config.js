@@ -8,6 +8,13 @@ if (process.env.NODE_ENV === 'test') {
   process.env.OAM_DEBUG = process.env.OAM_DEBUG || 'false';
 }
 
+//
+if (process.env.NODE_ENV === 'production') {
+  // Safety measure to prevent imagery being placed in a namespacing
+  // directory.
+  process.env.OIN_BUCKET_PREFIX = null;
+}
+
 const config = {
   debug: process.env.OAM_DEBUG,
 
@@ -20,6 +27,9 @@ const config = {
 
   // OIN bucket in which imagery ultimately lives
   oinBucket: process.env.OIN_BUCKET,
+  // Place imagery in a folder. Useful for running multiple OAM instances
+  // or testing.
+  oinBucketPrefix: process.env.OIN_BUCKET_PREFIX,
   // OIN bucket for temporary storage of direct uploads
   uploadBucket: process.env.UPLOAD_BUCKET,
   // How often to poll OIN buckets for new imagery

@@ -8,6 +8,7 @@ var _ = require('lodash');
 var S3 = require('./services/s3.js');
 var async = require('async');
 var config = require('./config');
+var Conn = require('./services/db.js');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
 // Replace mongoose's deprecated promise library (mpromise) with bluebird
@@ -16,7 +17,8 @@ mongoose.Promise = require('bluebird');
 var request = require('request');
 var cron = require('node-cron');
 
-var db = mongoose.connection;
+var db = new Conn();
+db.start();
 
 var consoleLog = function (err, msg) {
   if (err) {
@@ -34,7 +36,7 @@ var consoleLog = function (err, msg) {
 var getBucketList = function (cb) {
   request.get({
     json: true,
-    uri: config.oinRegisterURL
+    uri: config.oinRegisterUrl
   }, function (err, res, remoteData) {
     if (err) {
       return cb(err);
@@ -71,7 +73,6 @@ var readBuckets = function (tasks) {
       });
       async.parallelLimit(results, 5, function (err, results) {
         if (err) {
-          db.close();
           return console.error(err);
         }
         console.info('--- Finished indexing all buckets ---');
@@ -92,11 +93,9 @@ var readBuckets = function (tasks) {
             }
             console.info('--- Added new analytics record ---');
           });
-          // Catch error in db query promises
+        // Catch error in db query promises
         }).catch(function (err) {
           return console.error(err);
-        }).then(function () {
-          return db.close();
         });
       });
     });

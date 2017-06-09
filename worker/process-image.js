@@ -16,6 +16,11 @@ module.exports = promisify(_processImage);
  * Callback called with (err, { metadata, messages })
  */
 function _processImage (scene, sourceUrl, targetPrefix, callback) {
+  // Namespace the uploaded image under a directory
+  if (config.oinBucketPrefix) {
+    targetPrefix = config.oinBucketPrefix + '/' + targetPrefix;
+  }
+
   // Google drive url comes in the form of gdrive://FILE_ID
   // We need this because large files can only be downloaded with an api key.
   var pieces = sourceUrl.match(/gdrive:\/\/(.+)/);
