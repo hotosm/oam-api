@@ -9,11 +9,6 @@ exports.config = {
    * Array of application names.
    */
   app_name: ['oam-catalog'],
-  /**
-   * Your New Relic license key.
-   * The license key is set through the env variable NEW_RELIC_LICENSE_KEY
-   */
-  license_key: 'license key here',
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing
@@ -23,3 +18,4 @@ exports.config = {
     level: 'info'
   }
 };
+

@@ -1,0 +1,33 @@
+{
+    "_id": "55e0c86b24c379c000544d24",
+    "uploader": {
+        "name": "Lady Stardust",
+        "email": "lady@stardust.xyz"
+    },
+    "scenes": [
+        {
+            "contact": {
+                "name": "Ziggy",
+                "email": "ziggy@bowie.net"
+            },
+            "title": "Natural Earth Image",
+            "provider": "Natural Earth",
+            "sensor": "Some Algorithm",
+            "platform": "satellite",
+            "acquisition_start": "2015-04-01T00:00:00.000Z",
+            "acquisition_end": "2015-04-30T00:00:00.000Z",
+            "tms": null,
+            "images": [
+                {
+                    "_id": "55e0c86a24c379c000544d23",
+                    "url": "http://localhost:8080/uploader/fixture/NE1_50M_SR.tif",
+                    "status": "initial",
+                    "messages": [],
+                    "startedAt": "2015-08-28T20:45:31.062Z",
+                    "stoppedAt": "2015-08-28T20:45:31.247Z"
+                }
+            ]
+        }
+    ],
+    "createdAt": "2015-08-28T20:45:30.820Z"
+}

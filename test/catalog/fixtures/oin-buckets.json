@@ -1,0 +1,12 @@
+{
+  "nodes": [{
+    "name": "Testing/Development Bucket",
+    "contact": "info@hotosm.org",
+    "locations": [
+      {
+        "type": "s3",
+        "bucket_name": "oin-hotosm-staging"
+      }
+    ]
+  }]
+}

@@ -69,10 +69,3 @@ module.exports.getLastUpdateTime = function (cb) {
   });
 };
 
-/**
- * The date callback that returns the error and date.
- *
- * @callback responseCallback
- * @param {error} err - The error message
- * @param {int} date - The last updated date
- */

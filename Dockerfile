@@ -1,17 +1,11 @@
-FROM node:4
-ENV NPM_CONFIG_LOGLEVEL warn
+FROM quay.io/hotosm/oam-dynamic-tiler-tools
 
-# Install app dependencies
-ADD package.json /tmp/package.json
-RUN cd /tmp && npm install
+RUN mkdir -p /app
+COPY . /app
+WORKDIR /app
 
-# Create app directory
-RUN mkdir -p /usr/src/app && cp -a /tmp/node_modules /usr/src/app
-WORKDIR /usr/src/app
-
-# Bundle app source
-ADD . /usr/src/app
+RUN npm install
 
 EXPOSE 4000
 
-CMD [ "node", "index.js" ]
+CMD ["./node_modules/.bin/nf", "start"]

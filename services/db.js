@@ -1,23 +1,17 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var _ = require('lodash');
+var config = require('../config');
 
-var Connection = function (dbName, dbUri) {
-  if (!_.isEmpty(dbUri)) {
-    this.dbUri = dbUri;
-  } else {
-    this.dbUri = 'mongodb://localhost/' + dbName;
-  }
-
-  mongoose.connect(this.dbUri);
+var Connection = function () {
+  mongoose.connect(config.dbUri);
   this.db = mongoose.connection;
 };
 
 Connection.prototype.start = function (cb) {
   this.db.on('error', console.error.bind(console, 'connection error:'));
   this.db.once('open', function () {
-    console.log('Successfully connected to database.');
+    console.info('Successfully connected to ' + config.dbUri);
     if (cb) {
       cb();
     }
@@ -37,7 +31,7 @@ Connection.prototype.deleteDb = function (cb) {
 };
 
 Connection.prototype.close = function () {
-  mongoose.disconnect();
+  mongoose.connection.close();
 };
 
 module.exports = Connection;

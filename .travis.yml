@@ -1,27 +1,41 @@
-language: node_js
+sudo: required
 
-node_js:
-- '4.5.0'
+language: node_js
 
 env:
   global:
-  - GH_REF=github.com/hotosm/oam-catalog.git
-  - PRODUCTION_BRANCH=master
-  - secure: AhiKIqAYPeXH1HjhYza/VdMJrp8wCri5WNRY+Kdkb4piYEK20dAQPVgcVT2EM1tvlyZL5Q0ZU4rtnATkJOU3k9DQHI99xVjk4MjnqfpkrM9iZtif6o9xDZwf9iWwBeuu9MmKH0tsvKhktxrJkzZ7vAThurZVz89ZPoCAXuudyqk=
+    # Set OAM_DEBUG=true in Travis UI to see debug output
+    - NODE_ENV=test
+    - GH_REF=github.com/hotosm/oam-catalog.git
+    - PRODUCTION_BRANCH=master
+    # GH_TOKEN for deploying docs to Github
+    - secure: AhiKIqAYPeXH1HjhYza/VdMJrp8wCri5WNRY+Kdkb4piYEK20dAQPVgcVT2EM1tvlyZL5Q0ZU4rtnATkJOU3k9DQHI99xVjk4MjnqfpkrM9iZtif6o9xDZwf9iWwBeuu9MmKH0tsvKhktxrJkzZ7vAThurZVz89ZPoCAXuudyqk=
+    # OAM API ENV
+    - secure: HCCPmMJQhYJ4hG+YCcZc9hmFDThpXsNZDO8ktMQjluvIZAarsoBn6BXOIyyATil9bkGgdzzQzKilimg2TNFFsGCjyd8vxsbSA7igrxahxmM0qSGsVoAzIoWKsqJJHY0muHto/7Mmg47xa0sI2CcHaX5aKIPC2l8FD5GLYcdn39c=
+    - secure: ZyTkxBgknlW11Aow0jQBv8pFdANlkrpe24QeWgKBh3LHVYqMBQoIbEWOAKL80tH+D7REOqLkZfvpqqGAkHLFBglbfT9D0V8w0zs7MzNlSYBH3txJ3NgI921GjeO/Z4dkp30C/jajKUWqEff3U6spp2RSNsv8rym1E3b/uKHeTI4=
 
-services: mongodb
+services:
+  - mongodb
+  - docker
 
-before_install:
-- chmod +x ./.build_scripts/docs.sh
+before_script:
+  - cp .env.sample .env
+  # docker-compose gives precedence to values in .env, so remove these empty values
+  - sed -i '/AWS_ACCESS/d' .env
+  - sed -i '/AWS_SECRET/d' .env
+  # Build and start the API with all workers and dynamic tiler processor
+  - docker-compose -f test/docker-compose.yml up -d
+
+script:
+  - npm test
+  - mocha test/integration
+
+after_failure:
+  - docker ps
+  - cat .env
+  - echo "Logs for Integration test server:"
+  # TODO: When Travis update docker-compose use `docker-compose logs` instead
+  - docker logs test_test-app_1
 
 after_success:
-- "./.build_scripts/docs.sh"
-
-deploy:
-  provider: heroku
-  api_key:
-    secure: iZGqyYrx4i7+MPDa0Lopoe/TULu9DNWc2UsYqB8+f39xNhpRNHqIR0lz5VFWl6oQugj0XeZnHpN+f4W+2jfy6ThyTUs42uFAE43HThVipPhf28NdeuCJVje5Qu2ZjMv9spRskalxBrJjdJ8G9C5Vxwx1+LmnjVcyvsk0ycSA38o=
-  app: oam-catalog
-  on:
-    repo: hotosm/oam-catalog
-    branch: master
+  - "./.build_scripts/docs.sh"
