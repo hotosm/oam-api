@@ -1,27 +1,13 @@
 'use strict';
 
+require('../helper');
+
 var expect = require('chai').expect;
 var request = require('request');
-var Conn = require('../../services/db.js');
-var Server = require('../../services/server.js');
 var meta = require('./sample_meta.json');
 
 describe('Meta endpoint', function () {
   this.timeout(15000);
-
-  var self = this;
-
-  before(function (done) {
-    self.db = new Conn();
-    self.db.start(function (err) {
-      self.db.db.dropDatabase();
-      if (err) {
-        console.log(err);
-      }
-      self.server = new Server(2000);
-      self.server.start(done);
-    });
-  });
 
   it('add with token', function (done) {
     var options = {
@@ -236,11 +222,5 @@ describe('Meta endpoint', function () {
         done();
       }
     );
-  });
-
-  after(function (done) {
-    self.db.deleteDb(function () {
-      self.server.hapi.stop(null, done);
-    });
   });
 });

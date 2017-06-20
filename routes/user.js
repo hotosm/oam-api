@@ -43,7 +43,7 @@ module.exports = [
           }).code(401);
         }
 
-        request.auth.session.set({
+        request.cookieAuth.set({
           username: username
         });
 

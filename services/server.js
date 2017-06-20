@@ -2,6 +2,16 @@
 
 var Hapi = require('hapi');
 var config = require('../config');
+var Qs = require('qs');
+
+// Parse POST bodies with deep fields like 'field[0]'
+var onPostAuth = function (request, reply) {
+  if (typeof request.payload === 'object' &&
+    !Buffer.isBuffer(request.payload)) {
+    request.payload = Qs.parse(request.payload);
+  }
+  return reply.continue();
+};
 
 var Server = function (port) {
   this.port = port;
@@ -62,6 +72,8 @@ Server.prototype.start = function (cb) {
       cb();
     }
   });
+
+  self.hapi.ext('onPostAuth', onPostAuth);
 };
 
 module.exports = Server;

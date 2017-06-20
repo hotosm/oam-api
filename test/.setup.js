@@ -8,7 +8,3 @@ if (process.env.OAM_DEBUG !== 'true') {
     console[methods[i]] = function () {};
   }
 }
-
-var Conn = require('../services/db.js');
-var dbWrapper = new Conn();
-dbWrapper.start();

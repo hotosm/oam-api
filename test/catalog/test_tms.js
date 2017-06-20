@@ -1,16 +1,14 @@
 'use strict';
 
+require('../helper');
+
 var expect = require('chai').expect;
 var request = require('request');
 var async = require('async');
-var Conn = require('../../services/db.js');
-var Server = require('../../services/server.js');
 var meta = require('./sample_meta.json');
 
 describe('TMS endpoint', function () {
   this.timeout(15000);
-
-  var self = this;
 
   var tms1 = {
     uri: 'http://www.example.com/some_tms1.tms',
@@ -36,24 +34,13 @@ describe('TMS endpoint', function () {
 
   var tms4 = {
     uri: [
-      'http://www.example.com/some_tms3.tms',
-      'http://www.example.com/some_tms4.tms'
+      'http://www.example.com/some_tms4.tms',
+      'http://www.example.com/some_tms5.tms'
     ],
     images: [
       {uuid: 'http://www.example.com/some_image2.tif'}
     ]
   };
-
-  before(function (done) {
-    self.db = new Conn();
-    self.db.start(function (err) {
-      if (err) {
-        console.log(err);
-      }
-      self.server = new Server(2000);
-      self.server.start(done);
-    });
-  });
 
   it('add meta', function (done) {
     var options = {
@@ -158,10 +145,5 @@ describe('TMS endpoint', function () {
       expect(res.results[0].custom_tms.length).to.equal(2);
       done();
     });
-  });
-
-  after(function (done) {
-    self.db.deleteDb();
-    self.server.hapi.stop(null, done);
   });
 });
