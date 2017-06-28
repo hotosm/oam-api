@@ -4,7 +4,6 @@ var _ = require('lodash');
 var request = require('request');
 var parse = require('wellknown');
 var bboxPolygon = require('turf-bbox-polygon');
-var Boom = require('boom');
 var Meta = require('../models/meta.js');
 
 /**
@@ -148,6 +147,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
           payload.meta_uri = payload.meta_uri || remoteUri;
 
           // create a geojson object from footprint and bbox
+          // TODO: Put in a Mongoose middleware hook
           payload.geojson = parse(payload.footprint);
           payload.geojson.bbox = payload.bbox;
 
@@ -173,54 +173,3 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
   });
 };
 
-/**
-* Add or Update TMS endpoints related to each image
-* @param {String} remoteUri - a URI to the remote file
-* @param {String} tmsUri - a URI to the TMS
-* @param {Callback} cb - The callback that handles the response
-*/
-module.exports.addUpdateTms = function (remoteUri, tmsUri, cb) {
-  // Check if the meta data is already added
-  Meta.findOne({uuid: remoteUri}, function (err, meta) {
-    if (err) {
-      return cb(err);
-    }
-
-    // if the meta file doesn't exist then add, if the meta file is more recent
-    // than our last update, then update
-    if (meta === null) {
-      err = Boom.create(
-        400,
-        'Image was not found in the catalog!',
-        { timestamp: Date.now() }
-      );
-      return cb(err);
-    } else {
-      var custom = [];
-
-      if (typeof meta.custom_tms === 'undefined') {
-        custom.push(tmsUri);
-      } else if (meta.custom_tms.indexOf(tmsUri) === -1) {
-        custom = meta.custom_tms;
-        custom.push(tmsUri);
-      } else {
-        // return if the tms uri is already added to the image
-        return cb(err, meta);
-      }
-
-      // Update the image with the tms uri provided
-      Meta.update({uuid: remoteUri}, {custom_tms: custom}, function (err) {
-        return cb(err, meta);
-      });
-    }
-  });
-};
-
-/**
- * The records callback that returns the error and records.
- *
- * @callback responseCallback
- * @param {error} err - The error message
- * @param {Object} records - The query records
- * @param {Number} count - Total number of records found
- */

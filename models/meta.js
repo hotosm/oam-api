@@ -3,8 +3,11 @@
 var mongoose = require('mongoose');
 
 var metaSchema = new mongoose.Schema({
-  uuid: {type: String, unique: true, required: true, dropDups: true}, // The URI of the image
-  meta_uri: {type: String, unique: true, required: false}, // To URI of the meta of the image
+  // The URI of the image
+  uuid: {type: String, unique: true, required: true, dropDups: true},
+  // URI of the meta of the image
+  meta_uri: {type: String, unique: true, required: false},
+  user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   thumb_uri: String,
   title: String,
   projection: String,
@@ -25,4 +28,4 @@ var metaSchema = new mongoose.Schema({
   uploaded_at: Date
 });
 
-module.exports = mongoose.model('meta', metaSchema);
+module.exports = mongoose.model('Meta', metaSchema);

@@ -7,9 +7,10 @@ if (process.env.NODE_ENV === 'test') {
   process.env.DB_URI = 'mongodb://localhost:27017/oam-api-test';
   process.env.OAM_DEBUG = process.env.OAM_DEBUG || 'false';
   process.env.NEW_RELIC_ENABLED = false;
+  process.env.PORT = 47357;
+  process.env.API_ENDPOINT = 'http://localhost:' + process.env.PORT;
 }
 
-//
 if (process.env.NODE_ENV === 'production') {
   // Safety measure to prevent imagery being placed in a namespacing
   // directory.
@@ -17,11 +18,14 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const config = {
+  env: process.env.NODE_ENV,
   debug: process.env.OAM_DEBUG,
 
   // Server setup
   host: process.env.HOST,
   port: process.env.PORT,
+  apiEndpoint: process.env.API_ENDPOINT,
+  browserURL: process.env.BROWSER_URL,
 
   // DB connection
   dbUri: process.env.DB_URI,
@@ -39,6 +43,9 @@ const config = {
   oinRegisterUrl: process.env.OIN_REGISTER_URL,
   // Approximate thumbnail size, in kilobytes
   thumbnailSize: 300,
+
+  facebookAppId: process.env.FACEBOOK_APP_ID,
+  facebookAppSecret: process.env.FACEBOOK_APP_SECRET,
 
   // Base URL for accessing the slippy map TMS endpoint for imagery. This is
   // the entrypoint for using the Dynamic Tiler to serve imagery.

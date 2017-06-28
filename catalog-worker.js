@@ -1,3 +1,7 @@
+/**
+ * This background process polls S3 buckets for new imagery
+ */
+
 'use strict';
 
 console.log('Starting catalog worker...');

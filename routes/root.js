@@ -5,7 +5,7 @@ module.exports = [
     method: 'GET',
     path: '/',
     handler: function (request, reply) {
-      reply('Hello, world!');
+      reply('The OAM API');
     }
   }
 ];

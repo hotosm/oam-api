@@ -1,14 +1,12 @@
 {
   "name": "oam-catalog",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A catalog for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
     "docs": "apidoc -i routes/ -o docs/",
     "lint": "eslint . --ext .js",
-    "test": "npm run lint && npm run catalog_tests && npm run uploader_tests",
-    "uploader_tests": "lab -T test/uploader/babel.js test/uploader/test__*.js",
-    "catalog_tests": "mocha test/catalog"
+    "test": "npm run lint && mocha test/specs"
   },
   "repository": {
     "type": "git",
@@ -25,6 +23,7 @@
     "async": "2.1.4",
     "aws-sdk": "^2.66.0",
     "babel": "^5.8.21",
+    "bell": "^8.7.0",
     "bluebird": "^3.4.1",
     "boom": "^2.8.0",
     "cron": "^1.2.1",
