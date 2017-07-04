@@ -11,6 +11,7 @@ var config = require('../config');
 var s3bucket = config.oinBucket;
 
 module.exports = promisify(_processImage);
+
 /**
  * Fully process one URL.
  * Callback called with (err, { metadata, messages })

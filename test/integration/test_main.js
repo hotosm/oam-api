@@ -1,13 +1,13 @@
 'use strict';
 
-IROOOOOOOOOOOOOOON
+// IROOOOOOOOOOOOOOON
 
 var expect = require('chai').expect;
 var helper = require('../helper');
 var request = require('request');
 var uuidV4 = require('uuid/v4');
 
-// These tests require a test docker container to be runnging:
+// These tests require a test docker container to be running:
 //
 // `docker-compose -f test/docker-compose.yml up -d`
 //
@@ -16,7 +16,8 @@ var uuidV4 = require('uuid/v4');
 // Note that these are integration tests running against a real
 // s3 bucket. Try to use a unique OIN_BUCKET_PREFIX in the
 // running API as often as you can to ensure your working with
-// an empty bucket/folder.
+// an empty bucket/folder. For CI tests Travis prepends the build
+// number to OIN_BUCKET_PREFIX.
 describe('Uploading imagery', function () {
   it('should upload, convert and process an image', function (done) {
     // Needs time to process the image

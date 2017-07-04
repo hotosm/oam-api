@@ -18,7 +18,7 @@ AWS.config = {
   secretAccessKey: config.awsSecret
 };
 
-function insertImages (db, scene, callback) {
+function insertImages (db, scene, userID, callback) {
   var imageIds = [];
   db.collection('images').insertMany(scene.urls.map(function (url) {
     var id = new ObjectID();
@@ -27,6 +27,7 @@ function insertImages (db, scene, callback) {
       _id: id,
       url: url,
       status: 'initial',
+      user_id: userID,
       messages: []
     };
   }), callback);
@@ -114,6 +115,7 @@ module.exports = [
       });
     }
   },
+
   /**
    * @api {get} /uploads/:id Get the status of a given upload
    * @apiGroup uploads
@@ -220,14 +222,14 @@ module.exports = [
           return reply(Boom.badRequest(err));
         }
 
-        data.user = request.auth.credentials.id;
+        data.user = request.auth.credentials._id;
         data.createdAt = new Date();
 
         // pull out the actual images into their own collection, so it can be
         // more easily used as a task queue for the worker(s)
         var q = queue();
         data.scenes.forEach(function (scene) {
-          q.defer(insertImages, db, scene);
+          q.defer(insertImages, db, scene, request.auth.credentials._id);
         });
 
         q.awaitAll(function (err) {
@@ -236,21 +238,21 @@ module.exports = [
             return reply(Boom.wrap(err));
           }
           db.collection('uploads').insertOne(data)
-          .then(function (result) {
-            sendgrid.send({
-              to: data.uploader.email,
-              from: config.sendgridFrom,
-              subject: config.emailNotification.subject,
-              text: config.emailNotification.text.replace('{UPLOAD_ID}', data._id)
-            }, function (err, json) {
-              if (err) { request.log(['error', 'email'], err.message); }
-              if (json) { request.log(['debug', 'email'], json); }
-            });
-            return request.server.plugins.workers.spawn()
-            .then(function () {
-              reply({ upload: data._id });
-            });
-          })
+            .then(function (result) {
+              sendgrid.send({
+                to: data.uploader.email,
+                from: config.sendgridFrom,
+                subject: config.emailNotification.subject,
+                text: config.emailNotification.text.replace('{UPLOAD_ID}', data._id)
+              }, function (err, json) {
+                if (err) { request.log(['error', 'email'], err.message); }
+                if (json) { request.log(['debug', 'email'], json); }
+              });
+              return request.server.plugins.workers.spawn()
+              .then(function () {
+                reply({ upload: data._id });
+              });
+            })
           .catch(function (err) { reply(Boom.wrap(err)); });
         });
       });

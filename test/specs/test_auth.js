@@ -6,7 +6,9 @@ var request = require('request');
 
 var config = require('../../config');
 var User = require('../../models/user');
-var helper = require('./helper');
+
+require('./helper');
+var commonHelper = require('../helper');
 
 describe('Auth', function () {
   beforeEach(function (done) {
@@ -18,7 +20,7 @@ describe('Auth', function () {
     var existingUser;
 
     beforeEach(function (done) {
-      helper.createUser({
+      commonHelper.createUser({
         facebook_id: 123,
         session_id: null
       }, function (result) {
@@ -28,7 +30,7 @@ describe('Auth', function () {
     });
 
     it('should set a new session for OAuth login', function (done) {
-      helper.logUserIn(existingUser, function (httpResponse, body) {
+      commonHelper.logUserIn(existingUser, function (httpResponse, body) {
         expect(httpResponse.statusCode).to.equal(200);
         User.findOne({
           facebook_id: existingUser.facebook_id
@@ -42,7 +44,7 @@ describe('Auth', function () {
     });
 
     it('should redirect to the URL specified by a param', function (done) {
-      helper.logUserIn(existingUser, function (httpResponse, body) {
+      commonHelper.logUserIn(existingUser, function (httpResponse, body) {
         expect(httpResponse.statusCode).to.equal(200);
         expect(httpResponse.request.uri.path).to.equal('/user');
         done();
@@ -52,11 +54,11 @@ describe('Auth', function () {
     it('should log a user in based on their session', function (done) {
       var options = {
         url: config.apiEndpoint + '/user',
-        jar: helper.cookieJar,
+        jar: commonHelper.cookieJar,
         json: true
       };
 
-      helper.logUserIn(existingUser, function (loggedUserHttpResponse, _body) {
+      commonHelper.logUserIn(existingUser, function (loggedUserHttpResponse, _body) {
         request.get(options, function (_err, httpResponse, body) {
           expect(httpResponse.statusCode).to.equal(200);
           expect(body.results.facebook_id).to.equal(existingUser.facebook_id);
@@ -69,10 +71,10 @@ describe('Auth', function () {
       it('should not log a user if their session ID is wrong', function (done) {
         var options = {
           url: config.apiEndpoint + '/user',
-          jar: helper.cookieJar
+          jar: commonHelper.cookieJar
         };
 
-        helper.logUserIn(existingUser, function (loggedUserHttpResponse, _body) {
+        commonHelper.logUserIn(existingUser, function (loggedUserHttpResponse, _body) {
           existingUser.session_id = 'wrong123';
           existingUser.save(function () {
             request.get(options, function (_err, httpResponse, body) {
@@ -86,10 +88,10 @@ describe('Auth', function () {
       it('should not log a user if their session is old', function (done) {
         var options = {
           url: config.apiEndpoint + '/user',
-          jar: helper.cookieJar
+          jar: commonHelper.cookieJar
         };
 
-        helper.logUserIn(existingUser, function (loggedUserHttpResponse, _body) {
+        commonHelper.logUserIn(existingUser, function (loggedUserHttpResponse, _body) {
           existingUser.session_expiration = new Date();
           existingUser.save(function () {
             request.get(options, function (_err, httpResponse, body) {
@@ -106,7 +108,7 @@ describe('Auth', function () {
     it('should create a new user and set their session', function (done) {
       var options = {
         url: config.apiEndpoint + '/login',
-        qs: helper.setTestOauthResponse({
+        qs: commonHelper.setTestOauthResponse({
           profile: {
             id: 456,
             displayName: 'Tester'

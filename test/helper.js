@@ -1,20 +1,19 @@
-var connection = require('mongoose').connection;
 var request = require('request');
 var _ = require('lodash');
 
-var Conn = require('../services/db');
+var config = require('../config');
 var User = require('../models/user');
 
-beforeEach(function (done) {
-  var dbWrapper = new Conn();
-  dbWrapper.start(function () {
-    connection.db.dropDatabase();
-  });
-});
-
 module.exports = {
-  apiBaseAtDocker: 'http://localhost:4000',
   cookieJar: request.jar(),
+
+  // Pass a fake OAuth response as a request parameter. Used
+  // in conjunction with Bell.simulate().
+  setTestOauthResponse: function (response) {
+    return {
+      test_oauth_response: JSON.stringify(response)
+    };
+  },
 
   createUser: function (user, callback) {
     user = _.defaults(user, {
@@ -32,9 +31,16 @@ module.exports = {
 
   logUserIn: function (oauthUser, callback, redirect) {
     var options = {
-      url: this.apiBaseAtDocker + '/login',
+      url: config.apiEndpoint + '/login',
+      qs: this.setTestOauthResponse({
+        profile: { id: oauthUser.facebook_id }
+      }),
       jar: this.cookieJar
     };
+
+    if (redirect) {
+      options.qs.original_uri = redirect;
+    }
 
     request.get(options, function (err, httpResponse, body) {
       if (err) {
@@ -45,8 +51,10 @@ module.exports = {
   },
 
   logIn: function (callback) {
-    this.createUser({}, function (user) {
-      this.logUserIn(user, callback);
+    this.createUser({}, (user) => {
+      this.logUserIn(user, function () {
+        callback(user);
+      });
     });
   },
 
@@ -62,7 +70,7 @@ module.exports = {
   // creates metadata for it, and so on.
   waitForConversion: function (id, callback) {
     var getOptions = {
-      url: this.apiBaseAtDocker + '/uploads/' + id,
+      url: config.apiEndpoint + '/uploads/' + id,
       json: true
     };
 
@@ -71,7 +79,7 @@ module.exports = {
       if (status === 'finished') {
         callback();
       } else {
-        setTimeout(this.waitForConversion, 100, id, callback);
+        setTimeout(this.waitForConversion.bind(this), 100, id, callback);
       }
     });
   },
@@ -81,7 +89,7 @@ module.exports = {
   // parsed and added to the DB.
   waitForIndexing: function (title, processedCb) {
     var getOptions = {
-      url: this.apiBaseAtDocker + '/meta?title=' + title,
+      url: config.apiEndpoint + '/meta?title=' + title,
       json: true
     };
 
@@ -94,4 +102,3 @@ module.exports = {
     });
   }
 };
-

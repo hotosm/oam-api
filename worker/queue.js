@@ -2,9 +2,9 @@ var MongoClient = require('mongodb').MongoClient;
 var Promise = require('es6-promise').Promise;
 var promisify = require('es6-promisify');
 var uuidV4 = require('uuid/v4');
-var processImage = require('./process-image');
 var log = require('./log');
 var config = require('../config');
+var processImage = require(config.imageProcessorPath);
 
 module.exports = JobQueue;
 
@@ -106,7 +106,7 @@ JobQueue.prototype._mainloop = function mainloop () {
 
     // find the upload / scene that contains this image
     .findOne({ 'scenes.images': image._id })
-    .then(function (upload) {
+    .then((upload) => {
       var found;
 
       upload.scenes.forEach(function (scene, i) {
@@ -119,14 +119,21 @@ JobQueue.prototype._mainloop = function mainloop () {
           found = processImage(scene, image.url, key);
         });
       });
-
-      if (found) { return found; }
+      if (found) {
+        this.user_id = upload.user;
+        return found;
+      }
       // this should never happen
       throw new Error('Could not find the scene for image ' + image._id);
     })
     .then((processed) => {
-      // mark the job as finished
-      return this.images.findOneAndUpdate(result.value, this.update.jobFinished(processed));
+      this.processed = processed;
+      var meta = this.processed.metadata;
+      meta.user = this.user_id;
+      return this.db.collection('metas').insertOne(meta);
+    })
+    .then(() => {
+      return this.images.findOneAndUpdate(result.value, this.update.jobFinished(this.processed));
     })
     .then(() => {
       // update this worker's timestamp
