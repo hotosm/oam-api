@@ -1,4 +1,3 @@
-var connection = require('mongoose').connection;
 var Bell = require('bell');
 var Boom = require('boom');
 
@@ -34,8 +33,9 @@ before(function (done) {
 
   var dbWrapper = new Conn();
   dbWrapper.start(function () {
-    connection.db.dropDatabase();
-    var server = new Server(config.port);
-    server.start(done);
+    dbWrapper.deleteDb(function () {
+      var server = new Server(config.port);
+      server.start(done);
+    });
   });
 });

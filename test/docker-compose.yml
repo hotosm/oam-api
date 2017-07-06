@@ -10,9 +10,10 @@ services:
 
     environment:
       - OAM_BUCKET_PREFIX=test-$TRAVIS_BUILD_NUMBER
+      - INTEGRATION_TESTS=true
+      - NODE_ENV=test
       # Variables that can be inherited from the host ENV. All
       # others will come from .env
-      - NODE_ENV
       - OAM_DEBUG
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY

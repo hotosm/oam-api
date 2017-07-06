@@ -12,6 +12,14 @@ if (process.env.NODE_ENV === 'test') {
   process.env.IMAGE_PROCESSOR = '../test/specs/_process-image_stub';
 }
 
+// Amendments for integration tests, the ones that run in Docker against
+// a real S3 bucket.
+if (process.env.INTEGRATION_TESTS === 'true') {
+  process.env.PORT = 4000;
+  process.env.API_ENDPOINT = 'http://localhost:' + process.env.PORT;
+  process.env.IMAGE_PROCESSOR = './process-image';
+}
+
 if (process.env.NODE_ENV === 'production') {
   // Safety measure to prevent imagery being placed in a namespacing
   // directory.

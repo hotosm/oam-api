@@ -68,6 +68,7 @@
     "eslint-plugin-react": "^6.7.1",
     "eslint-plugin-standard": "^2.0.1",
     "http-server": "^0.10.0",
+    "iron": "^4.0.5",
     "lab": "^5.15.0",
     "mocha": "^2.2.4",
     "omit-deep": "^0.1.2",

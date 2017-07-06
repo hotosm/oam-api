@@ -1,11 +1,13 @@
 'use strict';
 
-// IROOOOOOOOOOOOOOON
-
 var expect = require('chai').expect;
-var helper = require('../helper');
 var request = require('request');
 var uuidV4 = require('uuid/v4');
+
+require('./helper');
+var commonHelper = require('../helper');
+
+var config = require('../../config');
 
 // These tests require a test docker container to be running:
 //
@@ -19,6 +21,17 @@ var uuidV4 = require('uuid/v4');
 // an empty bucket/folder. For CI tests Travis prepends the build
 // number to OIN_BUCKET_PREFIX.
 describe('Uploading imagery', function () {
+  var loginCookie;
+
+  beforeEach(function (done) {
+    commonHelper.createUser({}, function (user) {
+      commonHelper.generateSecureCookieForUser(user, function (cookie) {
+        loginCookie = cookie;
+        done();
+      });
+    });
+  });
+
   it('should upload, convert and process an image', function (done) {
     // Needs time to process the image
     this.timeout(3 * 60 * 1000);
@@ -30,14 +43,17 @@ describe('Uploading imagery', function () {
     upload.scenes[0].title = title;
 
     var postOptions = {
-      url: helper.apiBaseAtDocker + '/uploads',
-      json: upload
+      url: config.apiEndpoint + '/uploads',
+      json: upload,
+      headers: {
+        'Cookie': loginCookie
+      }
     };
 
     request.post(postOptions, function (_err, httpResponse, body) {
       expect(httpResponse.statusCode).to.eq(200);
       var uploadId = body.results.upload;
-      helper.waitForProcessing(uploadId, title, function (image) {
+      commonHelper.waitForProcessing(uploadId, title, function (image) {
         expect(image.title).to.eq(title);
         expect(image.properties.license).to.eq('CC-BY');
         expect(image.projection).to.include('GEOGCS');

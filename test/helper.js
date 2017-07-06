@@ -1,11 +1,30 @@
 var request = require('request');
 var _ = require('lodash');
+var Iron = require('iron');
 
 var config = require('../config');
 var User = require('../models/user');
 
 module.exports = {
   cookieJar: request.jar(),
+
+  // When running against the containerised API it's pretty hard to go through the whole
+  // OAuth flow, ie logging into Facebook, accpeting the app's terms, etc. So it's easier
+  // just to generate the cookie ourselves.
+  generateSecureCookieForUser: function (user, callback) {
+    user.updateSession(function (_err, sessionId) {
+      var session = {
+        sessionId: sessionId
+      };
+      Iron.seal(session, config.cookiePassword, Iron.defaults, function (_err, sealed) {
+        var cookie =
+          'oam-browser=' +
+          sealed + '; ' +
+          'Path=/; HttpOnly=true; SameSite=Strict; hostOnly=true; aAge=10ms; cAge=770ms;';
+        callback(cookie);
+      });
+    });
+  },
 
   // Pass a fake OAuth response as a request parameter. Used
   // in conjunction with Bell.simulate().
@@ -15,13 +34,13 @@ module.exports = {
     };
   },
 
-  createUser: function (user, callback) {
-    user = _.defaults(user, {
+  createUser: function (userDetails, callback) {
+    var user = _.defaults(userDetails, {
       name: 'Tester',
       facebook_id: 123
     });
 
-    User.create(user).then(function (result) {
+    User.create(user).then(function (result, e) {
       callback(result);
     }).catch(function (err) {
       console.error(err);
@@ -42,7 +61,7 @@ module.exports = {
       options.qs.original_uri = redirect;
     }
 
-    request.get(options, function (err, httpResponse, body) {
+    request.get(options, (err, httpResponse, body) => {
       if (err) {
         throw new Error(err);
       }
@@ -61,7 +80,7 @@ module.exports = {
   // Wait for images to be fully uploaded, processed and indexed
   // inside a local test Docker instance of the current codebase.
   waitForProcessing: function (id, title, processedCb) {
-    this.waitForConversion(id, function () {
+    this.waitForConversion(id, () => {
       this.waitForIndexing(title, processedCb);
     });
   },
@@ -94,10 +113,10 @@ module.exports = {
     };
 
     request.get(getOptions, (_err, httpResponse, body) => {
-      if (body.results.length > 0) {
+      if (body.results.length > 0 && body.results[0].meta_uri != null) {
         processedCb(body.results[0]);
       } else {
-        setTimeout(this.waitForIndexing, 100, title, processedCb);
+        setTimeout(this.waitForIndexing.bind(this), 100, title, processedCb);
       }
     });
   }

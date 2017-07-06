@@ -25,7 +25,6 @@ Connection.prototype.deleteDb = function (cb) {
     if (err) {
       console.log(err);
     }
-    mongoose.connection.close();
     cb();
   });
 };
