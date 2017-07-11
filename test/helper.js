@@ -9,7 +9,7 @@ module.exports = {
   cookieJar: request.jar(),
 
   // When running against the containerised API it's pretty hard to go through the whole
-  // OAuth flow, ie logging into Facebook, accpeting the app's terms, etc. So it's easier
+  // OAuth flow, ie logging into Facebook, accepting the app's terms, etc. So it's easier
   // just to generate the cookie ourselves.
   generateSecureCookieForUser: function (user, callback) {
     user.updateSession(function (_err, sessionId) {
@@ -18,7 +18,7 @@ module.exports = {
       };
       Iron.seal(session, config.cookiePassword, Iron.defaults, function (_err, sealed) {
         var cookie =
-          'oam-browser=' +
+          config.sessionCookieKey + '=' +
           sealed + '; ' +
           'Path=/; HttpOnly=true; SameSite=Strict; hostOnly=true; aAge=10ms; cAge=770ms;';
         callback(cookie);

@@ -1,9 +1,11 @@
 'use strict';
 
-var connection = require('mongoose').connection;
 var expect = require('chai').expect;
+var sinon = require('sinon');
 var request = require('request');
+var FB = require('fb');
 
+var connection = require('mongoose').connection;
 var config = require('../../config');
 var User = require('../../models/user');
 
@@ -11,6 +13,12 @@ require('./helper');
 var commonHelper = require('../helper');
 
 describe('Auth', function () {
+  before(function () {
+    sinon.stub(FB, 'api').yields({
+      picture: { data: { url: 'http://cdn.facebook.com/123/picture.png' } }
+    });
+  });
+
   beforeEach(function (done) {
     connection.db.dropDatabase();
     done();
@@ -61,7 +69,7 @@ describe('Auth', function () {
       commonHelper.logUserIn(existingUser, function (loggedUserHttpResponse, _body) {
         request.get(options, function (_err, httpResponse, body) {
           expect(httpResponse.statusCode).to.equal(200);
-          expect(body.results.facebook_id).to.equal(existingUser.facebook_id);
+          expect(body.results.name).to.equal(existingUser.name);
           done();
         });
       });

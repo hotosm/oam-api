@@ -88,6 +88,7 @@ const config = {
 
   // For encrypting/decrypting cookie data
   cookiePassword: process.env.COOKIE_PASSWORD,
+  sessionCookieKey: 'oam-session',
 
   logOptions: {
     opsInterval: 3000,

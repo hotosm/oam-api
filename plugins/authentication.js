@@ -25,9 +25,10 @@ var Authentication = {
 
       server.auth.strategy('session', 'cookie', {
         password: config.cookiePassword,
-        cookie: 'oam-browser',
+        cookie: config.sessionCookieKey,
         redirectTo: false,
         validateFunc: User.validateSession.bind(User),
+        isHttpOnly: false, // so JS can see it
         isSecure: isHTTPS
       });
 

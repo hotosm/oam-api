@@ -2,6 +2,7 @@
 
 var uuidV4 = require('uuid/v4');
 var mongoose = require('mongoose');
+var FB = require('fb');
 
 var userSchema = mongoose.Schema({
   name: {type: String, required: true},
@@ -9,7 +10,7 @@ var userSchema = mongoose.Schema({
   facebook_token: String,
   contact_email: String,
   profile_pic_uri: String,
-  bucket_url: {type: String, unique: true},
+  bucket_url: {type: String, unique: true, sparse: true},
   session_id: String,
   session_expiration: Date,
   images: [{type: mongoose.Schema.Types.ObjectId, ref: 'Meta'}]
@@ -28,14 +29,20 @@ userSchema.statics = {
 
   postFbAuth: function (user, credentials, callback) {
     if (user) {
-      user.updateSession(callback);
+      user.postFbAuthSuccess(
+        { facebook_token: credentials.token },
+        callback
+      );
     } else {
       this.create({
         facebook_id: credentials.profile.id,
         name: credentials.profile.displayName,
         contact_email: credentials.profile.email
       }).then(function (newUser) {
-        newUser.updateSession(callback);
+        newUser.postFbAuthSuccess(
+          { facebook_token: credentials.token },
+          callback
+        );
       }).catch(function (err) {
         console.error(callback(err));
       });
@@ -57,15 +64,45 @@ userSchema.statics = {
 
 userSchema.methods = {
   updateSession: function (callback) {
-    var now = new Date();
-    this.session_id = uuidV4();
-    this.session_expiration = now.setDate(now.getDate() + 7);
+    this.generateNewSessionValues();
     this.save((err) => {
       if (err) {
         callback(err);
         return;
       }
       callback(null, this.session_id);
+    });
+  },
+
+  generateNewSessionValues: function () {
+    var now = new Date();
+    this.session_id = uuidV4();
+    this.session_expiration = now.setDate(now.getDate() + 7);
+  },
+
+  postFbAuthSuccess: function (updates, callback) {
+    Object.assign(this, updates);
+    this.generateNewSessionValues();
+    this.getFBProfilePic((profilePicURI) => {
+      this.profile_pic_uri = profilePicURI;
+      this.save((err) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        callback(null, this.session_id);
+      });
+    });
+  },
+
+  getFBProfilePic: function (callback) {
+    FB.setAccessToken(this.facebook_token);
+    FB.api('me', { fields: 'picture.type(small)' }, function (result) {
+      if (!result || result.error) {
+        console.error(!result ? 'Error getting FB profile pic' : result.error);
+        callback(null);
+      }
+      callback(result.picture.data.url);
     });
   }
 };
