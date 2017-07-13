@@ -1,4 +1,4 @@
-FROM node:4
+FROM node:4.8.4
 ENV NPM_CONFIG_LOGLEVEL warn
 
 # Install app dependencies
