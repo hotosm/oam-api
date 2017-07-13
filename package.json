@@ -47,7 +47,7 @@
     "mocha": "^2.2.4"
   },
   "engines": {
-    "node": "0.12.2"
+    "node": "4.8.4"
   },
   "apidoc": {
     "title": "OAM API",
