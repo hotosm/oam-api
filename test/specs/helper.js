@@ -1,5 +1,7 @@
 var Bell = require('bell');
 var Boom = require('boom');
+var FB = require('fb');
+var sinon = require('sinon');
 
 var config = require('../../config');
 var Server = require('../../services/server');
@@ -29,6 +31,12 @@ before(function (done) {
       error = null;
     }
     next(error, response);
+  });
+
+  before(function () {
+    sinon.stub(FB, 'api').yields({
+      picture: { data: { url: 'http://cdn.facebook.com/123/picture.png' } }
+    });
   });
 
   var dbWrapper = new Conn();

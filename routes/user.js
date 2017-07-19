@@ -10,12 +10,7 @@ module.exports = [
     method: 'GET',
     path: '/user',
     config: {
-      auth: 'session',
-      // TODO: add these globally for auth routes
-      cors: {
-        origin: ['*'],
-        credentials: true
-      }
+      auth: 'session'
     },
     handler: function (request, reply) {
       User.findOne({

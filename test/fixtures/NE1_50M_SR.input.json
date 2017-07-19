@@ -1,14 +1,6 @@
 {
-  "uploader": {
-    "name": "Lady Stardust",
-    "email": "lady@stardust.xyz"
-  },
   "scenes": [
     {
-      "contact": {
-        "name": "Ziggy",
-        "email": "ziggy@bowie.net"
-      },
       "title": "Natural Earth Image",
       "provider": "Natural Earth",
       "license": "CC-BY",

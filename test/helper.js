@@ -20,7 +20,7 @@ module.exports = {
         var cookie =
           config.sessionCookieKey + '=' +
           sealed + '; ' +
-          'Path=/; HttpOnly=true; SameSite=Strict; hostOnly=true; aAge=10ms; cAge=770ms;';
+          'Path=/; SameSite=Strict; hostOnly=true; aAge=10ms; cAge=770ms;';
         callback(cookie);
       });
     });

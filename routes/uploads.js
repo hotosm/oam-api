@@ -82,6 +82,7 @@ module.exports = [
       });
     }
   },
+
    /**
     * @api {get} /uploads/url Get presigned URL for upload to S3
     * @apiPermission Token
@@ -146,14 +147,12 @@ module.exports = [
       .catch(function (err) { reply(Boom.wrap(err)); });
     }
   },
+
   /**
    * @api {post} /uploads Add an upload to the queue
    * @apiGroup uploads
    * @apiPermission Token
    *
-   * @apiParam {Object} uploaderInfo
-   * @pariParam {string} uploaderInfo.name
-   * @pariParam {string} uploaderInfo.email
    * @apiParam {Object} contactInfo
    * @pariParam {string} contactInfo.name
    * @pariParam {string} contactInfo.email
@@ -163,10 +162,6 @@ module.exports = [
    *
    * @apiExample {js} Example post
    * {
-   *   "uploader": {
-   *     "name": "Lady Stardust",
-   *     "email": "lady@stardust.xyz"
-   *   },
    *   "scenes": [
    *     {
    *       "contact": {
@@ -229,6 +224,12 @@ module.exports = [
         // more easily used as a task queue for the worker(s)
         var q = queue();
         data.scenes.forEach(function (scene) {
+          if (typeof scene.contact === 'undefined' || scene.contact === null) {
+            scene.contact = {
+              name: request.auth.credentials.name,
+              email: request.auth.credentials.contact_email
+            };
+          }
           q.defer(insertImages, db, scene, request.auth.credentials._id);
         });
 
@@ -240,7 +241,7 @@ module.exports = [
           db.collection('uploads').insertOne(data)
             .then(function (result) {
               sendgrid.send({
-                to: data.uploader.email,
+                to: request.auth.credentials.contact_email,
                 from: config.sendgridFrom,
                 subject: config.emailNotification.subject,
                 text: config.emailNotification.text.replace('{UPLOAD_ID}', data._id)
@@ -262,9 +263,6 @@ module.exports = [
 
 /**
  * @apiDefine uploadStatusSuccess
- * @apiSuccess {Object} results.uploader Uploader contact info
- * @apiSuccess {String} results.uploader.name
- * @apiSuccess {String} results.uploader.email
  * @apiSuccess {Object[]} results.scenes
  * @apiSuccess {Object} results.scenes.contact Contact person for this scene
  * @apiSuccess {String} results.scenes.contact.name

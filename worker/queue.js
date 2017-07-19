@@ -1,10 +1,21 @@
-var MongoClient = require('mongodb').MongoClient;
 var Promise = require('es6-promise').Promise;
 var promisify = require('es6-promisify');
 var uuidV4 = require('uuid/v4');
+var wktParse = require('wellknown');
+
 var log = require('./log');
 var config = require('../config');
 var processImage = require(config.imageProcessorPath);
+
+// TODO: Don't use 2 different connection methods :/
+var MongoClient = require('mongodb').MongoClient;
+var Meta = require('../models/meta');
+var Conn = require('../services/db');
+var dbWrapper = new Conn();
+// Assume that the MongoClient connection callback and the likely period
+// to actually running the `Meta.create()` inside a processing worker will
+// be sufficient in establisging that `dbWrapper.start()` has started.
+dbWrapper.start();
 
 module.exports = JobQueue;
 
@@ -130,7 +141,10 @@ JobQueue.prototype._mainloop = function mainloop () {
       this.processed = processed;
       var meta = this.processed.metadata;
       meta.user = this.user_id;
-      return this.db.collection('metas').insertOne(meta);
+      // TODO: Put in a Mongoose middleware hook
+      meta.geojson = wktParse(meta.footprint);
+      meta.geojson.bbox = meta.bbox;
+      return Meta.create(meta);
     })
     .then(() => {
       return this.images.findOneAndUpdate(result.value, this.update.jobFinished(this.processed));

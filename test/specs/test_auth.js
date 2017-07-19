@@ -1,9 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var sinon = require('sinon');
 var request = require('request');
-var FB = require('fb');
 
 var connection = require('mongoose').connection;
 var config = require('../../config');
@@ -13,12 +11,6 @@ require('./helper');
 var commonHelper = require('../helper');
 
 describe('Auth', function () {
-  before(function () {
-    sinon.stub(FB, 'api').yields({
-      picture: { data: { url: 'http://cdn.facebook.com/123/picture.png' } }
-    });
-  });
-
   beforeEach(function (done) {
     connection.db.dropDatabase();
     done();
