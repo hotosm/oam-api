@@ -1,6 +1,7 @@
 version: '2'
 services:
   app:
+    env_file: .env
     build: .
     image: oam-api
     restart: always

@@ -9,26 +9,34 @@ services:
       file: ../docker-compose.yml
 
     environment:
-      - OAM_BUCKET_PREFIX=test-$TRAVIS_BUILD_NUMBER
       - INTEGRATION_TESTS=true
       - NODE_ENV=test
+
       # Variables that can be inherited from the host ENV. All
-      # others will come from .env
-      - OAM_DEBUG
+      # others will come from `.env`
+      # Note that typically specifying these empty values would
+      # override any values in .env, however, when developing
+      # locally, the codebase is mounted from the host, including
+      # the `.env` file, so the `dotenv` npm module takes responsibility
+      # for loading these values.
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+      - FACEBOOK_APP_ID
+      - FACEBOOK_APP_SECRET
 
     # Make container's localhost the same as host's localhost.
     # So the DB should either be on the host or remote, not in a
     # docker container.
     network_mode: "host"
 
-    # Mount your code live into the container so you don't need
-    # to rebuild the container everytime.
+    # Mounts the host code live into the container so you don't need
+    # to rebuild the container everytime. Disable with APP_FROM=container
     volumes:
-      - ../:/app
+      - ../:/host-app
 
-    # Run both foreman and a static file server for testing purposes
-    command: /bin/sh -c
-      "./node_modules/.bin/http-server ./test &
-      ./node_modules/.bin/nf start"
+    # Defaults to using the live host code for the app.
+    # Runs both foreman and a static file server for testing purposes.
+    command: /bin/bash -c
+      "[[ \"$APP_FROM\" != \"container\" ]] && cd /host-app;
+       ./node_modules/.bin/http-server -p8080 ./test &
+       ./node_modules/.bin/nf start"
