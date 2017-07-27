@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 // Amendments for integration tests, the ones that run in Docker against
-// a real S3 bucket.
+// a S3 bucket.
 if (process.env.INTEGRATION_TESTS === 'true') {
   process.env.PORT = 4000;
   process.env.API_ENDPOINT = 'http://localhost:' + process.env.PORT;
@@ -21,7 +21,7 @@ if (process.env.INTEGRATION_TESTS === 'true') {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  // Safety measure to prevent imagery being placed in a namespacing
+  // Paranoid safety measure to prevent imagery being placed in a namespacing
   // directory.
   process.env.OIN_BUCKET_PREFIX = null;
 }
@@ -73,9 +73,6 @@ const config = {
   awsSecret: process.env.AWS_SECRET_ACCESS_KEY,
   awsRegion: process.env.AWS_REGION,
 
-  // Google drive is an available method for uploading imagery
-  gdriveKey: process.env.GDRIVE_KEY,
-
   // Sendgrid sends emails
   sendgridApiKey: process.env.SENDGRID_API_KEY,
   sendgridFrom: process.env.SENDGRID_FROM,
@@ -83,12 +80,15 @@ const config = {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
       'processed. You can check on the status of the upload at ' +
-      'http://upload.openaerialmap.org/#/status/{UPLOAD_ID}.'
+      process.env.BROWSER_URL + '/#/upload/status/{UPLOAD_ID}.'
   },
 
   // For encrypting/decrypting cookie data
   cookiePassword: process.env.COOKIE_PASSWORD,
+  isCookieOverHTTPS: !!process.env.BROWSER_URL.match(/https/),
   sessionCookieKey: 'oam-session',
+
+  hostTld: process.env.HOST_TLD,
 
   logOptions: {
     opsInterval: 3000,

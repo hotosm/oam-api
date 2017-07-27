@@ -3,8 +3,6 @@
 var config = require('../config');
 var User = require('../models/user');
 
-var isHTTPS = config.env === 'staging' || config.env === 'production';
-
 var Authentication = {
   register: function (server, options, next) {
     server.register([
@@ -20,16 +18,18 @@ var Authentication = {
         password: config.cookiePassword,
         clientId: config.facebookAppId,
         clientSecret: config.facebookAppSecret,
-        isSecure: isHTTPS
+        isSecure: config.isCookieOverHTTPS
       });
 
       server.auth.strategy('session', 'cookie', {
         password: config.cookiePassword,
         cookie: config.sessionCookieKey,
+        domain: config.hostTld === 'localhost' ? null : config.hostTld,
+        clearInvalid: true,
         redirectTo: false,
         validateFunc: User.validateSession.bind(User),
         isHttpOnly: false, // so JS can see it
-        isSecure: isHTTPS
+        isSecure: config.isCookieOverHTTPS
       });
 
       next();

@@ -21,6 +21,10 @@ var Server = function (port) {
         cors: {
           origin: ['*'],
           credentials: true
+        },
+        state: {
+          parse: true,
+          failAction: 'ignore'
         }
       },
       router: {

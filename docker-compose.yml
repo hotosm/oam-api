@@ -5,5 +5,7 @@ services:
     build: .
     image: oam-api
     restart: always
+    ports:
+      - 4000:4000
 
 
