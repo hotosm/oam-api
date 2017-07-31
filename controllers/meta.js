@@ -145,7 +145,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
             return cb();
           }
 
-          payload.meta_uri = remoteUri;
+          payload.meta_uri = payload.meta_uri || remoteUri;
 
           // create a geojson object from footprint and bbox
           payload.geojson = parse(payload.footprint);
@@ -159,7 +159,9 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
             }
 
             var status = (meta === null) ? ' added' : ' updated';
-            return cb(null, record.uuid + status + '!');
+            var message = record.uuid + status + '!';
+            console.log('[meta]', message);
+            return cb(null, message);
           });
         }
 

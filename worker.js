@@ -5,6 +5,7 @@ require('envloader').load();
 var _ = require('lodash');
 var Conn = require('./services/db.js');
 var S3 = require('./services/s3.js');
+var LocalOAM = require('./services/localoam.js');
 var async = require('async');
 var analytics = require('./controllers/analytics.js');
 var Meta = require('./models/meta.js');
@@ -12,8 +13,10 @@ var Meta = require('./models/meta.js');
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 var request = require('request');
+var cron = require('node-cron');
 
 var registerURL = process.env.OIN_REGISTER_URL || 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
+var localRegisterURL = process.env.LOCAL_REGISTER_URL || '';
 
 var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
 db.start();
@@ -35,7 +38,7 @@ var getBucketList = function (cb) {
   request.get({
     json: true,
     uri: registerURL
-  }, function (err, res, data) {
+  }, function (err, res, remoteData) {
     if (err) {
       return cb(err);
     }
@@ -44,13 +47,35 @@ var getBucketList = function (cb) {
       return console.error('Unable to get register list.');
     }
 
-    var buckets = _.map(data.nodes, function (node) {
-      return _.map(node.locations, function (location) {
-        return location.bucket_name;
-      });
+    var buckets = _.map(remoteData.nodes, function (node) {
+      return node.locations;
     });
     buckets = _.flatten(buckets);
-    cb(null, buckets);
+
+    if (localRegisterURL.length > 0) {
+      request.get({
+        json: true,
+        uri: localRegisterURL
+      }, function (err, res, localData) {
+        if (err || (res.statusCode !== 200)) {
+          // There was an error retrieving local buckets
+          // Return remote buckets
+          cb(null, buckets);
+          return console.error('Unable to get local register list.');
+        } else {
+          // We got local buckets, merge them with the buckets object
+          var localBuckets = _.map(localData.nodes, function (node) {
+            return node.locations;
+          });
+
+          localBuckets = _.flatten(localBuckets);
+          buckets = _.union(localBuckets, buckets);
+          cb(null, buckets);
+        }
+      });
+    } else {
+      cb(null, buckets);
+    }
   });
 };
 
@@ -61,41 +86,52 @@ var getBucketList = function (cb) {
 */
 var readBuckets = function (tasks) {
   console.info('--- Started indexing all buckets ---');
-  async.parallel(tasks,
-  function (err, results) {
-    if (err) {
-      return console.error(err);
-    }
-    console.info('--- Finished indexing all buckets ---');
-    // Get image, sensor, and provider counts and save to analytics collection
-    return Promise.all([
-      Meta.count(),
-      Meta.distinct('properties.sensor'),
-      Meta.distinct('provider')
-    ]).then(function (res) {
-      var counts = {};
-      counts.image_count = res[0];
-      counts.sensor_count = res[1].length;
-      counts.provider_count = res[2].length;
-      analytics.addAnalyticsRecord(counts, function (err) {
-        // Catch error in record addition
-        if (err) {
-          console.error(err);
-        }
-        console.info('--- Added new analytics record ---');
-        db.close();
+  async.parallelLimit(tasks, 4,
+    // Results is an [[tasks]]
+    function (err, results) {
+      if (err) {
+        return console.error(err);
+      }
+      results = _.flatten(results);
+      results = results.map(function (task) {
+        return async.retryable(task);
       });
-    // Catch error in db query promises
-    }).catch(function (err) {
-      db.close();
-      return console.error(err);
+      async.parallelLimit(results, 5, function (err, results) {
+        if (err) {
+          db.close();
+          return console.error(err);
+        }
+        console.info('--- Finished indexing all buckets ---');
+        // Get image, sensor, and provider counts and save to analytics collection
+        return Promise.all([
+          Meta.count(),
+          Meta.distinct('properties.sensor'),
+          Meta.distinct('provider')
+        ]).then(function (res) {
+          var counts = {};
+          counts.image_count = res[0];
+          counts.sensor_count = res[1].length;
+          counts.provider_count = res[2].length;
+          analytics.addAnalyticsRecord(counts, function (err) {
+            // Catch error in record addition
+            if (err) {
+              console.error(err);
+            }
+            console.info('--- Added new analytics record ---');
+          });
+          // Catch error in db query promises
+        }).catch(function (err) {
+          return console.error(err);
+        }).then(function () {
+          return db.close();
+        });
+      });
     });
-  });
 };
 
 /**
-* The main function to get the registered buckets, read them and update metadata
-*/
+ * The main function to get the registered buckets, read them and update metadata
+ */
 var getListAndReadBuckets = function () {
   // Start of by getting the last time the system was updated.
   analytics.getLastUpdateTime(function (err, lastSystemUpdate) {
@@ -111,10 +147,17 @@ var getListAndReadBuckets = function () {
 
       // Generate array of tasks to run in parallel
       var tasks = _.map(buckets, function (bucket) {
-        return function (done) {
-          var s3 = new S3(null, null, bucket);
-          s3.readBucket(lastSystemUpdate, consoleLog, done);
-        };
+        if (bucket.type === 's3') {
+          return function (done) {
+            var s3 = new S3(null, null, bucket.bucket_name);
+            s3.readBucket(lastSystemUpdate, consoleLog, done);
+          };
+        } else if (bucket.type === 'localoam') {
+          return function (done) {
+            var localOAM = new LocalOAM(bucket.url);
+            localOAM.readBucket(lastSystemUpdate, done);
+          };
+        }
       });
 
       // Read the buckets and store metadata
@@ -124,4 +167,8 @@ var getListAndReadBuckets = function () {
 };
 
 // Kick it all off
-getListAndReadBuckets();
+cron.schedule(process.env.CRON_TIME || '*/5 * * * *', // Run every 5 minutes
+  function () {
+    getListAndReadBuckets();
+  }
+);
