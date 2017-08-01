@@ -21,6 +21,15 @@ var Authentication = {
         isSecure: config.isCookieOverHTTPS
       });
 
+      // Google OAuth login flow
+      server.auth.strategy('google', 'bell', {
+        provider: 'google',
+        password: config.cookiePassword,
+        clientId: config.googleClientId,
+        clientSecret: config.googleClientSecret,
+        isSecure: config.isCookieOverHTTPS
+      });
+
       server.auth.strategy('session', 'cookie', {
         password: config.cookiePassword,
         cookie: config.sessionCookieKey,

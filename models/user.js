@@ -8,6 +8,7 @@ var userSchema = mongoose.Schema({
   name: {type: String, required: true},
   facebook_id: Number,
   facebook_token: String,
+  google_id: Number,
   contact_email: String,
   profile_pic_uri: String,
   bucket_url: {type: String, unique: true, sparse: true},
@@ -18,10 +19,31 @@ var userSchema = mongoose.Schema({
 
 userSchema.statics = {
   login: function (credentials, callback) {
+    if (credentials.provider === 'facebook') {
+      this.facebookLogin(credentials, callback);
+    } else
+    if (credentials.provider === 'google') {
+      this.googleLogin(credentials, callback);
+    } else {
+      throw new Error(`The ${credentials.provider} provider hasn't been setup yet.`);
+    }
+  },
+
+  facebookLogin: function (credentials, callback) {
     this.findOne({
       facebook_id: credentials.profile.id
     }).then((fbUser) => {
       this.postFbAuth(fbUser, credentials, callback);
+    }).catch(function (err) {
+      console.error(callback(err));
+    });
+  },
+
+  googleLogin: function (credentials, callback) {
+    this.findOne({
+      google_id: credentials.profile.id
+    }).then((googleUser) => {
+      this.postGoogleAuth(googleUser, credentials, callback);
     }).catch(function (err) {
       console.error(callback(err));
     });
@@ -43,6 +65,23 @@ userSchema.statics = {
           { facebook_token: credentials.token },
           callback
         );
+      }).catch(function (err) {
+        console.error(callback(err));
+      });
+    }
+  },
+
+  postGoogleAuth: function (user, credentials, callback) {
+    if (user) {
+      user.generateNewSessionValues(callback);
+    } else {
+      this.create({
+        google_id: credentials.profile.id,
+        name: credentials.profile.displayName,
+        contact_email: credentials.profile.email,
+        profile_pic_uri: credentials.profile.raw.picture
+      }).then(function (newUser) {
+        newUser.generateNewSessionValues(callback);
       }).catch(function (err) {
         console.error(callback(err));
       });
@@ -74,10 +113,19 @@ userSchema.methods = {
     });
   },
 
-  generateNewSessionValues: function () {
+  generateNewSessionValues: function (callback) {
     var now = new Date();
     this.session_id = uuidV4();
     this.session_expiration = now.setDate(now.getDate() + 7);
+    if (typeof callback === 'function') {
+      this.save((err) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+        callback(null, this.session_id);
+      });
+    }
   },
 
   postFbAuthSuccess: function (updates, callback) {

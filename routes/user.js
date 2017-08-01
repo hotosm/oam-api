@@ -15,7 +15,7 @@ module.exports = [
     },
     handler: function (request, reply) {
       User.findOne({
-        facebook_id: request.auth.credentials.facebook_id
+        session_id: request.auth.credentials.session_id
       }).then(function (user) {
         // TODO: Add `.to_json()` to all API-expressable models.
         return _.pick(user, [

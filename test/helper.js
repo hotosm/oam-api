@@ -50,7 +50,7 @@ module.exports = {
 
   logUserIn: function (oauthUser, callback, redirect) {
     var options = {
-      url: config.apiEndpoint + '/login',
+      url: config.apiEndpoint + '/oauth/facebook',
       qs: this.setTestOauthResponse({
         profile: { id: oauthUser.facebook_id }
       }),

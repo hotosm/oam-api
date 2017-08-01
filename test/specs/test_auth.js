@@ -107,7 +107,7 @@ describe('Auth', function () {
   context('For a non-existent user', function () {
     it('should create a new user and set their session', function (done) {
       var options = {
-        url: config.apiEndpoint + '/login',
+        url: config.apiEndpoint + '/oauth/facebook',
         qs: commonHelper.setTestOauthResponse({
           profile: {
             id: 456,
@@ -134,7 +134,7 @@ describe('Auth', function () {
     context('Preventing bad logins', function () {
       it('should not set a session if OAuth flow fails', function (done) {
         var options = {
-          url: config.apiEndpoint + '/login',
+          url: config.apiEndpoint + '/oauth/facebook',
           qs: {
             test_oauth_error: 'Fake OAuth error'
           },

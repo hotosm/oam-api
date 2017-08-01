@@ -61,6 +61,9 @@ const config = {
   facebookAppId: process.env.FACEBOOK_APP_ID,
   facebookAppSecret: process.env.FACEBOOK_APP_SECRET,
 
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+
   // Base URL for accessing the slippy map TMS endpoint for imagery. This is
   // the entrypoint for using the Dynamic Tiler to serve imagery.
   tilerBaseUrl: process.env.TILER_BASE_URL,
