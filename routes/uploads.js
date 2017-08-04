@@ -7,7 +7,7 @@ var Boom = require('boom');
 var Joi = require('joi');
 var AWS = require('aws-sdk');
 
-var uploadSchema = require('../models/upload');
+var Meta = require('../models/meta');
 var config = require('../config');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
@@ -17,6 +17,8 @@ AWS.config = {
   accessKeyId: config.awsKey,
   secretAccessKey: config.awsSecret
 };
+
+var uploadSchema = Meta.getSceneValidations();
 
 function insertImages (db, scene, userID, callback) {
   var imageIds = [];

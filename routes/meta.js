@@ -1,7 +1,10 @@
 'use strict';
 
-var Model = require('../models/meta');
-var meta = require('../controllers/meta');
+var Boom = require('boom');
+
+var Meta = require('../models/meta');
+var metaController = require('../controllers/meta.js');
+var userController = require('../controllers/user.js');
 
 module.exports = [
 /**
@@ -44,7 +47,7 @@ module.exports = [
         payload = request.query;
       }
 
-      meta.query(payload, request.page, request.limit, function (err, records, count) {
+      metaController.query(payload, request.page, request.limit, function (err, records, count) {
         if (err) {
           console.log(err);
           return reply(err.message);
@@ -73,11 +76,42 @@ module.exports = [
     handler: function (request, reply) {
       var metaId = request.params.id;
 
-      Model.findOne({_id: metaId}, function (err, record) {
+      Meta.findOne({_id: metaId}, function (err, record) {
         if (err) {
-          return reply(err.message);
+          return reply(Boom.badImplementation(err.message));
         }
         return reply(record);
+      });
+    }
+  },
+
+/**
+ * @api {update} /meta/:id Update an image's metadata
+ * @apiGroup Meta
+ * @apiDescription Display data for an individual image
+ *
+ * @apiParam {string} [id] The id of the image.
+ *
+ * @apiSuccess (204) PageUpdated.
+ */
+  {
+    method: 'PUT',
+    path: '/meta/{id}',
+    config: {
+      auth: 'session',
+      pre: [
+        {method: metaController.fetchRequestedObject},
+        {method: userController.isOwnerOfRequestedObject}
+      ]
+    },
+    handler: function (request, reply) {
+      const metaId = request.app.requestedObject._id;
+      Meta.update({_id: metaId}, request.payload, function (err, _result) {
+        if (err) {
+          reply(Boom.badImplementation(err));
+          return;
+        }
+        reply(null).code(204);
       });
     }
   }

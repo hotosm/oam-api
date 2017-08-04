@@ -2,11 +2,13 @@
 
 var config = require('../../config');
 
+var connection = require('mongoose').connection;
 var expect = require('chai').expect;
 var request = require('request');
 var wktParse = require('wellknown');
 var Meta = require('../../models/meta');
 var meta = require('../fixtures/sample_meta.json');
+var commonHelper = require('../helper');
 
 require('./helper');
 
@@ -178,5 +180,75 @@ describe('Meta endpoint', function () {
         done();
       }
     );
+  });
+
+  context('Updating', function () {
+    var existingUser;
+    var existingMeta;
+
+    beforeEach(function (done) {
+      connection.db.dropDatabase();
+
+      commonHelper.createUser({
+        facebook_id: 123,
+        session_id: null
+      }, function (user) {
+        existingUser = user;
+        let metaToSave = meta[0];
+        metaToSave.user = existingUser;
+        Meta.create(metaToSave).then(function (savedMeta) {
+          existingMeta = savedMeta;
+          done();
+        });
+      });
+    });
+
+    context('Wrong user', function () {
+      var otherUser;
+
+      beforeEach(function (done) {
+        commonHelper.createUser({
+          facebook_id: 124,
+          session_id: null
+        }, function (user) {
+          otherUser = user;
+          done();
+        });
+      });
+
+      it('should not let a non-owner update imagery', function (done) {
+        var options = {
+          url: config.apiEndpoint + '/meta/' + existingMeta.id,
+          jar: commonHelper.cookieJar,
+          json: true
+        };
+
+        commonHelper.logUserIn(otherUser, function (httpResponse, body) {
+          request.put(options, function (_err, httpResponse, body) {
+            expect(httpResponse.statusCode).to.equal(403);
+            expect(body.message).to.include('does not have permission');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should update imagery', function (done) {
+      var options = {
+        url: config.apiEndpoint + '/meta/' + existingMeta.id,
+        jar: commonHelper.cookieJar,
+        json: {title: 'A different title'}
+      };
+
+      commonHelper.logUserIn(existingUser, function (httpResponse, body) {
+        request.put(options, function (_err, httpResponse, body) {
+          expect(httpResponse.statusCode).to.equal(204);
+          Meta.findOne({_id: existingMeta.id}, function (_err, result) {
+            expect(result.title).to.eq('A different title');
+            done();
+          });
+        });
+      });
+    });
   });
 });

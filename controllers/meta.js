@@ -4,6 +4,8 @@ var _ = require('lodash');
 var request = require('request');
 var parse = require('wellknown');
 var bboxPolygon = require('turf-bbox-polygon');
+var Boom = require('boom');
+
 var Meta = require('../models/meta.js');
 
 /**
@@ -173,3 +175,21 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
   });
 };
 
+// Middleware to check if the current user has permission to access
+// the requested object. Injects the object at `request.app` so that another
+// DB call doesn't need to be made again.
+module.exports.fetchRequestedObject = function (request, reply) {
+  var metaId = request.params.id;
+  Meta.findOne({_id: metaId}, function (err, record) {
+    if (!(record instanceof Meta)) {
+      reply(Boom.notFound('The requested imagery does not exist.'));
+      return;
+    }
+    if (err) {
+      reply(Boom.badImplementation(err.message));
+      return;
+    }
+    request.app.requestedObject = record;
+    reply();
+  });
+};
