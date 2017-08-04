@@ -86,9 +86,9 @@ module.exports = [
   },
 
 /**
- * @api {update} /meta/:id Update an image's metadata
+ * @api {put} /meta/:id Update an image's metadata
  * @apiGroup Meta
- * @apiDescription Display data for an individual image
+ * @apiDescription Update data for an individual image
  *
  * @apiParam {string} [id] The id of the image.
  *
@@ -107,6 +107,37 @@ module.exports = [
     handler: function (request, reply) {
       const metaId = request.app.requestedObject._id;
       Meta.update({_id: metaId}, request.payload, function (err, _result) {
+        if (err) {
+          reply(Boom.badImplementation(err));
+          return;
+        }
+        reply(null).code(204);
+      });
+    }
+  },
+
+/**
+ * @api {delete} /meta/:id Delete an image
+ * @apiGroup Meta
+ * @apiDescription Delete an image
+ *
+ * @apiParam {string} [id] The id of the image.
+ *
+ * @apiSuccess (204) PageUpdated.
+ */
+  {
+    method: 'DELETE',
+    path: '/meta/{id}',
+    config: {
+      auth: 'session',
+      pre: [
+        {method: metaController.fetchRequestedObject},
+        {method: userController.isOwnerOfRequestedObject}
+      ]
+    },
+    handler: function (request, reply) {
+      const metaId = request.app.requestedObject._id;
+      Meta.findByIdAndRemove(metaId, function (err, _result) {
         if (err) {
           reply(Boom.badImplementation(err));
           return;

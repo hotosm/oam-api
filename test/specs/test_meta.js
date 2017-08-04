@@ -250,5 +250,22 @@ describe('Meta endpoint', function () {
         });
       });
     });
+
+    it('should delete imagery', function (done) {
+      var options = {
+        url: config.apiEndpoint + '/meta/' + existingMeta.id,
+        jar: commonHelper.cookieJar
+      };
+
+      commonHelper.logUserIn(existingUser, function (httpResponse, body) {
+        request.delete(options, function (_err, httpResponse, body) {
+          expect(httpResponse.statusCode).to.equal(204);
+          Meta.findOne({_id: existingMeta.id}, function (_err, result) {
+            expect(result).to.eq(null);
+            done();
+          });
+        });
+      });
+    });
   });
 });
