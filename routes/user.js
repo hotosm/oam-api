@@ -33,5 +33,27 @@ module.exports = [
         reply(Boom.badImplementation(err));
       });
     }
+  },
+
+  {
+    method: 'GET',
+    path: '/user/{id}',
+    handler: function (request, reply) {
+      User.findOne({
+        _id: request.params.id
+      }).then(function (user) {
+        return _.pick(user, [
+          'name',
+          'profile_pic_uri'
+        ]);
+      }).then(function (user) {
+        Meta.find({user: request.params.id}).then(function (images) {
+          user.images = images;
+          reply(user);
+        });
+      }).catch(function (err) {
+        reply(Boom.badImplementation(err));
+      });
+    }
   }
 ];

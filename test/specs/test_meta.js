@@ -13,15 +13,23 @@ var commonHelper = require('../helper');
 require('./helper');
 
 describe('Meta endpoint', function () {
+  let savedUser = {};
   before(function (done) {
-    Meta.create(meta).then(function (results) {
-      results.forEach(function (result) {
-        // TODO: Put in a Mongoose middleware hook
-        result.geojson = wktParse(result.footprint);
-        result.geojson.bbox = result.bbox;
-        result.save();
+    commonHelper.createUser({
+      facebook_id: 123,
+      session_id: null
+    }, function (user) {
+      savedUser = user;
+      Meta.create(meta).then(function (results) {
+        results.forEach(function (result) {
+          result.user = user;
+          // TODO: Put in a Mongoose middleware hook
+          result.geojson = wktParse(result.footprint);
+          result.geojson.bbox = result.bbox;
+          result.save();
+        });
+        done();
       });
-      done();
     });
   });
 
@@ -32,6 +40,20 @@ describe('Meta endpoint', function () {
       }
       var res = JSON.parse(body);
       expect(res.results.length).to.equal(2);
+      done();
+    });
+  });
+
+  it('includes user data', function (done) {
+    request(config.apiEndpoint + '/meta/', function (err, response, body) {
+      if (err) {
+        console.log(err);
+      }
+      var res = JSON.parse(body);
+      const user = res.results[0].user;
+      expect(Object.keys(user).length).to.eq(2);
+      expect(user._id).to.equal(savedUser._id.toString());
+      expect(user.name).to.equal('Tester');
       done();
     });
   });
