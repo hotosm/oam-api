@@ -9,12 +9,13 @@ console.log('Starting catalog worker...');
 require('dotenv').config();
 
 var _ = require('lodash');
-var S3 = require('./services/s3.js');
+var S3 = require('aws-sdk/clients/s3');
 var async = require('async');
 var config = require('./config');
-var Conn = require('./services/db.js');
-var analytics = require('./controllers/analytics.js');
-var Meta = require('./models/meta.js');
+var Conn = require('./services/db');
+var analytics = require('./controllers/analytics');
+var meta = require('./controllers/meta');
+var Meta = require('./models/meta');
 // Replace mongoose's deprecated promise library (mpromise) with bluebird
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
@@ -105,9 +106,38 @@ var readBuckets = function (tasks) {
     });
 };
 
-/**
- * The main function to get the registered buckets, read them and update metadata
- */
+// Read bucket method for S3. It reads the S3 bucket and adds/updates *_metadata.json to Meta model
+var readBucket = function (bucket, lastSystemUpdate, errCb, done) {
+  console.info('--- Reading from bucket: ' + bucket.bucket_name + ' ---');
+
+  var s3 = new S3();
+  s3.listObjects({
+    Bucket: config.oinBucket,
+    Prefix: config.oinBucketPrefix
+  }, function (err, data) {
+    if (err) {
+      errCb(err);
+      done(err);
+      return;
+    }
+    var tasks = [];
+    data.Contents.forEach(function (item) {
+      if (item.Key.includes('_meta.json')) {
+        // Get the last time the metadata file was modified so we can determine
+        // if we need to update it.
+        var lastModified = item.LastModified;
+        var url = `https://${config.s3PublicDomain}/${bucket.bucket_name}/${item.Key}`;
+        var task = function (done) {
+          meta.addRemoteMeta(url, lastModified, lastSystemUpdate, done);
+        };
+        tasks.push(task);
+      }
+    });
+    done(null, tasks);
+  });
+};
+
+// The main function to get the registered buckets, read them and update metadata
 var getListAndReadBuckets = function () {
   // Start off by getting the last time the system was updated.
   analytics.getLastUpdateTime(function (err, lastSystemUpdate) {
@@ -125,8 +155,7 @@ var getListAndReadBuckets = function () {
       var tasks = _.map(buckets, function (bucket) {
         return function (done) {
           if (bucket.type === 's3') {
-            var s3 = new S3(bucket.bucket_name);
-            s3.readBucket(lastSystemUpdate, consoleLog, done);
+            readBucket(bucket, lastSystemUpdate, consoleLog, done);
           } else {
             console.error('Unknown bucket type: ' + bucket.type);
           }

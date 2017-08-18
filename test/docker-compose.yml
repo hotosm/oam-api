@@ -8,6 +8,10 @@ services:
       service: app
       file: ../docker-compose.yml
 
+    logging:
+      options:
+        max-size: "10k"
+
     environment:
       - INTEGRATION_TESTS=true
       - NODE_ENV=test

@@ -1,6 +1,7 @@
 var Bell = require('bell');
 var Boom = require('boom');
 var FB = require('fb');
+var aws = require('aws-sdk');
 var sinon = require('sinon');
 
 var config = require('../../config');
@@ -37,6 +38,20 @@ before(function (done) {
     sinon.stub(FB, 'api').yields({
       picture: { data: { url: 'http://cdn.facebook.com/123/picture.png' } }
     });
+
+    // s3 file uploading/downloading
+    aws.S3.prototype.getObject = sinon.stub().yields(
+      null, {Body: Buffer.from('{}', 'utf8')}
+    );
+    aws.S3.prototype.putObject = sinon.stub().yields(
+      null, 'Stub: file uploaded'
+    );
+    aws.S3.prototype.listObjects = sinon.stub().yields(
+      null, {Contents: [{Key: ''}]}
+    );
+    aws.S3.prototype.deleteObjects = sinon.stub().yields(
+      null, 'Stub: file deleted'
+    );
   });
 
   var dbWrapper = new Conn();

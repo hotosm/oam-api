@@ -3,6 +3,8 @@
 var mongoose = require('mongoose');
 var Joi = require('joi');
 
+var S3Sync = require('../services/s3_sync');
+
 var metaSchema = new mongoose.Schema({
   // The URI of the image
   uuid: {type: String, unique: true, required: true, dropDups: true},
@@ -56,6 +58,34 @@ metaSchema.statics = {
   getSceneValidations: function () {
     return Joi.object().keys({
       scenes: Joi.array().items(this.getMetaValidations()).min(1).required()
+    });
+  }
+};
+
+metaSchema.methods = {
+
+  // Update a metadata object only after the updates have been synced to the corelating
+  // _meta.json file on S3.
+  oamUpdate: function (newParams, callback) {
+    var s3Sync = new S3Sync(this.meta_uri);
+    s3Sync.updateRemoteMeta(newParams, () => {
+      let updatedMeta = Object.assign(this, newParams);
+      updatedMeta.save(function (err) {
+        if (err) throw new Error('Error saving meta: ', err);
+        callback();
+      });
+    });
+  },
+
+  // Delete a metadata object only after its corelating _meta.json file has
+  // been deleted on S3.
+  oamDelete: function (callback) {
+    var s3Sync = new S3Sync(this.meta_uri);
+    s3Sync.deleteRemoteMeta(() => {
+      this.remove(function (err) {
+        if (err) throw new Error('Error deleting meta: ', err);
+        callback();
+      });
     });
   }
 };

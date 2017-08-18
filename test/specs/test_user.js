@@ -6,7 +6,7 @@ var request = require('request');
 var connection = require('mongoose').connection;
 var config = require('../../config');
 var Meta = require('../../models/meta');
-var meta = require('../fixtures/sample_meta.json');
+var meta = require('../fixtures/meta_db_objects.json');
 
 require('./helper');
 var commonHelper = require('../helper');
@@ -37,7 +37,6 @@ describe('User', function () {
     };
 
     request.get(options, function (_err, httpResponse, body) {
-      console.log(body);
       const user = body.results;
       const images = user.images;
       expect(httpResponse.statusCode).to.equal(200);

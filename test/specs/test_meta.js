@@ -1,13 +1,14 @@
 'use strict';
 
-var config = require('../../config');
-
 var connection = require('mongoose').connection;
 var expect = require('chai').expect;
 var request = require('request');
 var wktParse = require('wellknown');
+var AWS = require('aws-sdk');
+
+var config = require('../../config');
 var Meta = require('../../models/meta');
-var meta = require('../fixtures/sample_meta.json');
+var meta = require('../fixtures/meta_db_objects.json');
 var commonHelper = require('../helper');
 
 require('./helper');
@@ -265,6 +266,8 @@ describe('Meta endpoint', function () {
       commonHelper.logUserIn(existingUser, function (httpResponse, body) {
         request.put(options, function (_err, httpResponse, body) {
           expect(httpResponse.statusCode).to.equal(204);
+          expect(AWS.S3.prototype.getObject.callCount).to.eq(0);
+          expect(AWS.S3.prototype.putObject.callCount).to.eq(0);
           Meta.findOne({_id: existingMeta.id}, function (_err, result) {
             expect(result.title).to.eq('A different title');
             done();
@@ -286,6 +289,39 @@ describe('Meta endpoint', function () {
             expect(result).to.eq(null);
             done();
           });
+        });
+      });
+    });
+
+    context('Syncing to S3', function () {
+      let metaInOINBucket;
+
+      beforeEach(function (done) {
+        let metaToSave = meta[1];
+        metaToSave.meta_uri = `https://example.com/${config.oinBucket}/123_metadata.json`;
+        Meta.create(metaToSave).then(function (savedMeta) {
+          metaInOINBucket = savedMeta;
+          done();
+        });
+      });
+
+      it('should try to sync to S3 when updating imagery', function (done) {
+        let newDetails = {title: 'I hope my S3 file is synced'};
+        metaInOINBucket.oamUpdate(newDetails, function () {
+          expect(AWS.S3.prototype.getObject.callCount).to.eq(1);
+          expect(AWS.S3.prototype.putObject.callCount).to.eq(1);
+          let metadataString = AWS.S3.prototype.putObject.args[0][0].Body.toString('utf8');
+          let metadataJSON = JSON.parse(metadataString);
+          expect(metadataJSON).to.deep.equal(newDetails);
+          done();
+        });
+      });
+
+      it('should try to delete from S3 when deleting imagery', function (done) {
+        metaInOINBucket.oamDelete(function () {
+          expect(AWS.S3.prototype.listObjects.callCount).to.eq(1);
+          expect(AWS.S3.prototype.deleteObjects.callCount).to.eq(1);
+          done();
         });
       });
     });

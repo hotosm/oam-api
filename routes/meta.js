@@ -49,7 +49,7 @@ module.exports = [
 
       metaController.query(payload, request.page, request.limit, function (err, records, count) {
         if (err) {
-          console.log(err);
+          console.error(err);
           return reply(err.message);
         }
 
@@ -78,6 +78,7 @@ module.exports = [
 
       Meta.findOne({_id: metaId}, function (err, record) {
         if (err) {
+          console.error(err);
           return reply(Boom.badImplementation(err.message));
         }
         return reply(record);
@@ -105,9 +106,10 @@ module.exports = [
       ]
     },
     handler: function (request, reply) {
-      const metaId = request.app.requestedObject._id;
-      Meta.update({_id: metaId}, request.payload, function (err, _result) {
+      let meta = request.app.requestedObject;
+      meta.oamUpdate(request.payload, function (err, _result) {
         if (err) {
+          console.error(err);
           reply(Boom.badImplementation(err));
           return;
         }
@@ -136,9 +138,10 @@ module.exports = [
       ]
     },
     handler: function (request, reply) {
-      const metaId = request.app.requestedObject._id;
-      Meta.findByIdAndRemove(metaId, function (err, _result) {
+      let meta = request.app.requestedObject;
+      meta.oamDelete(function (err, _result) {
         if (err) {
+          console.error(err);
           reply(Boom.badImplementation(err));
           return;
         }

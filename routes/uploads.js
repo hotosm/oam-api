@@ -5,18 +5,12 @@ var ObjectID = require('mongodb').ObjectID;
 var queue = require('queue-async');
 var Boom = require('boom');
 var Joi = require('joi');
-var AWS = require('aws-sdk');
+var S3 = require('aws-sdk/clients/s3');
 
 var Meta = require('../models/meta');
 var config = require('../config');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
-
-AWS.config = {
-  region: config.awsRegion,
-  accessKeyId: config.awsKey,
-  secretAccessKey: config.awsSecret
-};
 
 var uploadSchema = Meta.getSceneValidations();
 
@@ -100,7 +94,7 @@ module.exports = [
     },
     handler: function (request, reply) {
       var payload = JSON.parse(request.payload);
-      var s3 = new AWS.S3();
+      var s3 = new S3();
       var params = {
         Bucket: config.uploadBucket,
         Key: payload.name,

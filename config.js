@@ -51,6 +51,9 @@ const config = {
   oinBucketPrefix: process.env.OIN_BUCKET_PREFIX,
   // OIN bucket for temporary storage of direct uploads
   uploadBucket: process.env.UPLOAD_BUCKET,
+  // Base domain for public read access to OIN bucket
+  s3PublicDomain: process.env.S3_PUBLIC_DOMAIN,
+
   // How often to poll OIN buckets for new imagery
   cronTime: process.env.CRON_TIME,
   // Location of master record of OIN buckets to poll
