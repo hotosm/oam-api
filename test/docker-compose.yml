@@ -23,6 +23,7 @@ services:
       # locally, the codebase is mounted from the host, including
       # the `.env` file, so the `dotenv` npm module takes responsibility
       # for loading these values.
+      - OAM_DEBUG
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - FACEBOOK_APP_ID

@@ -21,8 +21,9 @@ module.exports = class S3Sync {
 
   // Don't try to manipulate metadata files that aren't in OIN's public bucket.
   isOINMeta () {
-    // TODO: Also match the S3 domain for more rigorous matching.
-    return this.remoteMetaUri.includes(`/${config.oinBucket}/`);
+    let isInDomain = this.remoteMetaUri.includes(`${config.oinBucket}.${config.s3PublicDomain}`);
+    let isInPath = this.remoteMetaUri.includes(`/${config.oinBucket}/`);
+    return isInDomain || isInPath;
   }
 
   updateRemoteMeta (newDetails, callback) {

@@ -106,6 +106,17 @@ module.exports = {
   // This comes from the periodic cron to check the bucket for
   // new imagery. Once a new image's *meta.json is found it is
   // parsed and added to the DB.
+  // TODO:
+  //   This is no longer necessary as the _meta.json URI is actually
+  //   added at the point of conversion. Before the conversion step
+  //   added the metadata URI we had to wait for the background cron
+  //   worker process to index new metadata files from S3. This was
+  //   good for testing, because it meant that this function was
+  //   testing that background worker process (`/catalog-worker.js`
+  //   at time of writing). I'm not aware that this indexing step
+  //   adds anything at all new that we can detect. Therefore the
+  //   best solution would just be to write dedicated tests for the
+  //   indexing process.
   waitForIndexing: function (title, processedCb) {
     var getOptions = {
       url: config.apiEndpoint + '/meta?title=' + title,
