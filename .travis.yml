@@ -9,6 +9,7 @@ services:
 env:
   global:
     # Set OAM_DEBUG=true in Travis UI to see debug output
+    - OAM_DEBUG=true
     - NODE_ENV=test
     - GH_REF=github.com/hotosm/oam-catalog.git
     - PRODUCTION_BRANCH=master

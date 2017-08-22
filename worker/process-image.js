@@ -90,14 +90,17 @@ function _processImage (scene, sourceUrl, targetPrefix, callback) {
 
     log(['debug'], 'Converted image to OAM standard format. Input: ', sourceUrl, 'Output: ', output);
 
+    var metaUri = `http://${s3bucket}.s3.amazonaws.com/${targetPrefix}_meta.json`;
+
     return request.get({
       json: true,
-      uri: `http://${s3bucket}.s3.amazonaws.com/${targetPrefix}_meta.json`
+      uri: metaUri
     }, function (err, rsp, metadata) {
       if (err) {
         return _callback(err);
       }
 
+      metadata.meta_uri = metaUri;
       return _callback(null, {
         metadata: metadata
       });
