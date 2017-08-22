@@ -260,7 +260,12 @@ describe('Meta endpoint', function () {
       var options = {
         url: config.apiEndpoint + '/meta/' + existingMeta.id,
         jar: commonHelper.cookieJar,
-        json: {title: 'A different title'}
+        json: {
+          title: 'A different title',
+          properties: {
+            sensor: 'A different sensor'
+          }
+        }
       };
 
       commonHelper.logUserIn(existingUser, function (httpResponse, body) {
@@ -270,6 +275,7 @@ describe('Meta endpoint', function () {
           expect(AWS.S3.prototype.putObject.callCount).to.eq(0);
           Meta.findOne({_id: existingMeta.id}, function (_err, result) {
             expect(result.title).to.eq('A different title');
+            expect(result.properties.sensor).to.eq('A different sensor');
             done();
           });
         });
