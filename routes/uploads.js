@@ -93,7 +93,7 @@ module.exports = [
       auth: 'session'
     },
     handler: function (request, reply) {
-      var payload = JSON.parse(request.payload);
+      var payload = request.payload;
       var s3 = new S3();
       var params = {
         Bucket: config.uploadBucket,

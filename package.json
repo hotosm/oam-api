@@ -1,6 +1,6 @@
 {
   "name": "oam-catalog",
-  "version": "0.3.0",
+  "version": "0.7.0",
   "description": "A catalog for Open Aerial Map Imagery",
   "main": "index.js",
   "scripts": {
