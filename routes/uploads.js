@@ -332,7 +332,7 @@ module.exports = [
         // more easily used as a task queue for the worker(s)
         var q = queue();
         data.scenes.forEach(function (scene) {
-          if (typeof scene.contact === 'undefined' || scene.contact === null) {
+          if (scene.contact == null) {
             scene.contact = {
               name: request.auth.credentials.name,
               email: request.auth.credentials.contact_email
