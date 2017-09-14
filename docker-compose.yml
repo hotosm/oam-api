@@ -21,7 +21,6 @@ services:
       - ./routes:/app/routes
       - ./services:/app/services
       - ./test:/app/test
-      - ./worker:/app/worker
       - ./catalog-worker.js:/app/catalog-worker.js
       - ./config.js:/app/config.js
       - ./index.js:/app/index.js

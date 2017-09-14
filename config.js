@@ -9,7 +9,6 @@ if (process.env.NODE_ENV === 'test') {
   process.env.NEW_RELIC_ENABLED = false;
   process.env.PORT = 47357;
   process.env.API_ENDPOINT = 'http://localhost:' + process.env.PORT;
-  process.env.IMAGE_PROCESSOR = '../test/specs/_process-image_stub';
 }
 
 // Amendments for integration tests, the ones that run in Docker against
@@ -17,7 +16,6 @@ if (process.env.NODE_ENV === 'test') {
 if (process.env.INTEGRATION_TESTS === 'true') {
   process.env.PORT = 4000;
   process.env.API_ENDPOINT = 'http://localhost:' + process.env.PORT;
-  process.env.IMAGE_PROCESSOR = './process-image';
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -38,11 +36,6 @@ const config = {
 
   // DB connection
   dbUri: process.env.DB_URI,
-
-  // Not ideal, but Hapi's plugin architecture makes it hard to stub modules
-  // the normal tools like sinon or proxyquire. So here we manually specify
-  // the path to the image processor code.
-  imageProcessorPath: process.env.IMAGE_PROCESSOR || './process-image',
 
   // OIN bucket in which imagery ultimately lives
   oinBucket: process.env.OIN_BUCKET,
