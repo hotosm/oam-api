@@ -68,6 +68,11 @@ Server.prototype.start = function (cb) {
     if (err) throw err;
   });
 
+  self.hapi.on('request-error', (req, err) => {
+    console.warn(`${req.method.toUpperCase()} ${req.url.path}`);
+    console.warn(err.stack);
+  });
+
   self.hapi.start(function () {
     console.info(
       'Server (' + process.env.NODE_ENV + ') running at:',
