@@ -1,31 +1,9 @@
 version: '2'
 services:
   app:
-    environment:
-      - DB_URI=mongodb://mongo/oam-api
     env_file: .env
     build: .
-    depends_on:
-      - mongo
-    links:
-      - mongo
     image: oam-api
     restart: always
     ports:
       - 4000:4000
-    volumes:
-      - ./bin:/app/bin
-      - ./controllers:/app/controllers
-      - ./models:/app/models
-      - ./plugins:/app/plugins
-      - ./routes:/app/routes
-      - ./services:/app/services
-      - ./test:/app/test
-      - ./catalog-worker.js:/app/catalog-worker.js
-      - ./config.js:/app/config.js
-      - ./index.js:/app/index.js
-      - ./newrelic.js:/app/newrelic.js
-      - ./package.json:/app/package.json
-      - ./Procfile:/app/Procfile
-  mongo:
-    image: mongo:3
