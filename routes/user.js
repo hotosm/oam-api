@@ -43,6 +43,7 @@ module.exports = [
         _id: request.params.id
       }).then(function (user) {
         return _.pick(user, [
+          '_id',
           'name',
           'profile_pic_uri'
         ]);
