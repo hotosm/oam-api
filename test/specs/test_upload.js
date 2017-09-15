@@ -1,17 +1,48 @@
 'use strict';
 
+var ObjectID = require('mongodb').ObjectID;
 var connection = require('mongoose').connection;
 var expect = require('chai').expect;
 var request = require('request');
+var sinon = require('sinon');
 
 require('./helper');
 var commonHelper = require('../helper');
 
 var config = require('../../config');
 var Meta = require('../../models/meta');
+var transcoder = require('../../services/transcoder');
 
 describe('Uploading imagery', function () {
   var loggedInUser;
+
+  before(function () {
+    sinon.stub(transcoder, 'queueImage', function (scene, sourceUrl, targetPrefix, metaUrl) {
+      var imageId = targetPrefix.split('/').pop();
+      var meta = require('../fixtures/NE1_50M_SR.output.json');
+
+      meta.user = loggedInUser;
+
+      return Promise.all([
+        connection.db.collection('images').updateOne({
+          _id: new ObjectID(imageId)
+        }, {
+          $set: {
+            status: 'finished',
+            metadata: meta
+          },
+          $currentDate: {
+            stoppedAt: true
+          }
+        }),
+        Meta.create(meta)
+      ]);
+    });
+  });
+
+  after(function () {
+    transcoder.queueImage.restore();
+  });
 
   beforeEach(function (done) {
     connection.db.dropDatabase(function () {
