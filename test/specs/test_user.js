@@ -45,4 +45,35 @@ describe('User', function () {
       done();
     });
   });
+
+  it('should update the logged in user', function (done) {
+    var options = {
+      url: config.apiEndpoint + '/user',
+      jar: commonHelper.cookieJar,
+      json: {
+        name: 'Mr. Updated',
+        website: 'http://example.com',
+        bio: 'This is a test bio'
+      }
+    };
+
+    commonHelper.logUserIn(savedUser, function (_httpResponse, _body) {
+      request.put(options, function (_err, httpResponse, _body) {
+        expect(httpResponse.statusCode).to.equal(204);
+        var options = {
+          url: config.apiEndpoint + '/user',
+          jar: commonHelper.cookieJar,
+          json: true
+        };
+
+        request.get(options, function (_err, httpResponse, body) {
+          const user = body.results;
+          expect(user.name).to.eq('Mr. Updated');
+          expect(user.website).to.eq('http://example.com');
+          expect(user.bio).to.eq('This is a test bio');
+          done();
+        });
+      });
+    });
+  });
 });

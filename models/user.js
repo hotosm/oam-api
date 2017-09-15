@@ -6,6 +6,8 @@ var FB = require('fb');
 
 var userSchema = mongoose.Schema({
   name: {type: String, required: true},
+  website: String,
+  bio: String,
   facebook_id: Number,
   facebook_token: String,
   google_id: Number,
