@@ -104,6 +104,12 @@ const config = {
     }]
   },
 
+  useBatch: process.env.USE_BATCH === 'true' && process.env.AWS_BATCH_JD_NAME != null && process.env.AWS_BATCH_JQ_NAME != null,
+  batch: {
+    jobDefinition: process.env.AWS_BATCH_JD_NAME,
+    jobQueue: process.env.AWS_BATCH_JQ_NAME
+  },
+
   // TODO: Deprecate the following once user accounts have been implemented.
   // Credentials for Uploader Admin
   adminPassword: process.env.ADMIN_PASSWORD,

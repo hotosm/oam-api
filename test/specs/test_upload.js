@@ -17,7 +17,7 @@ describe('Uploading imagery', function () {
   var loggedInUser;
 
   before(function () {
-    sinon.stub(transcoder, 'queueImage', function (scene, sourceUrl, targetPrefix, metaUrl) {
+    sinon.stub(transcoder, 'queueImage', function (sourceUrl, targetPrefix, metaUrl) {
       var imageId = targetPrefix.split('/').pop();
       var meta = require('../fixtures/NE1_50M_SR.output.json');
 

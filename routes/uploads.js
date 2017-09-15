@@ -384,7 +384,7 @@ module.exports = [
                   // fetch the source URL out of the mangled scene object
                   var sourceUrl = scene.urls[i];
 
-                  promises.push(transcoder.queueImage(scene, sourceUrl, key, `${config.apiEndpoint}/uploads/${data._id}/${idx}/${imageId}`));
+                  promises.push(transcoder.queueImage(sourceUrl, key, `${config.apiEndpoint}/uploads/${data._id}/${idx}/${imageId}`));
                 });
               });
 
