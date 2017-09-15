@@ -103,6 +103,12 @@ const config = {
     }]
   },
 
+  useBatch: process.env.USE_BATCH === 'true' && process.env.BATCH_JOB != null && process.env.BATCH_QUEUE != null,
+  batch: {
+    jobDefinition: process.env.BATCH_JOB,
+    jobQueue: process.env.BATCH_QUEUE
+  },
+
   // TODO: Deprecate the following once user accounts have been implemented.
   // Credentials for Uploader Admin
   adminPassword: process.env.ADMIN_PASSWORD,
