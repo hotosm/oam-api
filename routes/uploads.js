@@ -144,6 +144,10 @@ module.exports = [
         _id: new ObjectID(request.params.id)
       })
       .then(function (upload) {
+        if (upload == null) {
+          return reply(Boom.notFound('The requested upload does not exist'));
+        }
+
         var q = queue();
         upload.scenes.forEach(function (scene) {
           q.defer(includeImages, db, scene);
