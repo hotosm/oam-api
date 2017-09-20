@@ -259,6 +259,10 @@ module.exports = [
             })
               .then(() => reply()),
             Meta.create(meta)
+              .then(obj => {
+                // write metadata
+                obj.oamSync();
+              })
           ]);
         })
         .catch(err => reply(Boom.wrap(err)));
