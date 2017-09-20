@@ -35,6 +35,7 @@ function insertImages (db, scene, userID, callback) {
         platform: scene.platform,
         provider: scene.provider,
         properties: {
+          license: scene.license,
           sensor: scene.sensor
         },
         title: scene.title
@@ -234,7 +235,11 @@ module.exports = [
           meta.uuid = request.payload.properties.url;
           meta.geojson = getGeom(request.payload);
           meta.geojson.bbox = bbox(meta.geojson);
+          meta.bbox = meta.geojson.bbox;
+          meta.gsd = request.payload.properties.resolution_in_meters;
+          meta.meta_uri = meta.uuid.replace(/\.tif$/, '_meta.json');
           meta.properties = Object.assign(meta.properties, request.payload.properties);
+          meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.scesceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
 
           return Promise.all([
             db.collection('images').updateOne({
