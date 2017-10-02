@@ -64,6 +64,11 @@ metaSchema.statics = {
 
 metaSchema.methods = {
 
+  oamSync: function (callback) {
+    var s3Sync = new S3Sync(this.meta_uri);
+    s3Sync.uploadMeta(JSON.stringify(this)).then(callback).catch(callback);
+  },
+
   // Update a metadata object only after the updates have been synced to the corelating
   // _meta.json file on S3.
   oamUpdate: function (newParams, callback) {

@@ -154,8 +154,10 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
           // create a geojson object from footprint and bbox
           // TODO: Put in a Mongoose middleware hook
-          payload.geojson = parse(payload.footprint);
-          payload.geojson.bbox = payload.bbox;
+          if (payload.footprint != null && payload.geojson == null) {
+            payload.geojson = parse(payload.footprint);
+            payload.geojson.bbox = payload.bbox;
+          }
 
           var query = { uuid: payload.uuid };
           var options = { upsert: true, new: true, select: { uuid: 1 } };
