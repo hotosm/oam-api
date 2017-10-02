@@ -50,7 +50,6 @@ var getBucketList = function (cb) {
     if (res.statusCode !== 200) {
       return console.error('Unable to get register list.');
     }
-
     var buckets = _.map(remoteData.nodes, function (node) {
       return node.locations;
     });
@@ -110,11 +109,16 @@ var readBuckets = function (tasks) {
 var readBucket = function (bucket, lastSystemUpdate, errCb, done) {
   console.info('--- Reading from bucket: ' + bucket.bucket_name + ' ---');
 
+  let bucketDetails = {
+    Bucket: bucket.bucket_name
+  };
+
+  if (bucket.bucket_name === config.oinBucket) {
+    bucketDetails.Prefix = config.oinBucketPrefix;
+  }
+
   var s3 = new S3();
-  s3.listObjects({
-    Bucket: config.oinBucket,
-    Prefix: config.oinBucketPrefix
-  }, function (err, data) {
+  s3.listObjects(bucketDetails, function (err, data) {
     if (err) {
       errCb(err);
       done(err);
