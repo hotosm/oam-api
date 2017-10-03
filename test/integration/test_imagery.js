@@ -23,6 +23,8 @@ describe('Imagery CRUD', function () {
   });
 
   it('should upload, convert and process an image', function () {
+    expect(prereqs.image.user.name).to.eq('Tester');
+
     expect(prereqs.image.title).to.eq(prereqs.title);
     expect(prereqs.image.properties.license).to.eq('CC-BY');
     expect(prereqs.image.projection).to.include('GEOGCS');

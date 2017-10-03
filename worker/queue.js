@@ -144,7 +144,7 @@ JobQueue.prototype._mainloop = function mainloop () {
       // TODO: Put in a Mongoose middleware hook
       meta.geojson = wktParse(meta.footprint);
       meta.geojson.bbox = meta.bbox;
-      return Meta.create(meta);
+      return Meta.findOneAndUpdate({uuid: meta.uuid}, meta, {upsert: true});
     })
     .then(() => {
       return this.images.findOneAndUpdate(result.value, this.update.jobFinished(this.processed));
