@@ -12,8 +12,7 @@ var commonHelper = require('../helper');
 
 describe('Auth', function () {
   beforeEach(function (done) {
-    connection.db.dropDatabase();
-    done();
+    connection.db.dropDatabase(done);
   });
 
   context('For an already existent user', function () {
