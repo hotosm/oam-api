@@ -1,5 +1,9 @@
 #!/bin/env node
 
+// Note. To connect to a specific remote database prepend DB_URI=... to the command.
+// Try not to edit your .env file, accidents happen, for example when running tests
+// whatever database is specified in .env is dropped.
+
 require('dotenv').config();
 var Meta = require('../models/meta');
 var User = require('../models/user');
@@ -9,6 +13,12 @@ var dbWrapper = new Conn();
 var imagery_email = process.argv[2];
 var user_email = process.argv[3];
 var confirm = process.argv[4] === "confirm";
+
+if (!user_email) {
+  console.log('');
+  console.log('Usage: ./merge_images_into_user.js [image owner email] [user email] [OPTIONAL: confirm]');
+  process.exit();
+}
 
 console.log('');
 
