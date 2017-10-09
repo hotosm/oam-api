@@ -66,6 +66,7 @@ const config = {
 
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  gdriveKey: process.env.GDRIVE_KEY,
 
   // Base URL for accessing the slippy map TMS endpoint for imagery. This is
   // the entrypoint for using the Dynamic Tiler to serve imagery.
