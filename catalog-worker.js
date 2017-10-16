@@ -1,24 +1,28 @@
+/**
+ * This background process polls S3 buckets for new imagery
+ */
+
 'use strict';
 
-require('envloader').load();
+console.log('Starting catalog worker...');
+
+require('dotenv').config();
 
 var _ = require('lodash');
-var Conn = require('./services/db.js');
-var S3 = require('./services/s3.js');
-var LocalOAM = require('./services/localoam.js');
+var S3 = require('aws-sdk/clients/s3');
 var async = require('async');
-var analytics = require('./controllers/analytics.js');
-var Meta = require('./models/meta.js');
+var config = require('./config');
+var Conn = require('./services/db');
+var analytics = require('./controllers/analytics');
+var meta = require('./controllers/meta');
+var Meta = require('./models/meta');
 // Replace mongoose's deprecated promise library (mpromise) with bluebird
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 var request = require('request');
 var cron = require('node-cron');
 
-var registerURL = process.env.OIN_REGISTER_URL || 'https://raw.githubusercontent.com/openimagerynetwork/oin-register/master/master.json';
-var localRegisterURL = process.env.LOCAL_REGISTER_URL || '';
-
-var db = new Conn(process.env.DBNAME || 'oam-catalog', process.env.DBURI);
+var db = new Conn();
 db.start();
 
 var consoleLog = function (err, msg) {
@@ -37,7 +41,7 @@ var consoleLog = function (err, msg) {
 var getBucketList = function (cb) {
   request.get({
     json: true,
-    uri: registerURL
+    uri: config.oinRegisterUrl
   }, function (err, res, remoteData) {
     if (err) {
       return cb(err);
@@ -46,36 +50,11 @@ var getBucketList = function (cb) {
     if (res.statusCode !== 200) {
       return console.error('Unable to get register list.');
     }
-
     var buckets = _.map(remoteData.nodes, function (node) {
       return node.locations;
     });
     buckets = _.flatten(buckets);
-
-    if (localRegisterURL.length > 0) {
-      request.get({
-        json: true,
-        uri: localRegisterURL
-      }, function (err, res, localData) {
-        if (err || (res.statusCode !== 200)) {
-          // There was an error retrieving local buckets
-          // Return remote buckets
-          cb(null, buckets);
-          return console.error('Unable to get local register list.');
-        } else {
-          // We got local buckets, merge them with the buckets object
-          var localBuckets = _.map(localData.nodes, function (node) {
-            return node.locations;
-          });
-
-          localBuckets = _.flatten(localBuckets);
-          buckets = _.union(localBuckets, buckets);
-          cb(null, buckets);
-        }
-      });
-    } else {
-      cb(null, buckets);
-    }
+    cb(null, buckets);
   });
 };
 
@@ -98,7 +77,6 @@ var readBuckets = function (tasks) {
       });
       async.parallelLimit(results, 5, function (err, results) {
         if (err) {
-          db.close();
           return console.error(err);
         }
         console.info('--- Finished indexing all buckets ---');
@@ -119,21 +97,53 @@ var readBuckets = function (tasks) {
             }
             console.info('--- Added new analytics record ---');
           });
-          // Catch error in db query promises
+        // Catch error in db query promises
         }).catch(function (err) {
           return console.error(err);
-        }).then(function () {
-          return db.close();
         });
       });
     });
 };
 
-/**
- * The main function to get the registered buckets, read them and update metadata
- */
+// Read bucket method for S3. It reads the S3 bucket and adds/updates *_metadata.json to Meta model
+var readBucket = function (bucket, lastSystemUpdate, errCb, done) {
+  console.info('--- Reading from bucket: ' + bucket.bucket_name + ' ---');
+
+  let bucketDetails = {
+    Bucket: bucket.bucket_name
+  };
+
+  if (bucket.bucket_name === config.oinBucket) {
+    bucketDetails.Prefix = config.oinBucketPrefix;
+  }
+
+  var s3 = new S3();
+  s3.listObjects(bucketDetails, function (err, data) {
+    if (err) {
+      errCb(err);
+      done(err);
+      return;
+    }
+    var tasks = [];
+    data.Contents.forEach(function (item) {
+      if (item.Key.includes('_meta.json')) {
+        // Get the last time the metadata file was modified so we can determine
+        // if we need to update it.
+        var lastModified = item.LastModified;
+        var url = `https://${config.s3PublicDomain}/${bucket.bucket_name}/${item.Key}`;
+        var task = function (done) {
+          meta.addRemoteMeta(url, lastModified, lastSystemUpdate, done);
+        };
+        tasks.push(task);
+      }
+    });
+    done(null, tasks);
+  });
+};
+
+// The main function to get the registered buckets, read them and update metadata
 var getListAndReadBuckets = function () {
-  // Start of by getting the last time the system was updated.
+  // Start off by getting the last time the system was updated.
   analytics.getLastUpdateTime(function (err, lastSystemUpdate) {
     if (err) {
       return console.error(err);
@@ -147,17 +157,13 @@ var getListAndReadBuckets = function () {
 
       // Generate array of tasks to run in parallel
       var tasks = _.map(buckets, function (bucket) {
-        if (bucket.type === 's3') {
-          return function (done) {
-            var s3 = new S3(null, null, bucket.bucket_name);
-            s3.readBucket(lastSystemUpdate, consoleLog, done);
-          };
-        } else if (bucket.type === 'localoam') {
-          return function (done) {
-            var localOAM = new LocalOAM(bucket.url);
-            localOAM.readBucket(lastSystemUpdate, done);
-          };
-        }
+        return function (done) {
+          if (bucket.type === 's3') {
+            readBucket(bucket, lastSystemUpdate, consoleLog, done);
+          } else {
+            console.error('Unknown bucket type: ' + bucket.type);
+          }
+        };
       });
 
       // Read the buckets and store metadata
@@ -167,8 +173,12 @@ var getListAndReadBuckets = function () {
 };
 
 // Kick it all off
-cron.schedule(process.env.CRON_TIME || '*/5 * * * *', // Run every 5 minutes
+cron.schedule(
+  config.cronTime,
   function () {
+    console.log(
+      'Running a catalog worker (cron time: ' + config.cronTime + ')'
+    );
     getListAndReadBuckets();
   }
 );

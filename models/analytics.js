@@ -1,7 +1,6 @@
 'use strict';
 
 var mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
 
 var analyticsSchema = new mongoose.Schema({
   count: Number,

@@ -1,66 +1,12 @@
 'use strict';
 
-var _ = require('lodash');
-var parse = require('wellknown');
-var Model = require('../models/meta.js');
-var meta = require('../controllers/meta.js');
+var Boom = require('boom');
 
-/**
- * @api {post} /meta Add an image metadata
- * @apiGroup Meta
- * @apiDescription Add an image to the catalog. **This is an authenticated endpoint.**
- *
- * @apiParam {string} [uuid] Location of image.
- * @apiParam {string} [footpring] GeoJSON footpring of image.
- * @apiParam {string} [bbox] Bounding box of image
- *
- * @apiUse metaSuccess
- *
- * @apiUse metaSuccessExample
- *
- * @apiError statusCode     The error code
- * @apiError error          Error name
- * @apiError message        Error message
- *
- * @apiErrorExample {json} Error Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *      "statusCode": 400,
- *      "error": "Bad Request",
- *      "message": "Missing required data."
- *     }
- */
+var Meta = require('../models/meta');
+var metaController = require('../controllers/meta.js');
+var userController = require('../controllers/user.js');
+
 module.exports = [
-  {
-    method: 'POST',
-    path: '/meta',
-    config: { auth: 'simple' },
-    handler: function (request, reply) {
-      var response = {};
-
-      if (!_.isEmpty(request.payload) && _.has(request.payload, 'uuid')) {
-        var payload = request.payload;
-
-        // create a geojson object from footprint and bbox
-        payload.geojson = parse(payload.footprint);
-        payload.geojson.bbox = payload.bbox;
-
-        var record = new Model(payload);
-        record.save(function (err, record) {
-          if (err) {
-            console.log(err);
-            response.error = err.message;
-            return reply(response);
-          }
-          return reply(record);
-        });
-      } else {
-        response.error = 'This is an Error. You must provider UUID field.';
-        return reply(response);
-      }
-    }
-  },
-
 /**
  * @api {get} /meta List all images' metadata
  * @apiGroup Meta
@@ -101,9 +47,9 @@ module.exports = [
         payload = request.query;
       }
 
-      meta.query(payload, request.page, request.limit, function (err, records, count) {
+      metaController.query(payload, request.page, request.limit, function (err, records, count) {
         if (err) {
-          console.log(err);
+          console.error(err);
           return reply(err.message);
         }
 
@@ -130,12 +76,130 @@ module.exports = [
     handler: function (request, reply) {
       var metaId = request.params.id;
 
-      Model.findOne({_id: metaId}, function (err, record) {
+      Meta.findOne({_id: metaId}, function (err, record) {
         if (err) {
-          return reply(err.message);
+          console.error(err);
+          return reply(Boom.badImplementation(err.message));
         }
         return reply(record);
       });
     }
+  },
+
+/**
+ * @api {put} /meta/:id Update an image's metadata
+ * @apiGroup Meta
+ * @apiDescription Update data for an individual image
+ *
+ * @apiParam {string} [id] The id of the image.
+ *
+ * @apiSuccess (204) PageUpdated.
+ */
+  {
+    method: 'PUT',
+    path: '/meta/{id}',
+    config: {
+      auth: 'session',
+      pre: [
+        {method: metaController.fetchRequestedObject},
+        {method: userController.isOwnerOfRequestedObject}
+      ]
+    },
+    handler: function (request, reply) {
+      let meta = request.app.requestedObject;
+      meta.oamUpdate(request.payload, function (err, _result) {
+        if (err) {
+          console.error(err);
+          reply(Boom.badImplementation(err));
+          return;
+        }
+        reply(null).code(204);
+      });
+    }
+  },
+
+/**
+ * @api {delete} /meta/:id Delete an image
+ * @apiGroup Meta
+ * @apiDescription Delete an image
+ *
+ * @apiParam {string} [id] The id of the image.
+ *
+ * @apiSuccess (204) PageUpdated.
+ */
+  {
+    method: 'DELETE',
+    path: '/meta/{id}',
+    config: {
+      auth: 'session',
+      pre: [
+        {method: metaController.fetchRequestedObject},
+        {method: userController.isOwnerOfRequestedObject}
+      ]
+    },
+    handler: function (request, reply) {
+      let meta = request.app.requestedObject;
+      meta.oamDelete(function (err, _result) {
+        if (err) {
+          console.error(err);
+          reply(Boom.badImplementation(err));
+          return;
+        }
+        reply(null).code(204);
+      });
+    }
   }
 ];
+
+// -----------------------------------------------------------------------------
+// Meta success return values
+// -----------------------------------------------------------------------------
+/**
+ * @apiDefine metaSuccess
+ * @apiSuccess {string}   _id            Unique internal ID
+ * @apiSuccess {url}   uuid           Image source
+ * @apiSuccess {string}   title           Name of image
+ * @apiSuccess {string}   projection     Image projection information
+ * @apiSuccess {string}   footprint      Image footprint
+ * @apiSuccess {number}   gsd            Spatial resolution of image (in meters)
+ * @apiSuccess {number}   file_size      File size of image (in bytes)
+ * @apiSuccess {date}   acquisition_start  Start of image capture
+ * @apiSuccess {date}   acquisition_end  End of image capture
+ * @apiSuccess {string}   platform  Recording platform of image (UAV, satellite, etc)
+ * @apiSuccess {string}   provider  Imagery provider
+ * @apiSuccess {string}   contact  Imagery contact point
+ * @apiSuccess {object}   properties  Optional metadata about the image
+ * @apiSuccess {url}   meta_uri  URL of metadata information
+ * @apiSuccess {string}   geojson  GeoJSON information for image
+ * @apiSuccess {string}   bbox  Bounding box of image
+ */
+
+// -----------------------------------------------------------------------------
+// Meta success example
+// -----------------------------------------------------------------------------
+/**
+ * @apiDefine metaSuccessExample
+ * @apiSuccessExample {json} Success Response:
+ *      HTTP/1.1 200 OK
+ *       {
+ *       "_id": "556f7a49ac00a903002fb016",
+ *       "uuid": "http://hotosm-oam.s3.amazonaws.com/2015-04-20_dar_river_merged_transparent_mosaic_group1.tif",
+ *       "title": "2015-04-20_dar_river_merged_transparent_mosaic_group1.tif",
+ *       "projection": "PROJCS[\"WGS84/UTMzone37S\",GEOGCS[\"WGS84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433],AUTHORITY[\"EPSG\",\"4326\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",39],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",10000000],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AUTHORITY[\"EPSG\",\"32737\"]]",
+ *       "footprint": "POLYGON((39.24013333333333 -6.755633333333333,39.26116944444444 -6.755622222222223,39.261183333333335 -6.776669444444444,39.24014444444445 -6.776680555555555,39.24013333333333 -6.755633333333333))",
+ *       "gsd": 0.04069,
+ *       "file_size": 2121158626,
+ *       "acquisition_start": "2015-04-20T00:00:00.000Z",
+ *       "acquisition_end": "2015-04-21T00:00:00.000Z",
+ *       "platform": "UAV",
+ *       "provider": "",
+ *       "contact": "",
+ *       "properties": {
+ *       "tms": "",
+ *       "thumbnail": ""
+ *       },
+ *       "meta_uri": "",
+ *       "geojson": {},
+ *       "bbox": []
+ *       }
+ */

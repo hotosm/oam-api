@@ -1,27 +1,63 @@
+sudo: required
+
 language: node_js
 
-node_js:
-- '4.8.4'
+services:
+  - mongodb
+  - docker
 
 env:
   global:
-  - GH_REF=github.com/hotosm/oam-catalog.git
-  - PRODUCTION_BRANCH=master
-  - secure: AhiKIqAYPeXH1HjhYza/VdMJrp8wCri5WNRY+Kdkb4piYEK20dAQPVgcVT2EM1tvlyZL5Q0ZU4rtnATkJOU3k9DQHI99xVjk4MjnqfpkrM9iZtif6o9xDZwf9iWwBeuu9MmKH0tsvKhktxrJkzZ7vAThurZVz89ZPoCAXuudyqk=
+    # Set OAM_DEBUG=true in Travis UI to see debug output
+    - OAM_DEBUG=true
+    - NODE_ENV=test
+    - GH_REF=github.com/hotosm/oam-catalog.git
+    - PRODUCTION_BRANCH=master
+    - BSTACK_USER=thomasbuckleyhou1
+    - FACEBOOK_APP_ID=228592690987600
+    # GH_TOKEN for deploying docs to Github
+    - secure: AhiKIqAYPeXH1HjhYza/VdMJrp8wCri5WNRY+Kdkb4piYEK20dAQPVgcVT2EM1tvlyZL5Q0ZU4rtnATkJOU3k9DQHI99xVjk4MjnqfpkrM9iZtif6o9xDZwf9iWwBeuu9MmKH0tsvKhktxrJkzZ7vAThurZVz89ZPoCAXuudyqk=
+    # OAM API ENV
+    - secure: HCCPmMJQhYJ4hG+YCcZc9hmFDThpXsNZDO8ktMQjluvIZAarsoBn6BXOIyyATil9bkGgdzzQzKilimg2TNFFsGCjyd8vxsbSA7igrxahxmM0qSGsVoAzIoWKsqJJHY0muHto/7Mmg47xa0sI2CcHaX5aKIPC2l8FD5GLYcdn39c=
+    - secure: ZyTkxBgknlW11Aow0jQBv8pFdANlkrpe24QeWgKBh3LHVYqMBQoIbEWOAKL80tH+D7REOqLkZfvpqqGAkHLFBglbfT9D0V8w0zs7MzNlSYBH3txJ3NgI921GjeO/Z4dkp30C/jajKUWqEff3U6spp2RSNsv8rym1E3b/uKHeTI4=
+    # Facebook App secret
+    - secure: YNMdxIaCy39lq86vNvWWPSBFaVl4FzBa5v84PC3vSMi8pGhyQFv73i5oHx8/TifD2Q9un7bzUllmCJSco9j3Rva/c2HiS/yLBV9Rqp4GO5g/pkJhSEQOOkCK51YmCqgtdFg7Xd0CmtEwFPND1nSEB6TD2SW3OPX1kE3gg17etSI=
+    # Browserstack
+    - secure: OvY20t1Re9jLO6gxkTOUPgNo8bqj4oJJtxIeFzYPNWQHb3fpXkvHm4/zzrOg31cdPKo81ljyhrXAO7wHDZCrs1jZVDWHodxwHX7/OUHoZKvKa4lo9mxxcj7nPXwyacCcUhibmrrJuHDuUXMwxP3DB+tULOaSMaXSBNwFIKBoGqk=
 
-services: mongodb
+# Defaults. Can be overridden in individual job stages.
+before_script:
+  - ./.build_scripts/prepare_dotenv.sh
+  # Build and start the API with all workers and dynamic tiler processor
+  - docker-compose -f test/docker-compose.yml up -d
+  - sleep 30
+after_failure:
+  - docker ps
+  - cat .env
+  - echo "Logs for API Integration test server:"
+  # TODO: When the Travis platform update docker-compose use `docker-compose logs` instead
+  - docker logs test_test-app_1
+  - sleep 10
+  - echo "END"
 
-before_install:
-- chmod +x ./.build_scripts/docs.sh
+jobs:
+  include:
+    - stage: "Specs :factory:"
+      before_script:
+        - ./.build_scripts/prepare_dotenv.sh
+        - sed -i '/OAM_DEBUG/d' .env
+      script: npm test
+      after_failure: true
 
-after_success:
-- "./.build_scripts/docs.sh"
+    - stage: "Imagery processing tests :japan:"
+      script: mocha test/integration
 
-deploy:
-  provider: heroku
-  api_key:
-    secure: iZGqyYrx4i7+MPDa0Lopoe/TULu9DNWc2UsYqB8+f39xNhpRNHqIR0lz5VFWl6oQugj0XeZnHpN+f4W+2jfy6ThyTUs42uFAE43HThVipPhf28NdeuCJVje5Qu2ZjMv9spRskalxBrJjdJ8G9C5Vxwx1+LmnjVcyvsk0ycSA38o=
-  app: oam-catalog
-  on:
-    repo: hotosm/oam-catalog
-    branch: master
+    - &integration-test
+      stage: "Integration tests with frontend code :earth_asia:"
+      env: FRONTEND_VERSION=oauth-login # TODO: Replace with `production` once merged
+      script: ./.build_scripts/run_frontend_tests.sh
+    - <<: *integration-test
+      env: FRONTEND_VERSION=develop
+
+  allow_failures:
+    - env: FRONTEND_VERSION=develop

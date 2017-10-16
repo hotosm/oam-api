@@ -1,21 +1,38 @@
 'use strict';
 
 var Hapi = require('hapi');
-var auth = require('./auth.js');
+var config = require('../config');
+var Qs = require('qs');
+
+// Parse POST bodies with deep fields like 'field[0]'
+var onPostAuth = function (request, reply) {
+  if (typeof request.payload === 'object' &&
+    !Buffer.isBuffer(request.payload)) {
+    request.payload = Qs.parse(request.payload);
+  }
+  return reply.continue();
+};
 
 var Server = function (port) {
   this.port = port;
   this.hapi = new Hapi.Server({
     connections: {
       routes: {
-        cors: true
+        cors: {
+          origin: ['*'],
+          credentials: true
+        },
+        state: {
+          parse: true,
+          failAction: 'ignore'
+        }
       },
       router: {
         stripTrailingSlash: true
       }
     },
-    debug: process.env.OAM_DEBUG ? {
-      log: [ 'error' ],
+    debug: config.debug === 'true' ? {
+      log: [ 'error', 'debug', 'info', 'worker' ],
       request: [ 'error', 'received', 'response' ]
     } : false
   });
@@ -25,20 +42,9 @@ Server.prototype.start = function (cb) {
   var self = this;
   self.hapi.connection({ port: self.port });
 
-  // Basic token authentication plugin
-  self.hapi.register(require('hapi-auth-bearer-token'), function (err) {
-    if (err) throw err;
-
-    self.hapi.auth.strategy('simple', 'bearer-access-token', {
-      allowQueryToken: true,              // optional, true by default
-      allowMultipleHeaders: false,        // optional, false by default
-      accessTokenName: 'access_token',    // optional, 'access_token' by default
-      validateFunc: auth
-    });
-  });
-
-  // Register routes
   self.hapi.register([
+    { register: require('../plugins/workers') },
+    { register: require('../plugins/authentication') },
     {
       register: require('hapi-router'),
       options: {
@@ -64,11 +70,17 @@ Server.prototype.start = function (cb) {
   });
 
   self.hapi.start(function () {
-    console.log('Server running at:', self.hapi.info.uri);
+    console.info(
+      'Server (' + process.env.NODE_ENV + ') running at:',
+      self.hapi.info.uri
+    );
+    self.hapi.plugins.workers.spawn();
     if (cb) {
       cb();
     }
   });
+
+  self.hapi.ext('onPostAuth', onPostAuth);
 };
 
 module.exports = Server;

@@ -1,21 +1,11 @@
 version: '2'
 services:
-  mongo:
-    image: mongo
-  worker:
+  app:
+    env_file: .env
     build: .
-    environment:
-      - DBURI=mongodb://mongo/oam-uploader
-    env_file:
-      - local.env
-    command: ['node', 'worker.js']
-  web:
-    build: .
-    environment:
-      - DBURI=mongodb://mongo/oam-uploader
-    env_file:
-      - local.env
+    image: oam-api
+    restart: always
     ports:
-      - "4000:4000"
-    depends_on:
-      - mongo
+      - 4000:4000
+
+
