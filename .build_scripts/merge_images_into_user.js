@@ -10,82 +10,69 @@ var User = require('../models/user');
 var Conn = require('../services/db');
 var dbWrapper = new Conn();
 
-var imagery_email = process.argv[2];
-var user_email = process.argv[3];
-var confirm = process.argv[4] === "confirm";
+var imageryEmail = process.argv[2];
+var userEmail = process.argv[3];
+var confirm = process.argv[4] === 'confirm';
 
-if (!user_email) {
-  console.log('');
-  console.log('Usage: ./merge_images_into_user.js [image owner email] [user email] [OPTIONAL: confirm]');
-  process.exit();
+if (!userEmail) {
+  throw new Error('Must include [user email] argument');
 }
-
-console.log('');
 
 if (confirm) {
-  console.log("This is NOT a dry run.");
+  console.log('This is NOT a dry run.');
 } else {
-  console.log("This is a dry run. No database changes will be made. Use 'confirm' to make changes.");
+  console.log('This is a dry run. No database changes will be made.' +
+              ' Use "confirm" to make changes.');
 }
-console.log('');
 
 dbWrapper.start(search);
 
-function search() {
-  Meta.find({
-    contact: new RegExp(imagery_email, "i")
-  }, function(err, images) {
-    console.log('');
-    if (err) {
-      console.error(err);
-      process.exit();
-    }
-    if (images.length === 0) {
-      console.log('No imagery found for ' + imagery_email);
-      process.exit();
-    } else {
-      console.log(images.length + ' images associated with ' + imagery_email + ':');
-      images.forEach(function(image) {
-        console.log(image.properties.thumbnail);
-      });
-      User.find({
-        contact_email: new RegExp(user_email, "i")
-      }, function(err, users) {
-        console.log('');
-        if (err) {
-          console.error(err);
-          process.exit();
-        }
-        if (users.length === 0) {
-          console.log('No users found matching ' + user_email);
-          process.exit();
-        }
-        if (users.length > 1) {
-          console.log('Multiple users found matching ' + user_email);
-          process.exit();
-        }
-        if (users.length === 1) {
-          console.log('The following user matches the email: ' + users[0].name);
-          console.log(users[0].website);
-          console.log(users[0].bio);
-          console.log('');
-          if (confirm) {
-            console.log('Merging images ...');
-            merge(images, users[0]);
-          } else {
-            console.log('Run the command again with "confirm" as the last argument to merge');
-          }
-          console.log('');
-          process.exit();
-        }
-      });
-    }
-  });
+function search () {
+  const imagesPromise = Meta.find({ contact: new RegExp(imageryEmail, 'i') });
+  const usersPromise = User.find({ contact_email: new RegExp(userEmail, 'i') });
+  Promise.all([imagesPromise, usersPromise])
+    .then(function (values) {
+      const images = values[0];
+      const users = values[1];
+
+      if (images.length === 0) {
+        throw new Error('No imagery found for ' + imageryEmail);
+      }
+      if (users.length === 0) {
+        throw new Error('No users found matching ' + userEmail);
+      }
+      if (users.length > 1) {
+        throw new Error('Multiple users found matching ' + userEmail);
+      }
+      console.log(images.length + ' images associated with ' + imageryEmail);
+
+      const user = users[0];
+      console.log('The following user matches the email: ' + user.name);
+
+      if (confirm) {
+        console.log('Merging images ...');
+        images.forEach(function (image) {
+          user.images.addToSet(image);
+        });
+        const savePromises = images.map(function (image) {
+          image.user = user;
+          return image.save();
+        });
+        savePromises.push(user.save());
+        return Promise.all(savePromises);
+      } else {
+        console.log('Run the command again with "confirm" as the last argument');
+        dbWrapper.close();
+      }
+    })
+    .then(function (values) {
+      const user = values[values.length - 1];
+      console.log(values.length - 1 + ' Images merged for ' + user.name);
+      dbWrapper.close();
+    })
+    .catch(function (error) {
+      console.log(error.message);
+      dbWrapper.close();
+    });
 }
 
-function merge (images, user) {
-  images.forEach(function (image){
-    image.user_id = user._id;
-    image.save();
-  });
-}
