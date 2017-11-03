@@ -2,10 +2,14 @@
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const chai = require('chai');
+const jwt = require('jsonwebtoken');
 const User = require('../../models/user');
+const config = require('../../config');
 
 const expect = chai.expect;
 chai.use(sinonChai);
+const sandbox = sinon.sandbox.create();
+
 const facebookCredentials = {
   profile: {
     id: 0,
@@ -15,6 +19,9 @@ const facebookCredentials = {
 };
 
 describe('User', () => {
+  afterEach(() => {
+    sandbox.restore();
+  });
   it('should be invalid if name is empty', () => {
     const user = new User();
     user.validate().then((error) => {
@@ -23,12 +30,11 @@ describe('User', () => {
   });
 
   it('jwtLogin should find existing user with facebook_id', () => {
-    const findOne = sinon.stub(User, 'findOne').returns(Promise.resolve({}));
+    const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve({}));
 
     User.jwtLogin(facebookCredentials).then((token) => {
       expect(findOne).to.have.been
         .calledWith({ facebook_id: facebookCredentials.profile.id });
-      findOne.restore();
     });
   });
 
@@ -39,13 +45,22 @@ describe('User', () => {
       contact_email: facebookCredentials.profile.email
     };
 
-    sinon.stub(User, 'findOne').returns(Promise.resolve(null));
+    sandbox.stub(User, 'findOne').returns(Promise.resolve(null));
     const create = sinon.stub(User, 'create')
       .returns(Promise.resolve({ _id: 'id', name: 'name' }));
 
     User.jwtLogin(facebookCredentials).then((token) => {
       expect(create).to.have.been
         .calledWith(createUser);
+    });
+  });
+
+  it('jwtLogin should return promise with valid JWT token', () => {
+    const user = { profile: { _id: 'id', name: 'name' } };
+    sandbox.stub(User, 'findOne').returns(Promise.resolve(user));
+    User.jwtLogin(facebookCredentials).then((token) => {
+      const decoded = jwt.verify(token, config.jwtSecret);
+      expect(decoded.id).to.equal(user._id);
     });
   });
 });
