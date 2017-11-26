@@ -29,10 +29,8 @@ services:
       - FACEBOOK_APP_ID
       - FACEBOOK_APP_SECRET
 
-    # Make container's localhost the same as host's localhost.
-    # So the DB should either be on the host or remote, not in a
-    # docker container.
-    network_mode: "host"
+    ports:
+      - 4000:4000
 
     # Mounts the host code live into the container so you don't need
     # to rebuild the container everytime. Disable with APP_FROM=container

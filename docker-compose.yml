@@ -1,11 +1,71 @@
 version: '2'
 services:
   app:
+    environment:
+      - DB_URI=mongodb://mongo/oam-api
     env_file: .env
-    build: .
-    image: oam-api
-    restart: always
+    build:
+      context: .
+      args:
+        - NODE_ENV=development
+    command: "false"
+  api:
+    extends: app
+    command: nodemon index.js
+    depends_on:
+      - mongo
+    links:
+      - mongo
     ports:
       - 4000:4000
-
-
+    volumes:
+      - ./bin:/app/bin
+      - ./controllers:/app/controllers
+      - ./models:/app/models
+      - ./plugins:/app/plugins
+      - ./routes:/app/routes
+      - ./services:/app/services
+      - ./test:/app/test
+      - ./catalog-worker.js:/app/catalog-worker.js
+      - ./config.js:/app/config.js
+      - ./index.js:/app/index.js
+      - ./newrelic.js:/app/newrelic.js
+      - ./package.json:/app/package.json
+  worker:
+    extends: app
+    environment:
+      - OIN_REGISTER_URL=http://register:8080/fixtures/oin-buckets.json
+    command: nodemon catalog-worker.js
+    depends_on:
+      - mongo
+      - register
+    links:
+      - mongo
+      - register
+    volumes:
+      - ./bin:/app/bin
+      - ./controllers:/app/controllers
+      - ./models:/app/models
+      - ./plugins:/app/plugins
+      - ./routes:/app/routes
+      - ./services:/app/services
+      - ./test:/app/test
+      - ./catalog-worker.js:/app/catalog-worker.js
+      - ./config.js:/app/config.js
+      - ./index.js:/app/index.js
+      - ./newrelic.js:/app/newrelic.js
+      - ./package.json:/app/package.json
+  register:
+    build:
+      context: .
+      args:
+        - NODE_ENV=development
+    command: http-server test/
+    ports:
+      - 8080:8080
+    volumes:
+      - ./test:/app/test
+  mongo:
+    image: mongo:3
+    logging:
+      driver: none
