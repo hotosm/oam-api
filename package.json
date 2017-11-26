@@ -12,8 +12,8 @@
     "type": "git",
     "url": "https://github.com/hotosm/oam-catalog.git"
   },
-  "author": "Humanitarian Open Street Map Team",
-  "license": "BSD 3-Clause",
+  "author": "Humanitarian OpenStreetMap Team",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/hotosm/oam-catalog/issues"
   },
