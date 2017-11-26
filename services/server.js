@@ -43,7 +43,6 @@ Server.prototype.start = function (cb) {
   self.hapi.connection({ port: self.port });
 
   self.hapi.register([
-    { register: require('../plugins/workers') },
     { register: require('../plugins/authentication') },
     {
       register: require('hapi-router'),
@@ -74,7 +73,6 @@ Server.prototype.start = function (cb) {
       'Server (' + process.env.NODE_ENV + ') running at:',
       self.hapi.info.uri
     );
-    self.hapi.plugins.workers.spawn();
     if (cb) {
       cb();
     }

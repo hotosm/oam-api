@@ -55,6 +55,32 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+  transcoder:
+    environment:
+      - DB_URI=mongodb://mongo/oam-api
+    env_file: .env
+    build:
+      context: .
+      args:
+        - NODE_ENV=development
+    command: nodemon bin/transcoder.js
+    depends_on:
+      - mongo
+    links:
+      - mongo
+    volumes:
+      - ./bin:/app/bin
+      - ./controllers:/app/controllers
+      - ./models:/app/models
+      - ./plugins:/app/plugins
+      - ./routes:/app/routes
+      - ./services:/app/services
+      - ./test:/app/test
+      - ./catalog-worker.js:/app/catalog-worker.js
+      - ./config.js:/app/config.js
+      - ./index.js:/app/index.js
+      - ./newrelic.js:/app/newrelic.js
+      - ./package.json:/app/package.json
   register:
     build:
       context: .

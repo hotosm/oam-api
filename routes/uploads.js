@@ -1,14 +1,19 @@
 'use strict';
 
+var bbox = require('@turf/bbox');
+var envelope = require('@turf/envelope');
+var getGeom = require('@turf/invariant').getGeom;
 var db = require('mongoose').connection;
 var ObjectID = require('mongodb').ObjectID;
 var queue = require('queue-async');
 var Boom = require('boom');
 var Joi = require('joi');
 var S3 = require('aws-sdk/clients/s3');
+var wellknown = require('wellknown');
 
 var Meta = require('../models/meta');
 var config = require('../config');
+var transcoder = require('../services/transcoder');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
 
@@ -24,13 +29,25 @@ function insertImages (db, scene, userID, callback) {
       url: url,
       status: 'initial',
       user_id: userID,
-      messages: []
+      messages: [],
+      metadata: {
+        acquisition_end: scene.acquisition_end,
+        acquisition_start: scene.acquisition_start,
+        contact: `${scene.contact.name},${scene.contact.email}`,
+        platform: scene.platform,
+        provider: scene.provider,
+        properties: {
+          license: scene.license,
+          sensor: scene.sensor
+        },
+        title: scene.title
+      }
     };
   }), callback);
 
   // replace the urls list with a list of _id's
+  // NOTE this causes side-effects
   scene.images = imageIds;
-  delete scene.urls;
 }
 
 function includeImages (db, scene, callback) {
@@ -144,6 +161,120 @@ module.exports = [
   },
 
   /**
+   * @api {post} /uploads/:id/:sceneIdx/:imageId Update imagery metadata
+   * @apiGroup uploads
+   * @apiParam {String} id The id of the upload
+   * @apiUse uploadStatusSuccess
+   */
+  {
+    method: 'POST',
+    path: '/uploads/{id}/{sceneIdx}/{imageId}',
+    config: {
+      payload: {
+        allow: 'application/json',
+        output: 'data',
+        parse: true
+      }
+    },
+    handler: function (request, reply) {
+      if (!ObjectID.isValid(request.params.id)) {
+        return reply(Boom.badRequest('Invalid upload id: ' + request.params.id));
+      }
+
+      if (!ObjectID.isValid(request.params.imageId)) {
+        return reply(Boom.badRequest('Invalid image id: ' + request.params.imageId));
+      }
+
+      var imageId = new ObjectID(request.params.imageId);
+
+      return db.collection('images').findOne({
+        _id: imageId
+      })
+        .then(image => {
+          if (request.payload.status === 'failed') {
+            return db.collection('images').updateOne({
+              _id: imageId
+            }, {
+              $set: {
+                status: 'errored'
+              },
+              $currentDate: {
+                stoppedAt: true
+              },
+              $push: {
+                messages: request.payload.message
+              }
+            })
+              .then(() => reply());
+          }
+
+          if (request.payload.status === 'processing') {
+            return db.collection('images').updateOne({
+              _id: imageId
+            }, {
+              $set: {
+                status: 'processing'
+              },
+              $currentDate: {
+                startedAt: true
+              }
+            })
+              .then(() => reply());
+          }
+
+          if (request.payload.message != null) {
+            return db.collection('images').updateOne({
+              _id: imageId
+            }, {
+              $push: {
+                messages: request.payload.message
+              }
+            })
+              .then(() => reply());
+          }
+
+          var meta = image.metadata;
+          meta.uuid = request.payload.properties.url;
+          meta.geojson = getGeom(request.payload);
+          meta.geojson.bbox = bbox(meta.geojson);
+          meta.bbox = meta.geojson.bbox;
+          meta.footprint = wellknown.stringify(envelope(meta.geojson));
+          meta.gsd = request.payload.properties.resolution_in_meters;
+          meta.file_size = request.payload.properties.size;
+          meta.projection = request.payload.properties.projection;
+          meta.meta_uri = meta.uuid.replace(/\.tif$/, '_meta.json');
+          meta.uploaded_at = new Date();
+          meta.properties = Object.assign(meta.properties, request.payload.properties);
+          meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.scesceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
+          meta.properties.wtms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.scesceneIdx}/${request.params.imageId}/wmts`;
+
+          // remove duplicated properties
+          delete meta.properties.projection;
+          delete meta.properties.size;
+
+          return Promise.all([
+            db.collection('images').updateOne({
+              _id: imageId
+            }, {
+              $set: {
+                status: 'finished',
+                metadata: meta
+              },
+              $currentDate: {
+                stoppedAt: true
+              }
+            }),
+            Meta.create(meta)
+              // write metadata
+              .then(obj => obj.oamSync())
+          ])
+            .then(reply);
+        })
+        .catch(err => reply(Boom.wrap(err)));
+    }
+  },
+
+  /**
    * @api {post} /uploads Add an upload to the queue
    * @apiGroup uploads
    * @apiPermission Token
@@ -219,7 +350,7 @@ module.exports = [
         // more easily used as a task queue for the worker(s)
         var q = queue();
         data.scenes.forEach(function (scene) {
-          if (typeof scene.contact === 'undefined' || scene.contact === null) {
+          if (scene.contact == null) {
             scene.contact = {
               name: request.auth.credentials.name,
               email: request.auth.credentials.contact_email
@@ -244,12 +375,23 @@ module.exports = [
                 if (err) { request.log(['error', 'email'], err.message); }
                 if (json) { request.log(['debug', 'email'], json); }
               });
-              return request.server.plugins.workers.spawn()
-              .then(function () {
-                reply({ upload: data._id });
+
+              var promises = [];
+
+              data.scenes.forEach((scene, idx) => {
+                scene.images.forEach((imageId, i) => {
+                  var key = [data._id, idx, imageId].join('/');
+                  // fetch the source URL out of the mangled scene object
+                  var sourceUrl = scene.urls[i];
+
+                  promises.push(transcoder.queueImage(scene, sourceUrl, key, `${config.apiEndpoint}/uploads/${data._id}/${idx}/${imageId}`));
+                });
               });
+
+              return Promise.all(promises)
+                .then(() => reply({ upload: data._id }));
             })
-          .catch(function (err) { reply(Boom.wrap(err)); });
+            .catch(function (err) { reply(Boom.wrap(err)); });
         });
       });
     }
