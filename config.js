@@ -65,10 +65,7 @@ const config = {
   // the entrypoint for using the Dynamic Tiler to serve imagery.
   tilerBaseUrl: process.env.TILER_BASE_URL,
 
-  // Maximum number of workers.
-  maxWorkers: process.env.MAX_WORKERS,
-
-  // AWS credendtials
+  // AWS credentials
   awsKey: process.env.AWS_ACCESS_KEY_ID,
   awsSecret: process.env.AWS_SECRET_ACCESS_KEY,
   awsRegion: process.env.AWS_REGION,
