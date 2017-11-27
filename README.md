@@ -86,6 +86,74 @@ These test the actual interaction of the API against real imagery uploads to Ama
 **End-to-end browser tests**, see https://github.com/hotosm/oam-browser    
 The frontend code is pinned against a specific version of this API, so it is necessary to ensure that this pinning is still reliable and also, if the version here is bumped, to note if that new version is compatible (if not then the frontend will need updating). These tests require the frontend code itself, generally you will not need to run them locally, they will be run by Travis on every commit to Github.
 
+## Transcoding using AWS Batch
+
+[AWS Batch](https://aws.amazon.com/batch/) can be used for transcoding; this enables use of elastic resources to process large quantities of imagery without requiring the API to run on an instance scaled for imagery ingestion. To enable it, set the following environment variables:
+
+```bash
+USE_BATCH=true
+# Job Definition name
+AWS_BATCH_JD_NAME=oam-transcode
+# Job Queue name
+AWS_BATCH_JQ_NAME=oam-transcoding
+```
+
+Configuring Batch is out of scope for this document, although a sample job definition looks like this:
+
+```json
+{
+    "jobDefinitionName": "oam-transcode",
+    "type": "container",
+    "parameters": {},
+    "retryStrategy": {
+        "attempts": 2
+    },
+    "containerProperties": {
+        "image": "quay.io/mojodna/marblecutter-tools",
+        "vcpus": 1,
+        "memory": 3000,
+        "command": [
+            "process.sh",
+            "Ref::input",
+            "Ref::output",
+            "Ref::callback_url"
+        ],
+        "jobRoleArn": "arn:aws:iam::<redacted>:role/oam-transcoder",
+        "volumes": [],
+        "environment": [
+            {
+                "name": "EFS_HOST",
+                "value": "<redacted>.efs.us-east-1.amazonaws.com"
+            }
+        ],
+        "mountPoints": [],
+        "privileged": true,
+        "ulimits": []
+    }
+}
+```
+
+In this sample, an [Amazon Elastic File System (EFS)](https://aws.amazon.com/efs/) volume is mapped into the container through the `EFS_HOST` environment variable. This allows Batch jobs to handle imagery that outstrips available temporary storage on underlying instances (22GB at this writing, shared between all running tasks). If you expect to transcode smaller imagery (or don't need to support concurrent large uploads), this can be omitted.
+
+The `oam-transcoder` role needs to have been created ahead of time with appropriate access to both the upload (`UPLOAD_BUCKET`) and storage (`OIN_BUCKET`) buckets.
+
+The user / role used when running the API itself (typically an instance role if running on AWS) requires permission to submit Batch jobs, specified as:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "batch:SubmitJob"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
 ## Contributing
 
 Contributions are very welcome. Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
