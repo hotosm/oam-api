@@ -2,7 +2,9 @@ version: '2'
 services:
   app:
     environment:
+      - API_ENDPOINT=http://api:4000
       - DB_URI=mongodb://mongo/oam-api
+      - S3_PUBLIC_DOMAIN=s3.amazonaws.com
     env_file: .env
     build:
       context: .
@@ -11,6 +13,10 @@ services:
     command: "false"
   api:
     extends: app
+    environment:
+      - PORT=4000
+      - HOST_TLD=localhost
+      - COOKIE_PASSWORD=12345678901234567890123456789012
     command: nodemon index.js
     depends_on:
       - mongo

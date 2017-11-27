@@ -33,6 +33,46 @@ The API can be started with: `node index.js`
 
 And the background OIN indexer can be run with: `node catalog-worker.js`
 
+## Development Using Docker
+
+To start a self-contained development instance using Docker Compose, run:
+
+```bash
+docker-compose up
+```
+
+This will download Docker image dependencies and install code for this project into a set of containers.
+
+Once it has started, connect to `http://localhost:4000` to access the API.
+
+The MongoDB command line interface can be run within its container like so: `docker-compose exec mongo mongo`
+
+The following environment variables should be set (probably in `.env`; see `sample.env` for defaults and additional information):
+
+```bash
+# AWS credentials for writing to S3
+AWS_ACCESS_KEY_ID=<redacted>
+AWS_SECRET_ACCESS_KEY=<redacted>
+AWS_REGION=us-east-1
+
+# Social login
+FACEBOOK_APP_ID=<redacted>
+FACEBOOK_APP_SECRET=<redacted>
+GOOGLE_CLIENT_ID=<redacted>
+GOOGLE_CLIENT_SECRET=<redacted>
+
+# S3 resources
+OIN_BUCKET=<redacted>
+OIN_BUCKET_PREFIX=<optional>
+UPLOAD_BUCKET=<redacted>
+```
+
+If Docker does not bind / forward ports to `localhost`, set `HOST_TLD` to the Docker hostname and use that to access the API.
+
+To specify a bucket for indexing, modify `test/fixtures/oin-buckets.json`.
+
+If you find that additional environment variables are needed, please submit a pull request!
+
 ## Testing
 
 There are 3 test suites:
