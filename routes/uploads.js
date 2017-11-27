@@ -238,7 +238,7 @@ module.exports = [
           }
 
           var meta = image.metadata;
-          meta.uuid = request.payload.properties.url;
+          meta.uuid = request.payload.properties.url.replace(/^s3:\/\/([^\/]+)\//, "https://$1.s3.amazonaws.com/");
           meta.geojson = getGeom(request.payload);
           meta.geojson.bbox = bbox(meta.geojson);
           meta.bbox = meta.geojson.bbox;
@@ -249,6 +249,7 @@ module.exports = [
           meta.meta_uri = meta.uuid.replace(/\.tif$/, '_meta.json');
           meta.uploaded_at = new Date();
           meta.properties = Object.assign(meta.properties, request.payload.properties);
+          meta.properties.thumbnail = meta.properties.thumbnail.replace(/^s3:\/\/([^\/]+)\//, "https://$1.s3.amazonaws.com/");
           meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
           meta.properties.wtms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
 
