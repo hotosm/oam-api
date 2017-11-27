@@ -249,8 +249,8 @@ module.exports = [
           meta.meta_uri = meta.uuid.replace(/\.tif$/, '_meta.json');
           meta.uploaded_at = new Date();
           meta.properties = Object.assign(meta.properties, request.payload.properties);
-          meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.scesceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
-          meta.properties.wtms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.scesceneIdx}/${request.params.imageId}/wmts`;
+          meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
+          meta.properties.wtms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
 
           // remove duplicated properties
           delete meta.properties.projection;
