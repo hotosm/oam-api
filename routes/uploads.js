@@ -238,6 +238,7 @@ module.exports = [
           }
 
           var meta = image.metadata;
+          meta.user = image.user_id;
           meta.uuid = request.payload.properties.url.replace(/^s3:\/\/([^/]+)\//, `https://$1.${config.s3PublicDomain}/`);
           meta.geojson = getGeom(request.payload);
           meta.geojson.bbox = bbox(meta.geojson);
