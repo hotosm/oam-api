@@ -4,6 +4,11 @@
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
+    "@mapbox/sphericalmercator": {
+      "version": "1.0.5",
+      "resolved": "https://registry.npmjs.org/@mapbox/sphericalmercator/-/sphericalmercator-1.0.5.tgz",
+      "integrity": "sha1-cCN7l3QJXtHP286nqP0fyCsmkfI="
+    },
     "@turf/bbox": {
       "version": "4.7.3",
       "resolved": "https://registry.npmjs.org/@turf/bbox/-/bbox-4.7.3.tgz",

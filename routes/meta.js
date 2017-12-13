@@ -1,6 +1,8 @@
 'use strict';
 
+var bboxPolygon = require('turf-bbox-polygon');
 var Boom = require('boom');
+var merc = new (require('@mapbox/sphericalmercator'))();
 
 var Meta = require('../models/meta');
 var metaController = require('../controllers/meta.js');
@@ -82,6 +84,146 @@ module.exports = [
           return reply(Boom.badImplementation(err.message));
         }
         return reply(record);
+      });
+    }
+  },
+  {
+    method: 'GET',
+    path: '/meta/{_id}/tilejson.json',
+    handler: (request, reply) => {
+      const { _id } = request.params;
+
+      return Meta.findOne({ _id }, (err, meta) => {
+        if (err) {
+          console.error(err);
+          return reply(Boom.badImplementation(err.message));
+        }
+
+        console.log(meta);
+
+        const approximateZoom = Math.ceil(Math.log2(2 * Math.PI * 6378137 / (meta.gsd * 256)));
+
+        const response = reply({
+          name: meta.title,
+          bounds: meta.bbox,
+          center: [
+            (meta.bbox[0] + meta.bbox[2]) / 2,
+            (meta.bbox[1] + meta.bbox[3]) / 2,
+            approximateZoom - 3
+          ],
+          maxzoom: approximateZoom + 3,
+          minzoom: approximateZoom - 10
+        });
+
+        response.plugins.paginate = false;
+        response.plugins['response-meta'] = false;
+
+        return response;
+      });
+    }
+  },
+  {
+    method: 'GET',
+    path: '/meta/{_id}/{z}/{x}/{y}.json',
+    handler: (request, reply) => {
+      const { _id, z, x, y } = request.params;
+
+      const bbox = merc.bbox(x, y, z);
+      const { geometry } = bboxPolygon(bbox);
+
+      return Meta.findOne({
+        _id,
+        geojson: {
+          $geoIntersects: {
+            $geometry: geometry
+          }
+        }
+      }, (err, meta) => {
+        if (err) {
+          console.error(err);
+          return reply(Boom.badImplementation(err.message));
+        }
+
+        if (meta == null) {
+          return reply(Boom.notFound());
+        }
+
+        const response = reply([{
+          url: meta.uuid,
+          name: meta.title,
+          resolution: meta.gsd,
+          recipes: {
+            imagery: true
+          },
+          acquired_at: meta.acquisition_end
+        }]);
+
+        response.plugins.paginate = false;
+        response.plugins['response-meta'] = false;
+
+        return response;
+      });
+    }
+  },
+  {
+    method: 'GET',
+    path: '/meta/global/tilejson.json',
+    handler: (request, reply) => {
+      const response = reply({
+        name: 'OpenAerialMap',
+        bounds: [
+          -180,
+          -85.05112877980659,
+          180,
+          85.0511287798066
+        ],
+        center: [0, 0, 2],
+        maxzoom: 30,
+        minzoom: 0
+      });
+
+      response.plugins.paginate = false;
+      response.plugins['response-meta'] = false;
+
+      return response;
+    }
+  },
+  {
+    method: 'GET',
+    path: '/meta/global/{z}/{x}/{y}.json',
+    handler: (request, reply) => {
+      const { z, x, y } = request.params;
+
+      const bbox = merc.bbox(x, y, z);
+      const { geometry } = bboxPolygon(bbox);
+
+      // TODO sort
+      return Meta.find({
+        geojson: {
+          $geoIntersects: {
+            $geometry: geometry
+          }
+        }
+      }, (err, results) => {
+        if (err) {
+          console.error(err);
+          return reply(Boom.badImplementation(err.message));
+        }
+
+        const response = reply(results.map(meta => ({
+          url: meta.uuid,
+          name: meta.title,
+          resolution: meta.gsd,
+          recipes: {
+            imagery: true
+          },
+          acquired_at: meta.acquisition_end
+        })));
+
+        response.plugins.paginate = false;
+        response.plugins['response-meta'] = false;
+
+        return response;
       });
     }
   },
