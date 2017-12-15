@@ -115,6 +115,7 @@ module.exports = class S3Sync {
   }
 
   uploadMeta (metadata) {
+    this.s3Params.Key = this.s3Key;
     return new Promise((resolve, reject) => {
       console.info(`Uploading metadata file: ${this.s3Params.Key}`);
       this.s3Params.Body = Buffer.from(metadata, 'utf8');

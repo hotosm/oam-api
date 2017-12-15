@@ -27,8 +27,8 @@ describe('Imagery CRUD', function () {
 
     expect(prereqs.image.title).to.eq(prereqs.title);
     expect(prereqs.image.properties.license).to.eq('CC-BY');
-    expect(prereqs.image.projection).to.include('GEOGCS');
-    expect(prereqs.image.gsd).to.eq(3174.010571326463);
+    // expect(prereqs.image.projection).to.include('GEOGCS');
+    expect(prereqs.image.gsd).to.eq(3706.49755482);
     expect(prereqs.image.bbox).to.deep.eq([129, 29, 146, 54]);
 
     // TODO: Fetch these and check they're good too

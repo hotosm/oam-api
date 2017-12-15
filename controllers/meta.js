@@ -134,7 +134,7 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
     // if the meta file doesn't exist then add, if the meta file is more recent
     // than our last update, then update
-    if (meta === null || lastModified > lastSystemUpdate) {
+    if (meta == null || lastModified > lastSystemUpdate) {
       return request({
         json: true,
         uri: remoteUri
@@ -142,6 +142,10 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
         if (err) {
           return cb(err);
         }
+
+        // clean up metadata that conflicts with Mongo in the staging bucket
+        delete payload.__v;
+        delete payload._id;
 
         if (response.statusCode === 200 && payload != null) {
           if (payload.uuid == null) {
@@ -154,8 +158,10 @@ module.exports.addRemoteMeta = function (remoteUri, lastModified, lastSystemUpda
 
           // create a geojson object from footprint and bbox
           // TODO: Put in a Mongoose middleware hook
-          payload.geojson = parse(payload.footprint);
-          payload.geojson.bbox = payload.bbox;
+          if (payload.footprint != null && payload.geojson == null) {
+            payload.geojson = parse(payload.footprint);
+            payload.geojson.bbox = payload.bbox;
+          }
 
           var query = { uuid: payload.uuid };
           var options = { upsert: true, new: true, select: { uuid: 1 } };
