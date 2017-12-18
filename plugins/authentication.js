@@ -8,7 +8,8 @@ var Authentication = {
     server.register([
       { register: require('hapi-auth-cookie') },
       // Various OAuth login strategies
-      { register: require('bell') }
+      { register: require('bell') },
+      { register: require('hapi-auth-jwt2') }
     ], function (err) {
       if (err) throw err;
 
@@ -41,6 +42,11 @@ var Authentication = {
         isSecure: config.isCookieOverHTTPS
       });
 
+      server.auth.strategy('jwt', 'jwt', {
+        key: config.jwtSecret,
+        validateFunc: (decoded, request, callback) => callback(null, true),
+        verifyOptions: { algorithms: [ 'HS256' ] }
+      });
       next();
     });
   }
