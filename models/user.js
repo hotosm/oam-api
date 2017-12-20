@@ -23,7 +23,6 @@ var userSchema = mongoose.Schema({
 
 userSchema.statics = {
   jwtLogin: function (credentials) {
-    console.log('test');
     return this.findOne({
       facebook_id: credentials.profile.id
     })

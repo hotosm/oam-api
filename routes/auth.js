@@ -19,6 +19,16 @@ function oauthHandler (request, reply) {
   });
 }
 
+function jwtHandler (request, reply) {
+  User.jwtLogin(request.auth.credentials).then((token) => {
+    const messageResponse = `<html><script type="text/javascript">window.opener.postMessage({"token": "${token}"}, '*')</script></html>`;
+    const response = reply(messageResponse).type('text/html');
+    response.plugins.paginate = false;
+    response.plugins['response-meta'] = false;
+    return response;
+  });
+}
+
 module.exports = [
   {
     method: ['GET', 'POST'],
@@ -37,7 +47,14 @@ module.exports = [
       handler: oauthHandler
     }
   },
-
+  {
+    method: 'GET',
+    path: '/oauth/jwtfacebook',
+    config: {
+      auth: 'facebook',
+      handler: jwtHandler
+    }
+  },
   {
     method: 'GET',
     path: '/logout',

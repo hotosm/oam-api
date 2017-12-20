@@ -9,6 +9,11 @@ var responseMeta = {
     var results = options.results || 'results';
 
     server.ext('onPreResponse', function (request, reply) {
+      if (request.response.plugins != null && !request.response.plugins.paginate) {
+        // skip processing by this plugin
+        return reply.continue();
+      }
+
       if (_.has(request.response.source, name)) {
         request.response.source[name] = _.merge(request.response.source[name], content);
       } else {

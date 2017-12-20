@@ -33,6 +33,11 @@ var pagination = {
     });
 
     server.ext('onPreResponse', function (request, reply) {
+      if (request.response.plugins != null && !request.response.plugins.paginate) {
+        // skip processing by this plugin
+        return reply.continue();
+      }
+
       var meta = {
         page: requestPage,
         limit: requestLimit
