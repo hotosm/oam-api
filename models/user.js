@@ -41,7 +41,8 @@ userSchema.statics = {
       const userJWT = jwt.sign(
         {
           id: user._id,
-          name: user.name
+          name: user.name,
+          contact_email: user.contact_email
         },
         config.jwtSecret,
         { algorithm: 'HS256',

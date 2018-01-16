@@ -401,6 +401,44 @@ module.exports = [
         });
       });
     }
+  },
+  {
+    method: 'POST',
+    path: '/dronedeploy',
+    config: {
+      auth: 'jwt',
+      payload: {
+        allow: 'application/json',
+        output: 'data',
+        parse: true
+      }
+    },
+    handler: function (request, reply) {
+      const {
+        acquisition_start,
+        acquisition_end,
+        sensor,
+        provider,
+        tags,
+        title
+      } = request.query;
+
+      const scene = {
+        contact: {
+          name: request.auth.credentials.name,
+          email: request.auth.credentials.contact_email
+        },
+        acquisition_start,
+        acquisition_end,
+        sensor,
+        provider,
+        tags,
+        title,
+        license: 'CC-BY 4.0',
+        platform: 'uav'
+      };
+      return reply(scene);
+    }
   }
 ];
 

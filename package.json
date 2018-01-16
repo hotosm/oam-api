@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "apidoc": "^0.13.1",
+    "build-url": "^1.0.10",
     "chai": "^2.3.0",
     "ecstatic": "^0.8.0",
     "eslint": "^3.10.2",
@@ -76,6 +77,7 @@
     "mocha": "^2.2.4",
     "nodemon": "^1.12.1",
     "omit-deep": "^0.1.2",
+    "proxyquire": "^1.8.0",
     "sinon": "^2.3.7",
     "sinon-chai": "^2.14.0"
   },
