@@ -11,7 +11,7 @@ describe('Uploading image from DroneDeploy', () => {
   beforeEach(() => {
     const uploads = require('../../routes/uploads.js');
     server = new Hapi.Server();
-    server.connection({ port: 3000 });
+    server.connection({ port: 4000 });
     return server.register(authentication).then(() => {
       server.route(uploads);
     });
@@ -41,6 +41,7 @@ describe('Uploading image from DroneDeploy', () => {
       contact_email: 'Test@test.com'
     };
     const payload = {
+      download_path: 'https://s3.com'
     };
     const options = {
       method: 'POST',

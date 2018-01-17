@@ -40,7 +40,7 @@ userSchema.statics = {
     .then((user) => {
       const userJWT = jwt.sign(
         {
-          id: user._id,
+          _id: user._id,
           name: user.name,
           contact_email: user.contact_email
         },
