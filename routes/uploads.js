@@ -19,7 +19,7 @@ var sendgrid = require('sendgrid')(config.sendgridApiKey);
 
 var uploadSchema = Meta.getSceneValidations();
 
-function insertImages (scene, userID) {
+function insertImages (scene, name, email, userID) {
   const images = scene.urls.map((url) => {
     const id = new ObjectID();
     return {
@@ -31,7 +31,7 @@ function insertImages (scene, userID) {
       metadata: {
         acquisition_end: scene.acquisition_end,
         acquisition_start: scene.acquisition_start,
-        contact: `${scene.contact.name},${scene.contact.email}`,
+        contact: `${name},${email}`,
         platform: scene.platform,
         provider: scene.provider,
         properties: {
@@ -342,7 +342,13 @@ module.exports = [
       const { error: validationError } = Joi.validate(request.payload,
                                                       uploadSchema);
       if (!validationError) {
-        processUpload(request.payload, request, reply);
+        return processUpload(request.payload, request, reply)
+        .then((upload) => {
+          return reply(upload);
+        })
+        .catch((err) => {
+          reply(Boom.wrap(err));
+        });
       } else {
         request.log(['info'], validationError);
         reply(Boom.badRequest(validationError));
@@ -419,18 +425,39 @@ function sendEmail (address, uploadId) {
 }
 
 function processUpload (data, request, reply) {
-  const upload = Object.assign({}, data);
-  upload.user = request.auth.credentials._id;
-  upload.createdAt = new Date();
+  const uploadId = new ObjectID();
+  const upload = Object.assign({}, data,
+    {
+      _id: uploadId,
+      user: request.auth.credentials._id,
+      createdAt: new Date()
+    });
 
   const insertImagePromises = upload.scenes.map((scene) => {
-    return insertImages(scene, request.auth.credentials._id);
+    let name, email;
+    if (scene.contact) {
+      name = scene.contact.name;
+      email = scene.contact.email;
+    } else {
+      name = request.auth.credentials.name;
+      email = request.auth.credentials.contact_email;
+    }
+    return insertImages(scene, name, email, request.auth.credentials._id);
   });
+
   const insertImagesAll = Promise.all(insertImagePromises);
-  const uploadPromise = db.collection('uploads').insertOne(upload);
+
+  const uploadPromise = insertImagesAll.then((sceneImageIds) => {
+    const scenes = upload.scenes.map((scene, sceneIndex) => {
+      return Object.assign({}, scene,
+                           { images: sceneImageIds[sceneIndex].slice() });
+    });
+    const uploadWithImages = Object.assign({}, upload, { scenes });
+    return db.collection('uploads').insertOne(uploadWithImages);
+  });
 
   uploadPromise.then(() => {
-    sendEmail(request.auth.credentials.contact_email, upload._id)
+    sendEmail(request.auth.credentials.contact_email, uploadId)
     .then((json) => {
       request.log(['debug', 'email'], json);
     })
@@ -446,11 +473,10 @@ function processUpload (data, request, reply) {
       .reduce((accum, scene, sceneIndex) => {
         const imageIds = sceneImageIds[sceneIndex];
         const queuedImages = imageIds.map((imageId, imageIdIndex) => {
-          const key = [upload._id, sceneIndex, imageId].join('/');
+          const key = [uploadId, sceneIndex, imageId].join('/');
           const sourceUrl = scene.urls[imageIdIndex];
-          //return Promise.resolve(key);
           return transcoder.queueImage(sourceUrl, key,
-          `${config.apiEndpoint}/uploads/${data._id}/${sceneIndex}/${imageId}`);
+            `${config.apiEndpoint}/uploads/${uploadId}/${sceneIndex}/${imageId}`);
         });
         accum.push(...queuedImages);
         return accum;
@@ -459,10 +485,7 @@ function processUpload (data, request, reply) {
     });
 
   return transcoderPromisesAll.then(() => {
-    reply({ upload: upload._id });
-  })
-  .catch((err) => {
-    reply(Boom.wrap(err));
+    return { upload: upload._id };
   });
 }
 /**

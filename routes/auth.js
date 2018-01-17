@@ -52,7 +52,8 @@ module.exports = [
     path: '/oauth/jwtfacebook',
     config: {
       auth: 'facebook',
-      handler: jwtHandler
+      handler: jwtHandler,
+      tags: ['disablePlugins']
     }
   },
   {
