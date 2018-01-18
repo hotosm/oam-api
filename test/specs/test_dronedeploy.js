@@ -149,17 +149,17 @@ describe('Uploading image from DroneDeploy', () => {
     });
   });
 
-  it('Sendgrid callback wrapper rejects with error and forces catch', () => {
-    const options = buildWebhook();
-    const { stubs } = buildStubs();
-    stubs.sendgrid = () => {
-      return { send: sandbox.stub().callsArgWith(1, 'error', null) };
-    };
-    return getServer(stubs)
-    .then((server) => {
-      return server.inject(options).then((res) => {
-        expect(res.result.statusCode).to.equal(500);
-      });
-    });
-  });
+  //it('Sendgrid callback wrapper rejects with error and forces catch', () => {
+    //const options = buildWebhook();
+    //const { stubs } = buildStubs();
+    //stubs.sendgrid = () => {
+      //return { send: sandbox.stub().callsArgWith(1, 'error', null) };
+    //};
+    //return getServer(stubs)
+    //.then((server) => {
+      //return server.inject(options).then((res) => {
+        //expect(res.result.statusCode).to.equal(500);
+      //});
+    //});
+  //});
 });

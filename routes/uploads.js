@@ -461,14 +461,17 @@ function processUpload (data, request, reply) {
     return db.collection('uploads').insertOne(uploadWithImages);
   });
 
-  const sendEmailPromise =
-    sendEmail(request.auth.credentials.contact_email, uploadId)
-    .then((json) => {
-      request.log(['debug', 'email'], json);
-    });
+  //const sendEmailPromise =
+  sendEmail(request.auth.credentials.contact_email, uploadId)
+  .then((json) => {
+    request.log(['debug', 'email'], json);
+  })
+  .catch((error) => {
+    request.log(['error', 'email'], error);
+  });
 
   const transcoderPromisesAll =
-    Promise.all([uploadPromise, insertImagesAll, sendEmailPromise]).then((results) => {
+    Promise.all([uploadPromise, insertImagesAll]).then((results) => {
       const sceneImageIds = results[1];
       const transcoderPromises = upload.scenes
       .reduce((accum, scene, sceneIndex) => {
