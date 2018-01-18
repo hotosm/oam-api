@@ -65,12 +65,16 @@ GOOGLE_CLIENT_SECRET=<redacted>
 OIN_BUCKET=<redacted>
 OIN_BUCKET_PREFIX=<optional>
 UPLOAD_BUCKET=<redacted>
+
+# JWT Secret Key
+JWT_SECRET_KEY=<redacted>
 ```
 
 If Docker does not bind / forward ports to `localhost`, set `HOST_TLD` to the Docker hostname and use that to access the API.
 
 To specify a bucket for indexing, modify `test/fixtures/oin-buckets.json`.
 
+Instructions for generating the JWT signing key can be found [here](https://github.com/dwyl/hapi-auth-jwt2#generating-your-secret-key).
 If you find that additional environment variables are needed, please submit a pull request!
 
 ## Testing

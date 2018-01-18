@@ -461,7 +461,6 @@ function processUpload (data, request, reply) {
     return db.collection('uploads').insertOne(uploadWithImages);
   });
 
-  //const sendEmailPromise =
   sendEmail(request.auth.credentials.contact_email, uploadId)
   .then((json) => {
     request.log(['debug', 'email'], json);
