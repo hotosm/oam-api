@@ -10,14 +10,13 @@ var Boom = require('boom');
 var Joi = require('joi');
 var S3 = require('aws-sdk/clients/s3');
 var wellknown = require('wellknown');
-
 var Meta = require('../models/meta');
 var config = require('../config');
 var transcoder = require('../services/transcoder');
+const metaValidations = require('../models/metaValidations.js');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
-
-var uploadSchema = Meta.getSceneValidations();
+const uploadSchema = metaValidations.getSceneValidations();
 
 function insertImages (scene, name, email, userID) {
   const images = scene.urls.map((url) => {
@@ -344,7 +343,7 @@ module.exports = [
       if (!validationError) {
         return processUpload(request.payload, request, reply)
         .then((upload) => {
-          return reply(upload);
+          reply(upload);
         })
         .catch((err) => {
           reply(Boom.wrap(err));
@@ -397,7 +396,13 @@ module.exports = [
       const { error: validationError } = Joi.validate(data, uploadSchema);
 
       if (!validationError) {
-        processUpload(data, request, reply);
+        return processUpload(data, request, reply)
+          .then((upload) => {
+            reply(upload);
+          })
+          .catch((err) => {
+            reply(Boom.wrap(err));
+          });
       } else {
         request.log(['info'], validationError);
         reply(Boom.badRequest(validationError));
@@ -456,18 +461,14 @@ function processUpload (data, request, reply) {
     return db.collection('uploads').insertOne(uploadWithImages);
   });
 
-  uploadPromise.then(() => {
+  const sendEmailPromise =
     sendEmail(request.auth.credentials.contact_email, uploadId)
     .then((json) => {
       request.log(['debug', 'email'], json);
-    })
-    .catch((err) => {
-      request.log(['error', 'email'], err.message);
     });
-  });
 
   const transcoderPromisesAll =
-    Promise.all([uploadPromise, insertImagesAll]).then((results) => {
+    Promise.all([uploadPromise, insertImagesAll, sendEmailPromise]).then((results) => {
       const sceneImageIds = results[1];
       const transcoderPromises = upload.scenes
       .reduce((accum, scene, sceneIndex) => {
@@ -486,7 +487,7 @@ function processUpload (data, request, reply) {
 
   return transcoderPromisesAll.then(() => {
     return { upload: upload._id };
-  });
+  })
 }
 /**
  * @apiDefine uploadStatusSuccess
