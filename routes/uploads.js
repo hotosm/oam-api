@@ -487,7 +487,7 @@ function processUpload (data, request, reply) {
 
   return transcoderPromisesAll.then(() => {
     return { upload: upload._id };
-  })
+  });
 }
 /**
  * @apiDefine uploadStatusSuccess
