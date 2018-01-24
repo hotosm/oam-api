@@ -46,7 +46,7 @@ userSchema.statics = {
         },
         config.jwtSecret,
         { algorithm: 'HS256',
-          expiresIn: '1h'
+          expiresIn: '24h'
         }
       );
       return userJWT;
