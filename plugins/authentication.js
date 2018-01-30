@@ -1,5 +1,5 @@
 'use strict';
-
+const Bell = require('bell');
 var config = require('../config');
 var User = require('../models/user');
 
@@ -13,9 +13,12 @@ var Authentication = {
     ], function (err) {
       if (err) throw err;
 
+      const facebookCustom = Bell.providers.facebook({
+        fields: 'id,name,email,first_name,last_name,picture.type(small)'
+      });
       // Facebook OAuth login flow
       server.auth.strategy('facebook', 'bell', {
-        provider: 'facebook',
+        provider: facebookCustom,
         password: config.cookiePassword,
         clientId: config.facebookAppId,
         clientSecret: config.facebookAppSecret,

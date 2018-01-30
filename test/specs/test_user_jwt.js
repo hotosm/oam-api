@@ -14,7 +14,14 @@ const facebookCredentials = {
   profile: {
     id: 0,
     displayName: 'displayName',
-    email: 'email@email.org'
+    email: 'email@email.org',
+    raw: {
+      picture: {
+        data: {
+          url: 'url'
+        }
+      }
+    }
   }
 };
 
@@ -42,7 +49,8 @@ describe('User', () => {
     const createUser = {
       facebook_id: facebookCredentials.profile.id,
       name: facebookCredentials.profile.displayName,
-      contact_email: facebookCredentials.profile.email
+      contact_email: facebookCredentials.profile.email,
+      profile_pic_uri: facebookCredentials.profile.raw.picture.data.url
     };
 
     sandbox.stub(User, 'findOne').returns(Promise.resolve(null));

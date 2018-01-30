@@ -33,7 +33,8 @@ userSchema.statics = {
         return this.create({
           facebook_id: credentials.profile.id,
           name: credentials.profile.displayName,
-          contact_email: credentials.profile.email
+          contact_email: credentials.profile.email,
+          profile_pic_uri: credentials.profile.raw.picture.data.url
         });
       }
     })
