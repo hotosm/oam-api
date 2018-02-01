@@ -26,6 +26,18 @@ const facebookCredentials = {
   }
 };
 
+const googleCredentials = {
+  provider: 'google',
+  profile: {
+    id: 1,
+    displayName: 'displayName',
+    email: 'email@email.org',
+    raw: {
+      picture: 'url'
+    }
+  }
+};
+
 describe('User', () => {
   afterEach(() => {
     sandbox.restore();
@@ -46,7 +58,16 @@ describe('User', () => {
     });
   });
 
-  it('jwtLogin should create new user when none is found', () => {
+  it('jwtLogin should find existing user with google_id', () => {
+    const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve({}));
+
+    User.jwtLogin(googleCredentials).then((token) => {
+      expect(findOne).to.have.been
+        .calledWith({ google_id: googleCredentials.profile.id });
+    });
+  });
+
+  it('jwtLogin should create new Facebook user when none is found', () => {
     const createUser = {
       facebook_id: facebookCredentials.profile.id,
       name: facebookCredentials.profile.displayName,
@@ -55,10 +76,28 @@ describe('User', () => {
     };
 
     sandbox.stub(User, 'findOne').returns(Promise.resolve(null));
-    const create = sinon.stub(User, 'create')
+    const create = sandbox.stub(User, 'create')
       .returns(Promise.resolve({ _id: 'id', name: 'name' }));
 
     User.jwtLogin(facebookCredentials).then((token) => {
+      expect(create).to.have.been
+        .calledWith(createUser);
+    });
+  });
+
+  it('jwtLogin should create new Google user when none if found', () => {
+    const createUser = {
+      google_id: googleCredentials.profile.id,
+      name: googleCredentials.profile.displayName,
+      contact_email: googleCredentials.profile.email,
+      profile_pic_uri: googleCredentials.profile.raw.picture
+    };
+
+    sandbox.stub(User, 'findOne').returns(Promise.resolve(null));
+    const create = sandbox.stub(User, 'create')
+      .returns(Promise.resolve({ _id: 'id', name: 'name' }));
+
+    User.jwtLogin(googleCredentials).then((token) => {
       expect(create).to.have.been
         .calledWith(createUser);
     });
