@@ -67,7 +67,7 @@ userSchema.statics = {
   },
 
   login: function (credentials, callback) {
-    if (credentials.provider === 'facebook') {
+    if (credentials.provider === 'custom') {
       this.facebookLogin(credentials, callback);
     } else
     if (credentials.provider === 'google') {
