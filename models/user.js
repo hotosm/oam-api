@@ -23,18 +23,27 @@ var userSchema = mongoose.Schema({
 
 userSchema.statics = {
   jwtLogin: function (credentials) {
+    let idKey;
+    let profilePicUrl;
+    if (credentials.provider === 'custom') {
+      idKey = 'facebook_id';
+      profilePicUrl = credentials.profile.raw.picture.data.url;
+    } else if (credentials.provider === 'google') {
+      idKey = 'google_id';
+      profilePicUrl = credentials.profile.raw.picture;
+    }
     return this.findOne({
-      facebook_id: credentials.profile.id
+      [idKey]: credentials.profile.id
     })
     .then((user) => {
       if (user) {
         return user;
       } else {
         return this.create({
-          facebook_id: credentials.profile.id,
+          [idKey]: credentials.profile.id,
           name: credentials.profile.displayName,
           contact_email: credentials.profile.email,
-          profile_pic_uri: credentials.profile.raw.picture.data.url
+          profile_pic_uri: profilePicUrl
         });
       }
     })

@@ -11,6 +11,7 @@ chai.use(sinonChai);
 const sandbox = sinon.sandbox.create();
 
 const facebookCredentials = {
+  provider: 'custom',
   profile: {
     id: 0,
     displayName: 'displayName',

@@ -56,6 +56,15 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/oauth/jwtgoogle',
+    config: {
+      auth: 'google',
+      handler: jwtHandler,
+      tags: ['disablePlugins']
+    }
+  },
+  {
+    method: 'GET',
     path: '/logout',
     config: {
       auth: 'session'
