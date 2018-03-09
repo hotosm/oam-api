@@ -7,8 +7,13 @@ var responseMeta = {
     var name = options.key || 'meta';
     var content = options.content || {credit: 'response-meta'};
     var results = options.results || 'results';
-
     server.ext('onPreResponse', function (request, reply) {
+      const { tags } = request.route.settings;
+      if (tags && tags.includes('disablePlugins')) {
+        // skip processing by this plugin
+        return reply.continue();
+      }
+
       if (_.has(request.response.source, name)) {
         request.response.source[name] = _.merge(request.response.source[name], content);
       } else {

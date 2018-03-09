@@ -10,20 +10,17 @@ var Boom = require('boom');
 var Joi = require('joi');
 var S3 = require('aws-sdk/clients/s3');
 var wellknown = require('wellknown');
-
 var Meta = require('../models/meta');
 var config = require('../config');
 var transcoder = require('../services/transcoder');
+const metaValidations = require('../models/metaValidations.js');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
+const uploadSchema = metaValidations.getSceneValidations();
 
-var uploadSchema = Meta.getSceneValidations();
-
-function insertImages (db, scene, userID, callback) {
-  var imageIds = [];
-  db.collection('images').insertMany(scene.urls.map(function (url) {
-    var id = new ObjectID();
-    imageIds.push(id);
+function insertImages (scene, name, email, userID) {
+  const images = scene.urls.map((url) => {
+    const id = new ObjectID();
     return {
       _id: id,
       url: url,
@@ -33,7 +30,7 @@ function insertImages (db, scene, userID, callback) {
       metadata: {
         acquisition_end: scene.acquisition_end,
         acquisition_start: scene.acquisition_start,
-        contact: `${scene.contact.name},${scene.contact.email}`,
+        contact: `${name},${email}`,
         platform: scene.platform,
         provider: scene.provider,
         properties: {
@@ -43,11 +40,9 @@ function insertImages (db, scene, userID, callback) {
         title: scene.title
       }
     };
-  }), callback);
-
-  // replace the urls list with a list of _id's
-  // NOTE this causes side-effects
-  scene.images = imageIds;
+  });
+  const imageIds = images.map(image => image._id);
+  return db.collection('images').insertMany(images).then(() => imageIds);
 }
 
 function includeImages (db, scene, callback) {
@@ -343,67 +338,159 @@ module.exports = [
       }
     },
     handler: function (request, reply) {
-      Joi.validate(request.payload, uploadSchema, function (err, data) {
-        if (err) {
-          request.log(['info'], err);
-          return reply(Boom.badRequest(err));
-        }
-
-        data.user = request.auth.credentials._id;
-        data.createdAt = new Date();
-
-        // pull out the actual images into their own collection, so it can be
-        // more easily used as a task queue for the worker(s)
-        var q = queue();
-        data.scenes.forEach(function (scene) {
-          if (scene.contact == null) {
-            scene.contact = {
-              name: request.auth.credentials.name,
-              email: request.auth.credentials.contact_email
-            };
-          }
-          q.defer(insertImages, db, scene, request.auth.credentials._id);
+      const { error: validationError } = Joi.validate(request.payload,
+                                                      uploadSchema);
+      if (!validationError) {
+        return processUpload(request.payload, request, reply)
+        .then((upload) => {
+          reply(upload);
+        })
+        .catch((err) => {
+          reply(Boom.wrap(err));
         });
+      } else {
+        request.log(['info'], validationError);
+        reply(Boom.badRequest(validationError));
+      }
+    }
+  },
+  {
+    method: 'POST',
+    path: '/dronedeploy',
+    config: {
+      auth: 'jwt',
+      payload: {
+        allow: 'application/json',
+        output: 'data',
+        parse: true
+      }
+    },
+    handler: function (request, reply) {
+      const {
+        acquisition_start,
+        acquisition_end,
+        sensor,
+        provider,
+        tags,
+        title
+      } = request.query;
 
-        q.awaitAll(function (err) {
-          if (err) {
-            console.log(err);
-            return reply(Boom.wrap(err));
-          }
-          db.collection('uploads').insertOne(data)
-            .then(function (result) {
-              sendgrid.send({
-                to: request.auth.credentials.contact_email,
-                from: config.sendgridFrom,
-                subject: config.emailNotification.subject,
-                text: config.emailNotification.text.replace('{UPLOAD_ID}', data._id)
-              }, function (err, json) {
-                if (err) { request.log(['error', 'email'], err.message); }
-                if (json) { request.log(['debug', 'email'], json); }
-              });
+      const scene = {
+        contact: {
+          name: request.auth.credentials.name,
+          email: request.auth.credentials.contact_email
+        },
+        acquisition_start,
+        acquisition_end,
+        sensor,
+        provider,
+        tags,
+        title,
+        tms: null,
+        urls: [request.payload.download_path],
+        license: 'CC-BY 4.0',
+        platform: 'uav'
+      };
 
-              var promises = [];
+      const data = { scenes: [scene] };
+      const { error: validationError } = Joi.validate(data, uploadSchema);
 
-              data.scenes.forEach((scene, idx) => {
-                scene.images.forEach((imageId, i) => {
-                  var key = [data._id, idx, imageId].join('/');
-                  // fetch the source URL out of the mangled scene object
-                  var sourceUrl = scene.urls[i];
-
-                  promises.push(transcoder.queueImage(sourceUrl, key, `${config.apiEndpoint}/uploads/${data._id}/${idx}/${imageId}`));
-                });
-              });
-
-              return Promise.all(promises)
-                .then(() => reply({ upload: data._id }));
-            })
-            .catch(function (err) { reply(Boom.wrap(err)); });
-        });
-      });
+      if (!validationError) {
+        return processUpload(data, request, reply)
+          .then((upload) => {
+            reply(upload);
+          })
+          .catch((err) => {
+            reply(Boom.wrap(err));
+          });
+      } else {
+        request.log(['info'], validationError);
+        reply(Boom.badRequest(validationError));
+      }
     }
   }
 ];
 
+function sendEmail (address, uploadId) {
+  return new Promise((resolve, reject) => {
+    const message = {
+      to: address,
+      from: config.sendgridFrom,
+      subject: config.emailNotification.subject,
+      text: config.emailNotification.text.replace('{UPLOAD_ID}', uploadId)
+    };
+    sendgrid.send(message, (err, json) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(json);
+      }
+    });
+  });
+}
+
+function processUpload (data, request, reply) {
+  const uploadId = new ObjectID();
+  const upload = Object.assign({}, data,
+    {
+      _id: uploadId,
+      user: request.auth.credentials._id,
+      createdAt: new Date()
+    });
+
+  const insertImagePromises = upload.scenes.map((scene) => {
+    let name, email;
+    if (scene.contact) {
+      name = scene.contact.name;
+      email = scene.contact.email;
+    } else {
+      name = request.auth.credentials.name;
+      email = request.auth.credentials.contact_email;
+    }
+    return insertImages(scene, name, email, request.auth.credentials._id);
+  });
+
+  const insertImagesAll = Promise.all(insertImagePromises);
+
+  const uploadPromise = insertImagesAll.then((sceneImageIds) => {
+    const scenes = upload.scenes.map((scene, sceneIndex) => {
+      return Object.assign({}, scene,
+                           { images: sceneImageIds[sceneIndex].slice() });
+    });
+    const uploadWithImages = Object.assign({}, upload, { scenes });
+    return db.collection('uploads').insertOne(uploadWithImages);
+  });
+
+  sendEmail(request.auth.credentials.contact_email, uploadId)
+  .then((json) => {
+    request.log(['debug', 'email'], json);
+  })
+  .catch((error) => {
+    request.log(['error', 'email'], error);
+  });
+
+  const transcoderPromisesAll =
+    Promise.all([uploadPromise, insertImagesAll]).then((results) => {
+      const sceneImageIds = results[1];
+      const transcoderPromises = upload.scenes
+      .reduce((accum, scene, sceneIndex) => {
+        const imageIds = sceneImageIds[sceneIndex];
+        const queuedImages = imageIds.map((imageId, imageIdIndex) => {
+          const key = [uploadId, sceneIndex, imageId].join('/');
+          const sourceUrl = scene.urls[imageIdIndex];
+          return transcoder.queueImage(sourceUrl, key,
+            `${config.apiEndpoint}/uploads/${uploadId}/${sceneIndex}/${imageId}`);
+        });
+        accum.push(...queuedImages);
+        return accum;
+      }, []);
+      return Promise.all(transcoderPromises);
+    });
+
+  return transcoderPromisesAll.then(() => {
+    return { upload: upload._id };
+  });
+}
 /**
  * @apiDefine uploadStatusSuccess
  * @apiSuccess {Object[]} results.scenes

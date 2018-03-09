@@ -85,6 +85,9 @@ const config = {
   isCookieOverHTTPS: !!process.env.BROWSER_URL.match(/https/),
   sessionCookieKey: 'oam-session',
 
+  // Key for signing JWT tokens
+  jwtSecret: process.env.JWT_SECRET_KEY,
+
   hostTld: process.env.HOST_TLD,
 
   logOptions: {

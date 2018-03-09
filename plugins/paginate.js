@@ -33,6 +33,12 @@ var pagination = {
     });
 
     server.ext('onPreResponse', function (request, reply) {
+      const { tags } = request.route.settings;
+      if (tags && tags.includes('disablePlugins')) {
+        // skip processing by this plugin
+        return reply.continue();
+      }
+
       var meta = {
         page: requestPage,
         limit: requestLimit

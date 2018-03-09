@@ -3,6 +3,8 @@
 var uuidV4 = require('uuid/v4');
 var mongoose = require('mongoose');
 var FB = require('fb');
+const jwt = require('jsonwebtoken');
+const config = require('../config');
 
 var userSchema = mongoose.Schema({
   name: {type: String, required: true},
@@ -20,14 +22,60 @@ var userSchema = mongoose.Schema({
 });
 
 userSchema.statics = {
+  jwtLogin: function (credentials) {
+    let idKey;
+    let profilePicUrl;
+    if (credentials.provider === 'custom') {
+      idKey = 'facebook_id';
+      profilePicUrl = credentials.profile.raw.picture.data.url;
+    } else if (credentials.provider === 'google') {
+      idKey = 'google_id';
+      profilePicUrl = credentials.profile.raw.picture;
+    }
+    return this.findOne({
+      [idKey]: credentials.profile.id
+    })
+    .then((user) => {
+      if (user) {
+        return user;
+      } else {
+        return this.create({
+          [idKey]: credentials.profile.id,
+          name: credentials.profile.displayName,
+          contact_email: credentials.profile.email,
+          profile_pic_uri: profilePicUrl
+        });
+      }
+    })
+    .then((user) => {
+      const userJWT = jwt.sign(
+        {
+          _id: user._id,
+          name: user.name,
+          contact_email: user.contact_email
+        },
+        config.jwtSecret,
+        { algorithm: 'HS256',
+          expiresIn: '1d'
+        }
+      );
+      return userJWT;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  },
+
   login: function (credentials, callback) {
-    if (credentials.provider === 'facebook') {
+    if (credentials.provider === 'custom') {
       this.facebookLogin(credentials, callback);
     } else
     if (credentials.provider === 'google') {
       this.googleLogin(credentials, callback);
     } else {
-      throw new Error(`The ${credentials.provider} provider hasn't been setup yet.`);
+      throw new Error(
+        //`The ${credentials.provider} provider hasn't been setup yet.`
+      );
     }
   },
 

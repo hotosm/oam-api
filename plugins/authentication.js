@@ -1,5 +1,5 @@
 'use strict';
-
+const Bell = require('bell');
 var config = require('../config');
 var User = require('../models/user');
 
@@ -8,13 +8,17 @@ var Authentication = {
     server.register([
       { register: require('hapi-auth-cookie') },
       // Various OAuth login strategies
-      { register: require('bell') }
+      { register: require('bell') },
+      { register: require('hapi-auth-jwt2') }
     ], function (err) {
       if (err) throw err;
 
+      const facebookCustom = Bell.providers.facebook({
+        fields: 'id,name,email,first_name,last_name,picture.type(small)'
+      });
       // Facebook OAuth login flow
       server.auth.strategy('facebook', 'bell', {
-        provider: 'facebook',
+        provider: facebookCustom,
         password: config.cookiePassword,
         clientId: config.facebookAppId,
         clientSecret: config.facebookAppSecret,
@@ -41,6 +45,11 @@ var Authentication = {
         isSecure: config.isCookieOverHTTPS
       });
 
+      server.auth.strategy('jwt', 'jwt', {
+        key: config.jwtSecret,
+        validateFunc: (decoded, request, callback) => callback(null, true),
+        verifyOptions: { algorithms: [ 'HS256' ] }
+      });
       next();
     });
   }

@@ -6,7 +6,8 @@
   "scripts": {
     "docs": "apidoc -i routes/ -o docs/",
     "lint": "eslint . --ext .js",
-    "test": "npm run lint && mocha test/specs"
+    "test": "mocha test/specs",
+    "integration": "mocha test/integration"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,7 @@
     "async": "2.1.4",
     "aws-sdk": "^2.66.0",
     "babel": "^5.8.21",
-    "bell": "^8.7.0",
+    "bell": "^8.9.0",
     "bluebird": "^3.4.1",
     "boom": "^2.8.0",
     "cron": "^1.2.1",
@@ -38,10 +39,11 @@
     "good": "^7.2.0",
     "good-console": "^6.4.0",
     "hapi": "^16.4.3",
-    "hapi-auth-bearer-token": "^5.1.0",
     "hapi-auth-cookie": "^7.0.0",
+    "hapi-auth-jwt2": "^7.3.0",
     "hapi-router": "^3.5.0",
     "joi": "^10.6.0",
+    "jsonwebtoken": "^8.1.0",
     "lodash": "^3.10.1",
     "moment": "^2.10.6",
     "mongodb": "^2.0.40",
@@ -61,6 +63,7 @@
   },
   "devDependencies": {
     "apidoc": "^0.13.1",
+    "build-url": "^1.0.10",
     "chai": "^2.3.0",
     "ecstatic": "^0.8.0",
     "eslint": "^3.10.2",
@@ -71,12 +74,12 @@
     "eslint-plugin-standard": "^2.0.1",
     "http-server": "^0.10.0",
     "iron": "^4.0.5",
-    "lab": "^5.15.0",
     "mocha": "^2.2.4",
     "nodemon": "^1.12.1",
     "omit-deep": "^0.1.2",
+    "proxyquire": "^1.8.0",
     "sinon": "^2.3.7",
-    "tape": "^4.0.3"
+    "sinon-chai": "^2.14.0"
   },
   "apidoc": {
     "title": "OAM API",

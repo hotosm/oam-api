@@ -19,6 +19,14 @@ function oauthHandler (request, reply) {
   });
 }
 
+function jwtHandler (request, reply) {
+  User.jwtLogin(request.auth.credentials).then((token) => {
+    const messageResponse = `<html><script type="text/javascript">window.opener.postMessage({"token": "${token}"}, '*');window.close();</script></html>`;
+    const response = reply(messageResponse).type('text/html');
+    return response;
+  });
+}
+
 module.exports = [
   {
     method: ['GET', 'POST'],
@@ -37,7 +45,24 @@ module.exports = [
       handler: oauthHandler
     }
   },
-
+  {
+    method: 'GET',
+    path: '/oauth/jwtfacebook',
+    config: {
+      auth: 'facebook',
+      handler: jwtHandler,
+      tags: ['disablePlugins']
+    }
+  },
+  {
+    method: 'GET',
+    path: '/oauth/jwtgoogle',
+    config: {
+      auth: 'google',
+      handler: jwtHandler,
+      tags: ['disablePlugins']
+    }
+  },
   {
     method: 'GET',
     path: '/logout',
