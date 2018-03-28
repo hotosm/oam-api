@@ -9,6 +9,7 @@ var queue = require('queue-async');
 var Boom = require('boom');
 var Joi = require('joi');
 var S3 = require('aws-sdk/clients/s3');
+var crypto = require('crypto');
 var wellknown = require('wellknown');
 var Meta = require('../models/meta');
 var config = require('../config');
@@ -57,6 +58,14 @@ function includeImages (db, scene, callback) {
   });
 }
 
+function hmac(key, value) {
+  return crypto.createHmac('sha256', key).update(value).digest();
+}
+
+function hexhmac(key, value) {
+  return crypto.createHmac('sha256', key).update(value).digest('hex');
+}
+
 module.exports = [
   /**
    * @api {get} /uploads List uploads of currently authenticated user.
@@ -90,7 +99,22 @@ module.exports = [
       });
     }
   },
-
+  {
+    method: 'GET',
+    path: '/signupload',
+    config: {
+      auth: 'session',
+      tags: ['disablePlugins']
+    },
+    handler: function (request, reply) {
+      const timestamp = request.query.datetime.substr(0, 8);
+      const date = hmac('AWS4' + config.awsSecret, timestamp);
+      const region = hmac(date, config.awsRegion);
+      const service = hmac(region, 's3');
+      const signing = hmac(service, 'aws4_request');
+      reply(hexhmac(signing, request.query.to_sign));
+    }
+  },
    /**
     * @api {get} /uploads/url Get presigned URL for upload to S3
     * @apiParam {Object} payload Parameters sent as object resolvable from request.payload
