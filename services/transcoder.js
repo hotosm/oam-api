@@ -61,10 +61,6 @@ var batchTranscode = (jobName, input, output, callbackUrl, callback) =>
         input,
         output,
         callback_url: callbackUrl
-      },
-      retryStrategy: {
-        // allow for intermittent platform errors
-        attempts: 2
       }
     },
     (err, data) => callback(err)
