@@ -1,14 +1,17 @@
 var cp = require('child_process');
+var url = require('url');
 
 var AWS = require('aws-sdk');
 var monq = require('monq');
 var promisify = require('es6-promisify');
+var request = require('request');
 
 var config = require('../config');
 
 var batch = new AWS.Batch();
 var client = monq(config.dbUri);
 var queue = client.queue('transcoder');
+var s3 = new AWS.S3();
 var s3bucket = config.oinBucket;
 
 module.exports.transcode = (sourceUrl, output, metaUrl, callback) => {
@@ -51,23 +54,68 @@ module.exports.transcode = (sourceUrl, output, metaUrl, callback) => {
   });
 };
 
+var getSize = (sourceUrl, callback) => {
+  var uri = url.parse(sourceUrl);
+
+  switch (uri.protocol) {
+    case "s3:":
+      return s3.headObject({
+        Bucket: uri.hostname,
+        Key: uri.pathname.slice(1)
+      }, (err, data) => {
+        if (err) {
+          return callback(err);
+        }
+
+        return callback(null, data.ContentLength);
+      });
+
+    default:
+      return request.head(sourceUrl, (err, rsp) => {
+        if (err) {
+          return callback(err);
+        }
+
+        return callback(null, rsp.headers['content-length']);
+      });
+  }
+};
+
+var guessMemoryAllocation = (sourceUrl, callback) =>
+  getSize(sourceUrl, (err, size) => {
+    if (err) {
+      console.warn(err.stack);
+      return callback(null, 3000);
+    }
+
+    var mbs = Math.ceil(size / (1024 * 1024));
+
+    // optimistic about source encoding; assume it's the smallest it can be (but
+    // cap allocated memory at 30GB)
+    // provide a minimum for smaller images
+    var recommended = Math.max(3000, Math.min(30000, mbs * 10));
+
+    return callback(null, recommended);
+  });
+
 var batchTranscode = (jobName, input, output, callbackUrl, callback) =>
-  batch.submitJob(
-    {
-      jobDefinition: config.batch.jobDefinition,
-      jobName,
-      jobQueue: config.batch.jobQueue,
-      parameters: {
-        input,
-        output,
-        callback_url: callbackUrl
+  guessMemoryAllocation(input, (err, memory) =>
+    batch.submitJob(
+      {
+        jobDefinition: config.batch.jobDefinition,
+        jobName,
+        jobQueue: config.batch.jobQueue,
+        parameters: {
+          input,
+          output,
+          callback_url: callbackUrl
+        },
+        containerOverrides: {
+          memory
+        }
       },
-      retryStrategy: {
-        // allow for intermittent platform errors
-        attempts: 2
-      }
-    },
-    (err, data) => callback(err)
+      (err, data) => callback(err)
+    )
   );
 
 var monqTranscode = (sourceUrl, output, metaUrl, callback) =>
