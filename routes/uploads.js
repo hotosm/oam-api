@@ -15,6 +15,7 @@ var Meta = require('../models/meta');
 var config = require('../config');
 var transcoder = require('../services/transcoder');
 const metaValidations = require('../models/metaValidations.js');
+const removeDuplicateVertices = require('../services/removeDuplicateVertices');
 
 var sendgrid = require('sendgrid')(config.sendgridApiKey);
 const uploadSchema = metaValidations.getSceneValidations();
@@ -58,11 +59,11 @@ function includeImages (db, scene, callback) {
   });
 }
 
-function hmac(key, value) {
+function hmac (key, value) {
   return crypto.createHmac('sha256', key).update(value).digest();
 }
 
-function hexhmac(key, value) {
+function hexhmac (key, value) {
   return crypto.createHmac('sha256', key).update(value).digest('hex');
 }
 
@@ -210,92 +211,18 @@ module.exports = [
 
       var imageId = new ObjectID(request.params.imageId);
 
-      return db.collection('images').findOne({
-        _id: imageId
-      })
-        .then(image => {
-          if (request.payload.status === 'failed') {
-            return db.collection('images').updateOne({
-              _id: imageId
-            }, {
-              $set: {
-                status: 'errored'
-              },
-              $currentDate: {
-                stoppedAt: true
-              },
-              $push: {
-                messages: request.payload.message
-              }
-            })
-              .then(() => reply());
+      const status = updateUploadStatus(request, imageId);
+      const message = updateUploadMessage(request, imageId);
+      return Promise.all([status, message])
+        .then((values) => {
+          let promise = Promise.resolve(true);
+          if (values[0] === 'finished') {
+            promise = updateUploadMetadata(request, imageId);
           }
-
-          if (request.payload.status === 'processing') {
-            return db.collection('images').updateOne({
-              _id: imageId
-            }, {
-              $set: {
-                status: 'processing'
-              },
-              $currentDate: {
-                startedAt: true
-              }
-            })
-              .then(() => reply());
-          }
-
-          if (request.payload.message != null) {
-            return db.collection('images').updateOne({
-              _id: imageId
-            }, {
-              $push: {
-                messages: request.payload.message
-              }
-            })
-              .then(() => reply());
-          }
-
-          var meta = image.metadata;
-          meta.user = image.user_id;
-          meta.uuid = request.payload.properties.url.replace(/^s3:\/\/([^/]+)\//, `https://$1.${config.s3PublicDomain}/`);
-          meta.geojson = getGeom(request.payload);
-          meta.geojson.bbox = bbox(meta.geojson);
-          meta.bbox = meta.geojson.bbox;
-          meta.footprint = wellknown.stringify(envelope(meta.geojson));
-          meta.gsd = request.payload.properties.resolution_in_meters;
-          meta.file_size = request.payload.properties.size;
-          meta.projection = request.payload.properties.projection;
-          meta.meta_uri = meta.uuid.replace(/\.tif$/, '_meta.json');
-          meta.uploaded_at = new Date();
-          meta.properties = Object.assign(meta.properties, request.payload.properties);
-          meta.properties.thumbnail = meta.properties.thumbnail.replace(/^s3:\/\/([^/]+)\//, `https://$1.${config.s3PublicDomain}/`);
-          meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
-          meta.properties.wmts = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
-
-          // remove duplicated properties
-          delete meta.properties.projection;
-          delete meta.properties.size;
-
-          return Promise.all([
-            db.collection('images').updateOne({
-              _id: imageId
-            }, {
-              $set: {
-                status: 'finished',
-                metadata: meta
-              },
-              $currentDate: {
-                stoppedAt: true
-              }
-            }),
-            Meta.create(meta)
-              // write metadata
-              .then(obj => obj.oamSync())
-          ])
-            .then(reply);
+          return promise;
         })
-        .catch(err => reply(Boom.wrap(err)));
+        .then(reply)
+        .catch(error => reply(Boom.wrap(error)));
     }
   },
 
@@ -434,6 +361,113 @@ module.exports = [
     }
   }
 ];
+
+function updateUploadMetadata (request, imageId) {
+  return db.collection('images').findOne({
+    _id: imageId
+  })
+  .then(image => {
+    const meta = image.metadata;
+    const geojson = getGeom(request.payload);
+    const boundbox = bbox(geojson);
+    meta.user = image.user_id;
+    meta.uuid = request.payload.properties.url.replace(/^s3:\/\/([^/]+)\//, `https://$1.${config.s3PublicDomain}/`);
+    meta.geojson = geojson;
+    meta.geojson.bbox = boundbox;
+    meta.bbox = meta.geojson.bbox;
+    meta.footprint = wellknown.stringify(envelope(meta.geojson));
+    meta.gsd = request.payload.properties.resolution_in_meters;
+    meta.file_size = request.payload.properties.size;
+    meta.projection = request.payload.properties.projection;
+    meta.meta_uri = meta.uuid.replace(/\.tif$/, '_meta.json');
+    meta.uploaded_at = new Date();
+    meta.properties = Object.assign(meta.properties, request.payload.properties);
+    meta.properties.thumbnail = meta.properties.thumbnail.replace(/^s3:\/\/([^/]+)\//, `https://$1.${config.s3PublicDomain}/`);
+    meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
+    meta.properties.wmts = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
+
+    // remove duplicated properties
+    delete meta.properties.projection;
+    delete meta.properties.size;
+    const metaCreate = Meta.create(meta)
+      .catch((error) => {
+        if (error.code === 16755) {
+          const errorSplit = error.message.split(':');
+          const errorVertices = errorSplit[errorSplit.length - 1];
+          const verticeIndexStrings = errorVertices.trim().split(' and ');
+          const verticeIndexes = verticeIndexStrings.map(v => parseInt(v, 10));
+          // Mutates geojson
+          removeDuplicateVertices(geojson, verticeIndexes);
+          return Meta.create(meta);
+        } else {
+          throw error;
+        }
+      })
+      .then(obj => obj.oamSync())
+      .then(() => true);
+    return metaCreate;
+  });
+}
+
+function updateUploadStatus (request, imageId) {
+  const notFinished = 'notFinished';
+  const finished = 'finished';
+  let promise = Promise.resolve(notFinished);
+  if (request.payload.status === 'failed') {
+    promise = db.collection('images').updateOne({
+      _id: imageId
+    }, {
+      $set: {
+        status: 'errored'
+      },
+      $currentDate: {
+        stoppedAt: true
+      }
+    })
+    .then(() => notFinished);
+  }
+  if (request.payload.status === 'processing') {
+    promise = db.collection('images').updateOne({
+      _id: imageId
+    }, {
+      $set: {
+        status: 'processing'
+      },
+      $currentDate: {
+        startedAt: true
+      }
+    })
+    .then(() => notFinished);
+  }
+  if (request.payload.properties) {
+    promise = db.collection('images').updateOne({
+      _id: imageId
+    }, {
+      $set: {
+        status: 'finished'
+      },
+      $currentDate: {
+        stoppedAt: true
+      }
+    })
+    .then(() => finished);
+  }
+  return promise;
+}
+
+function updateUploadMessage (request, imageId) {
+  let promise = Promise.resolve(true);
+  if (request.payload.message != null) {
+    promise = db.collection('images').updateOne({
+      _id: imageId
+    }, {
+      $push: {
+        messages: request.payload.message
+      }
+    });
+  }
+  return promise;
+}
 
 function sendEmail (address, uploadId) {
   return new Promise((resolve, reject) => {
