@@ -149,7 +149,6 @@ describe('Updating image metadata', () => {
   it('Updates metadata when upload processing finishes', () => {
     const {
       stubs,
-      collection,
       findOne,
       updateOne
     } = buildStubs();
@@ -163,9 +162,6 @@ describe('Updating image metadata', () => {
       create
     };
     stubs['../models/meta'] = Meta;
-
-    //const removeDuplicateVertices = sandbox.stub();
-    //stubs.removeDuplicateVertices;
 
     const options = {
       method: 'POST',
@@ -184,6 +180,74 @@ describe('Updating image metadata', () => {
           expect(oamSync).to.have.been.called;
 
           expect(res.statusCode).to.equal(200);
+        });
+      });
+  });
+
+  it('Retries metadata update after removing dupicate vertices', () => {
+    const { stubs } = buildStubs();
+
+    const oamSync = sandbox.stub().resolves(true);
+    const meta = {
+      oamSync
+    };
+    const create = sandbox.stub();
+    create.onFirstCall().rejects({
+      code: 16755,
+      message: 'error : 100 and 200'
+    });
+    create.onSecondCall().resolves(meta);
+
+    const Meta = {
+      create
+    };
+    stubs['../models/meta'] = Meta;
+
+    const removeDuplicateVertices = sinon.stub();
+    stubs['../services/removeDuplicateVertices'] = removeDuplicateVertices;
+
+    const options = {
+      method: 'POST',
+      url,
+      payload: geojson
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(create.firstCall.args[0].user).to.equal(image.user_id);
+          expect(create.secondCall.args[0].user).to.equal(image.user_id);
+
+          expect(removeDuplicateVertices.firstCall.args[1][0]).to.equal(100);
+          expect(removeDuplicateVertices.firstCall.args[1][1]).to.equal(200);
+          expect(oamSync).to.have.been.calledOnce;
+
+          expect(res.statusCode).to.equal(200);
+        });
+      });
+  });
+
+  it('Propagates other mongo errors', () => {
+    const { stubs } = buildStubs();
+
+    const create = sandbox.stub();
+    create.onFirstCall().rejects({
+      code: 0
+    });
+
+    const Meta = {
+      create
+    };
+    stubs['../models/meta'] = Meta;
+
+    const options = {
+      method: 'POST',
+      url,
+      payload: geojson
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.statusCode).to.equal(500);
         });
       });
   });
