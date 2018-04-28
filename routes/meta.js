@@ -1,6 +1,6 @@
 'use strict';
 
-var bboxPolygon = require('turf-bbox-polygon');
+var bboxPolygon = require('@turf/bbox-polygon');
 var Boom = require('boom');
 var merc = new (require('@mapbox/sphericalmercator'))();
 
