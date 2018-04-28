@@ -3,7 +3,7 @@
 var _ = require('lodash');
 var request = require('request');
 var parse = require('wellknown');
-var bboxPolygon = require('turf-bbox-polygon');
+var bboxPolygon = require('@turf/bbox-polygon');
 var Boom = require('boom');
 
 var Meta = require('../models/meta.js');
