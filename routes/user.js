@@ -108,10 +108,7 @@ module.exports = [
       return Promise.all([
         User.findOne({
           _id: user
-        }, {
-          name: 1,
-          website: 1
-        }),
+        }, 'name website'),
         Meta.find({
           user
         }, {
@@ -166,13 +163,7 @@ module.exports = [
             $geometry: geometry
           }
         }
-      }, {
-        acquisition_end: 1,
-        geojson: 1,
-        gsd: 1,
-        title: 1,
-        uuid: 1
-      }, {
+      }, 'acquisition_end geojson gsd title uid', {
         sort: {
           gsd: 1,
           acquisition_end: -1
