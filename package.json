@@ -42,6 +42,7 @@
     "hapi": "^16.4.3",
     "hapi-auth-cookie": "^7.0.0",
     "hapi-auth-jwt2": "^7.3.0",
+    "hapi-raven": "^6.0.0",
     "hapi-router": "^3.5.0",
     "joi": "^10.6.0",
     "jsonwebtoken": "^8.1.0",
