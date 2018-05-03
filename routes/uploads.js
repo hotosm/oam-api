@@ -383,7 +383,7 @@ function updateUploadMetadata (request, imageId) {
     meta.uploaded_at = new Date();
     meta.properties = Object.assign(meta.properties, request.payload.properties);
     meta.properties.thumbnail = meta.properties.thumbnail.replace(/^s3:\/\/([^/]+)\//, `https://$1.${config.s3PublicDomain}/`);
-    meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}.png`;
+    meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}`;
     meta.properties.wmts = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
 
     // remove duplicated properties
