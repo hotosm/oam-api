@@ -1,6 +1,6 @@
 const meta = require('@turf/meta');
 
-function findBadRing (geoJSON, verticeIndexes) {
+function findBadRing (geoJSON, vertexIndices) {
   const coords = geoJSON.coordinates;
   const rings = meta.lineReduce(geoJSON,
     function (accumulator, cl, featureIndex, multiFeatureIndex, geometryIndex) {
@@ -9,12 +9,12 @@ function findBadRing (geoJSON, verticeIndexes) {
     }, []);
 
   const badRing = rings.reduce((accumulator, ring) => {
-    const firstIndex = coords[ring[0]][ring[1]][verticeIndexes[0]];
+    const firstIndex = coords[ring[0]][ring[1]][vertexIndices[0]];
     let ringHasAllDuplicateVertices = true;
     if (firstIndex) {
-      for (let index = 1; index < verticeIndexes.length; index++) {
-        if (coords[ring[0]][ring[1]][verticeIndexes[index]][0] === firstIndex[0] &&
-            coords[ring[0]][ring[1]][verticeIndexes[index]][1] === firstIndex[1]) {
+      for (let index = 1; index < vertexIndices.length; index++) {
+        if (coords[ring[0]][ring[1]][vertexIndices[index]] != null && coords[ring[0]][ring[1]][vertexIndices[index]][0] === firstIndex[0] &&
+            coords[ring[0]][ring[1]][vertexIndices[index]][1] === firstIndex[1]) {
         } else {
           ringHasAllDuplicateVertices = false;
         }
@@ -33,12 +33,12 @@ function findBadRing (geoJSON, verticeIndexes) {
 }
 
 // Mutates geoJSON argument
-module.exports = function (geoJSON, verticeIndexes) {
-  const badRingIndex = findBadRing(geoJSON, verticeIndexes);
+module.exports = function (geoJSON, vertexIndices) {
+  const badRingIndex = findBadRing(geoJSON, vertexIndices);
   if (badRingIndex.length === 2) {
     const badRing = geoJSON.coordinates[badRingIndex[0]][badRingIndex[1]];
-    for (let index = 1; index < verticeIndexes.length; index++) {
-      badRing.splice(verticeIndexes[index], 1);
+    for (let index = 1; index < vertexIndices.length; index++) {
+      badRing.splice(vertexIndices[index], 1);
     }
   }
 };
