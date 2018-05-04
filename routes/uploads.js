@@ -392,7 +392,6 @@ function updateUploadMetadata (request, imageId) {
     const metaCreate = Meta.create(meta)
       .catch((error) => {
         if (error.code === 16755) {
-          console.warn(error);
           const errorSplit = error.message.split(':');
           const errorVertices = errorSplit[errorSplit.length - 1];
           const verticeIndexStrings = errorVertices.trim().split(' and ');
