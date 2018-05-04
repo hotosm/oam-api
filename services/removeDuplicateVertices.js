@@ -13,7 +13,7 @@ function findBadRing (geoJSON, vertexIndices) {
     let ringHasAllDuplicateVertices = true;
     if (firstIndex) {
       for (let index = 1; index < vertexIndices.length; index++) {
-        if (coords[ring[0]][ring[1]][vertexIndices[index]][0] === firstIndex[0] &&
+        if (coords[ring[0]][ring[1]][vertexIndices[index]] != null && coords[ring[0]][ring[1]][vertexIndices[index]][0] === firstIndex[0] &&
             coords[ring[0]][ring[1]][vertexIndices[index]][1] === firstIndex[1]) {
         } else {
           ringHasAllDuplicateVertices = false;
