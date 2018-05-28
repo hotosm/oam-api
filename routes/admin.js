@@ -1,9 +1,10 @@
 'use strict';
 
 const Admin = require('../models/admin');
+const User = require('../models/user')
 const jwt = require('jsonwebtoken');
 const Boom = require('boom'); 
-
+const Joi = require('joi');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const privateKey = 'AnkitaPrivate'; //Setup Private Key in Config : Later
@@ -28,6 +29,12 @@ module.exports = [
   path: '/admin',
   config: {
     auth: false,
+     validate: {
+     payload: {
+      name: Joi.string().min(3).max(30).required(),
+      password : Joi.string().min(3).max(30).required(),
+     }
+   },
     handler: (request, h) => {
       let name = request.payload.name;
       let password = request.payload.password;
@@ -46,7 +53,6 @@ module.exports = [
                   let hash = bcrypt.hashSync(password, saltRounds);
                   let Newadmin = Admin.create({
                           name: name,
-                          emailId: email,
                           password: hash,
                           token : token
                   }).then(Newadmin=>{
@@ -72,5 +78,4 @@ module.exports = [
     }
   }
 }
-
 ];
