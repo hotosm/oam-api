@@ -7,14 +7,18 @@ var Admin = require('../models/admin');
 var privateKey = 'AnkitaPrivate';   // Setup Private Key in Config : Later
 
 // Validate Funcation for JWT
-var validate = function (request, decodedToken, callback) {
-  var credentials = Admin.isValidAdmin(decodedToken.name, decodedToken.password) || {};
-  var error = Admin.isValidAdmin(decodedToken.name, decodedToken.password) || {};
-  if (!credentials) {
-    return callback(error, false, credentials);
-  }
+var validate = function (decodedToken, request, callback) {
+  var credentials = {};
+  var error = '';
+  Admin.isValidAdmin(decodedToken.data.name, decodedToken.data.password, function (admin, err) {
+    credentials = admin;
+    error = err;
+    if (!credentials) {
+      return callback(error, false, credentials);
+    }
 
-  return callback(error, true, credentials);
+    return callback(error, true, credentials);
+  });
 };
 var Authentication = {
   register: function (server, options, next) {

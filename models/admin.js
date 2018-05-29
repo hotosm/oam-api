@@ -20,30 +20,28 @@ adminSchema.statics = {
   isValidAdmin: function (name, pass, callback) {
     this.findOne({'name': name}).then(admin => {
       if (!admin) {
-        return false;
+        callback({}, undefined);
       }
-
       bcrypt.compare(pass, admin.password, function (err, res) {
         if (err) {
-          return err;
+          callback({}, err);
         }
         if (!res) {
-          return false;
+          callback({}, false);
         }
-      });
-      jwt.verify(this.token, privateKey, function (err, decoded) {
-        if (err) {
-          if (err.name === 'TokenExpiredError' || this.token === undefined) {
-            admin.generateToken();
-            return (admin);
+
+        jwt.verify(admin.token, privateKey, function (err, decoded) {
+          if (err) {
+            if (err.name === 'TokenExpiredError' || admin.token === undefined) {
+              admin.generateToken();
+              callback(admin, false);
+            }
           }
-        }
+        });
       });
-      return admin;
-    }).then(admin => {
-      return false;
+      callback(admin, false);
     }).catch(err => {
-      callback(err);
+      callback({}, err);
     });
   },
   generateToken: function () {
