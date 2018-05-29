@@ -1,13 +1,13 @@
 'use strict';
 
 var _ = require('lodash');
-// var area = require('@turf/area').default;
+var area = require('@turf/area').default;
 var bboxPolygon = require('@turf/bbox-polygon').default;
 var Boom = require('boom');
-// var intersect = require('@turf/intersect').default;
+var intersect = require('@turf/intersect').default;
 var Joi = require('joi');
 var merc = new (require('@mapbox/sphericalmercator'))();
-// var union = require('@turf/union').default;
+var union = require('@turf/union').default;
 
 var User = require('../models/user');
 var Meta = require('../models/meta');
@@ -119,17 +119,26 @@ module.exports = [
         })
       ])
         .then(([user, images]) => {
-          const approximateZoom = Math.floor(images
-            .map(meta => Math.ceil(Math.log2(2 * Math.PI * 6378137 / (meta.gsd * 256))))
-            .reduce((a, b) => a + b) / images.length);
+          if (images.length === 0) {
+            return reply(Boom.notFound());
+          }
 
-          const bounds = images.reduce((bbox, meta) =>
-            [
-              Math.min(bbox[0], meta.bbox[0]),
-              Math.min(bbox[1], meta.bbox[1]),
-              Math.max(bbox[2], meta.bbox[2]),
-              Math.max(bbox[3], meta.bbox[3])
-            ], [Infinity, Infinity, -Infinity, -Infinity]);
+          let bounds = [-180, 180, -90, 90];
+          let approximateZoom = 0;
+
+          if (images.length > 0) {
+            approximateZoom = Math.floor(images
+              .map(meta => Math.ceil(Math.log2(2 * Math.PI * 6378137 / (meta.gsd * 256))))
+              .reduce((a, b) => a + b) / images.length);
+
+            bounds = images.reduce((bbox, meta) =>
+              [
+                Math.min(bbox[0], meta.bbox[0]),
+                Math.min(bbox[1], meta.bbox[1]),
+                Math.max(bbox[2], meta.bbox[2]),
+                Math.max(bbox[3], meta.bbox[3])
+              ], [Infinity, Infinity, -Infinity, -Infinity]);
+          }
 
           return reply({
             name: user.name,
@@ -182,49 +191,44 @@ module.exports = [
           return reply(Boom.notFound());
         }
 
-        // NOTE source prioritization is currently disabled due to
-        // https://github.com/w8r/martinez/issues/74, which is triggered by
-        // geometries in the Zanzibar imagery
-        const sources = images;
+        // for filtering; more readable than embedding everything into reduce()
+        let tileArea = area(geometry);
+        let totalArea = 0;
+        let totalOverlap = null;
+        let filled = false;
 
-        // // for filtering; more readable than embedding everything into reduce()
-        // let tileArea = area(geometry);
-        // let totalArea = 0;
-        // let totalOverlap = null;
-        // let filled = false;
-        //
-        // // sort by overlap
-        // const sources = images
-        //   // calculate overlap with the target tile
-        //   .map(image => Object.assign(image, {
-        //     overlap: intersect(geometry, image.geojson)
-        //   }))
-        //   // sort by overlap
-        //   .sort((a, b) => area(b.overlap) - area(a.overlap))
-        //   // filter unnecessary sources
-        //   .filter(x => {
-        //     if (filled) {
-        //       // already full
-        //       return false;
-        //     }
-        //
-        //     const newOverlap = totalOverlap == null ? x.overlap : union(totalOverlap, x.overlap);
-        //     const newArea = area(newOverlap);
-        //
-        //     if (newArea > totalArea) {
-        //       // this source contributes
-        //       if (newArea === tileArea) {
-        //         // now full
-        //         filled = true;
-        //       }
-        //
-        //       totalOverlap = newOverlap;
-        //       totalArea = newArea;
-        //       return true;
-        //     }
-        //
-        //     return false;
-        //   });
+        // sort by overlap
+        const sources = images
+          // calculate overlap with the target tile
+          .map(image => Object.assign(image, {
+            overlap: intersect(geometry, image.geojson)
+          }))
+          // sort by overlap
+          .sort((a, b) => area(b.overlap) - area(a.overlap))
+          // filter unnecessary sources
+          .filter(x => {
+            if (filled) {
+              // already full
+              return false;
+            }
+
+            const newOverlap = totalOverlap == null ? x.overlap : union(totalOverlap, x.overlap);
+            const newArea = area(newOverlap);
+
+            if (newArea > totalArea) {
+              // this source contributes
+              if (newArea === tileArea) {
+                // now full
+                filled = true;
+              }
+
+              totalOverlap = newOverlap;
+              totalArea = newArea;
+              return true;
+            }
+
+            return false;
+          });
 
         return reply(sources
           .map(meta => ({
