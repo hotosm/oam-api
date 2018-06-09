@@ -86,7 +86,8 @@
     "omit-deep": "^0.1.2",
     "proxyquire": "^1.8.0",
     "sinon": "^2.3.7",
-    "sinon-chai": "^2.14.0"
+    "sinon-chai": "^2.14.0",
+    "tape": "^4.9.0"
   },
   "apidoc": {
     "title": "OAM API",
