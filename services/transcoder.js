@@ -58,7 +58,7 @@ var getSize = (sourceUrl, callback) => {
   var uri = url.parse(sourceUrl);
 
   switch (uri.protocol) {
-    case "s3:":
+    case 's3:':
       return s3.headObject({
         Bucket: uri.hostname,
         Key: uri.pathname.slice(1)

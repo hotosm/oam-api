@@ -18,8 +18,8 @@ module.exports = [
     path: '/adminTest',
     config: {
       auth: false,
-      handler: (request, h) => {
-        h('Testing Route');
+      handler: function (request, reply) {
+        reply('Testing Route');
       }
     }
   },
@@ -28,8 +28,8 @@ module.exports = [
     path: '/admin',
     config: {
       auth: 'jwt',
-      handler: (request, h) => {
-        if (request) { h(request.auth.token); } else { h('Sorry Only Admins Can Login!').results; } // Redirect to login page here
+      handler: function (request, reply) {
+        if (request) { reply(request.auth.token); } else { reply('Sorry Only Admins Can Login!'); } // Redirect to login page here
       }
     }
   },
@@ -44,17 +44,17 @@ module.exports = [
           password: Joi.string().min(3).max(30).required()
         }
       },
-      handler: (request, h) => {
+      handler: function (request, reply) {
         let name = request.payload.name;
         let password = request.payload.password;
         let token = jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60 * 60), data: {name: name, password: password} }, privateKey, {algorithm: 'HS256'});
 
         Admin.findOne({name: name}).exec(function (err, admin) {
           if (err) {
-            return h('Something went wrong');
+            return reply('Something went wrong');
           }
           if (admin == null) {
-            return h('Not Valid Admin Credentials'); // Redirect to Login Page
+            return reply('Not Valid Admin Credentials'); // Redirect to Login Page
             // Uncomment to store New Admin Credentials in Database :(Remove Later)
             // Comment above return statement
             // let hash = bcrypt.hashSync(password, saltRounds);
@@ -64,21 +64,21 @@ module.exports = [
             //   token: token
             // }).then(Newadmin => {
             //   console.log('New Made:', Newadmin);
-            //   return h(Newadmin);
+            //   return reply(Newadmin);
             // }).catch(function (err) {
-            //   return h(Boom.badImplementation(err));
+            //   return reply(Boom.badImplementation(err));
             // });
           }
           bcrypt.compare(password, admin.password, function (err, res) {
             if (err) {
-              return h(err);
+              return reply(err);
             }
             if (res) {
               admin.token = token;
               admin.save();
-              return h(admin);
+              return reply(admin);
             } else {
-              return h('Not Valid Admin Credentials');
+              return reply('Not Valid Admin Credentials');
             }
           });
         });
@@ -90,12 +90,12 @@ module.exports = [
     path: '/allUsers',
     config: {
       auth: 'jwt',
-      handler: (request, h) => {
+      handler: function (request, reply) {
         if (request) {
           User.find({}, function (err, users) {
-            if (err) { h(err); } else { h(users); }
+            if (err) { reply(err); } else { reply(users); }
           });
-        } else { h('Invalid Login!').results; }
+        } else { reply('Invalid Login!').results; }
       }
     }
 
@@ -105,22 +105,22 @@ module.exports = [
     path: '/users/{id}',
     config: {
       auth: 'jwt',
-      handler: (request, h) => {
+      handler: function (request, reply) {
         if (request) {
           if (ObjectId.isValid(request.params.id)) {
             User.findOne({_id: request.params.id}).exec(function (err, user) {
               if (err) {
-                h(err);
+                reply(err);
               }
               if (user == null) {
-                h('No User with ' + request.params.id + 'Id found');
+                reply('No User with ' + request.params.id + 'Id found');
               }
-              h(user);
+              reply(user);
             });
           } else {
-            h('Not a valid Id');
+            reply('Not a valid Id');
           }
-        } else { h('Invalid Login!').results; }
+        } else { reply('Invalid Login!').results; }
       }
     }
   }
