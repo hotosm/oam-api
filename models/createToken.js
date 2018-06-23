@@ -5,7 +5,7 @@ const config = require('../config');
 
 function createToken (email, scope) {
   // Sign the JWT
-  return jwt.sign(
+  const token = jwt.sign(
     {
       email: email,
       scope: scope
@@ -15,6 +15,7 @@ function createToken (email, scope) {
       algorithm: 'HS256',
       expiresIn: '1h'
     });
+  return Promise.resolve(token);
 }
 
 module.exports = createToken;

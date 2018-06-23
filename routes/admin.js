@@ -1,8 +1,5 @@
 'use strict';
 
-//const ObjectId = require('mongoose').Types.ObjectId;
-//const Admin = require('../models/admin');
-//const User = require('../models/user');
 const Joi = require('joi');
 const Boom = require('boom');
 const verifyCredentials = require('../models/verifyCredentials');
@@ -13,9 +10,12 @@ module.exports = [
     method: 'GET',
     path: '/admin',
     config: {
-      auth: 'jwt',
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
       handler: function (request, reply) {
-        if (request) { reply(request.auth.token); } else { reply('Sorry Only Admins Can Login!'); } // Redirect to login page here
+        reply('Authorized request');
       }
     }
   },
@@ -40,50 +40,10 @@ module.exports = [
             });
           })
           .catch((error) => {
-            reply(Boom.wrap(error));
+            reply(Boom.badRequest(error.message));
           });
       },
       tags: ['disablePlugins']
     }
   }
-  //{
-    //method: 'GET',
-    //path: '/allUsers',
-    //config: {
-      //auth: 'jwt',
-      //handler: function (request, reply) {
-        //if (request) {
-          //User.find({}, function (err, users) {
-            //if (err) { reply(err); } else { reply(users); }
-          //});
-        //} else { reply('Invalid Login!').results; }
-      //}
-    //}
-
-  //},
-  //{
-    //method: 'GET',
-    //path: '/users/{id}',
-    //config: {
-      //auth: 'jwt',
-      //handler: function (request, reply) {
-        //if (request) {
-          //if (ObjectId.isValid(request.params.id)) {
-            //User.findOne({_id: request.params.id}).exec(function (err, user) {
-              //if (err) {
-                //reply(err);
-              //}
-              //if (user == null) {
-                //reply('No User with ' + request.params.id + 'Id found');
-              //}
-              //reply(user);
-            //});
-          //} else {
-            //reply('Not a valid Id');
-          //}
-        //} else { reply('Invalid Login!').results; }
-      //}
-    //}
-  //}
-
 ];
