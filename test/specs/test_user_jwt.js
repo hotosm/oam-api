@@ -44,8 +44,8 @@ describe('User', () => {
   });
   it('should be invalid if name is empty', () => {
     const user = new User();
-    user.validate().then((error) => {
-      expect(error.errors.name).to.exist;
+    user.validate().catch((error) => {
+      expect(error.message).to.exist;
     });
   });
 
@@ -53,6 +53,7 @@ describe('User', () => {
     const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve({}));
 
     User.jwtLogin(facebookCredentials).then((token) => {
+      console.log(token);
       expect(findOne).to.have.been
         .calledWith({ facebook_id: facebookCredentials.profile.id });
     });

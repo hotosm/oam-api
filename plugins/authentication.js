@@ -2,24 +2,7 @@
 const Bell = require('bell');
 var config = require('../config');
 var User = require('../models/user');
-var Admin = require('../models/admin');
 
-var privateKey = 'AnkitaPrivate';   // Setup Private Key in Config : Later
-
-// Validate Funcation for JWT
-var validate = function (decodedToken, request, callback) {
-  var credentials = {};
-  var error = '';
-  Admin.isValidAdmin(decodedToken.data.name, decodedToken.data.password, function (admin, err) {
-    credentials = admin;
-    error = err;
-    if (!credentials) {
-      return callback(error, false, credentials);
-    }
-
-    return callback(error, true, credentials);
-  });
-};
 var Authentication = {
   register: function (server, options, next) {
     server.register([
@@ -63,8 +46,8 @@ var Authentication = {
       });
 
       server.auth.strategy('jwt', 'jwt', {
-        key: privateKey,
-        validateFunc: validate,
+        key: config.jwtSecret,
+        validateFunc: (decoded, request, callback) => callback(null, true),
         verifyOptions: { algorithms: [ 'HS256' ] }
       });
       next();
