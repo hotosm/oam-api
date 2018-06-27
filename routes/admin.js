@@ -4,7 +4,7 @@ const Joi = require('joi');
 const Boom = require('boom');
 const verifyCredentials = require('../models/verifyCredentials');
 const createToken = require('../models/createToken');
-
+const returnUsers = require('../admin_functions/returnUsers');
 module.exports = [
   {
     method: 'GET',
@@ -44,6 +44,19 @@ module.exports = [
           });
       },
       tags: ['disablePlugins']
+    }
+  },
+  {
+    method: 'GET',
+    path: '/users',
+    config: {
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
+      handler: function (request, reply) {
+        reply(returnUsers());
+      }
     }
   }
 ];
