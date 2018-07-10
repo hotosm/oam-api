@@ -1,7 +1,8 @@
 'use strict';
 
-var Boom = require('boom');
-var User = require('../models/user');
+const Boom = require('boom');
+const User = require('../models/user');
+const createToken = require('../models/createToken');
 
 function oauthHandler (request, reply) {
   if (!request.auth.isAuthenticated) {
@@ -74,6 +75,27 @@ module.exports = [
       reply({
         code: 200,
         message: 'Goodbye!'
+      });
+    }
+  },
+  {
+    method: 'GET',
+    path: '/getToken',
+    config: {
+      auth: 'session',
+      tags: ['disablePlugins']
+    },
+    handler: function (request, reply) {
+      User.findOne({
+        session_id: request.auth.credentials.session_id
+      }).then(function (user) {
+        return createToken(
+          user._id, user.name, user.contact_email, 'user', '365d'
+        );
+      }).then(function (token) {
+        reply({ token });
+      }).catch(function (err) {
+        reply(Boom.badImplementation(err));
       });
     }
   }
