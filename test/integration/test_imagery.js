@@ -32,7 +32,7 @@ describe('Imagery CRUD', function () {
     expect(prereqs.image.bbox).to.deep.eq([129, 29, 146, 54]);
 
     // TODO: Fetch these and check they're good too
-    expect(prereqs.image.properties.tms).to.include('/{z}/{x}/{y}.png');
+    expect(prereqs.image.properties.tms).to.include('/{z}/{x}/{y}');
     expect(prereqs.image.meta_uri).to.include('_meta.json');
   });
 
