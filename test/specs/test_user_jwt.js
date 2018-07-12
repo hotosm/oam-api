@@ -44,7 +44,7 @@ describe('User', () => {
   });
   it('should be invalid if name is empty', () => {
     const user = new User();
-    user.validate().then((error) => {
+    return user.validate().catch((error) => {
       expect(error.errors.name).to.exist;
     });
   });
@@ -52,7 +52,7 @@ describe('User', () => {
   it('jwtLogin should find existing user with facebook_id', () => {
     const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve({}));
 
-    User.jwtLogin(facebookCredentials).then((token) => {
+    return User.jwtLogin(facebookCredentials).then((token) => {
       expect(findOne).to.have.been
         .calledWith({ facebook_id: facebookCredentials.profile.id });
     });
@@ -61,7 +61,7 @@ describe('User', () => {
   it('jwtLogin should find existing user with google_id', () => {
     const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve({}));
 
-    User.jwtLogin(googleCredentials).then((token) => {
+    return User.jwtLogin(googleCredentials).then((token) => {
       expect(findOne).to.have.been
         .calledWith({ google_id: googleCredentials.profile.id });
     });
@@ -79,7 +79,7 @@ describe('User', () => {
     const create = sandbox.stub(User, 'create')
       .returns(Promise.resolve({ _id: 'id', name: 'name' }));
 
-    User.jwtLogin(facebookCredentials).then((token) => {
+    return User.jwtLogin(facebookCredentials).then((token) => {
       expect(create).to.have.been
         .calledWith(createUser);
     });
@@ -97,7 +97,7 @@ describe('User', () => {
     const create = sandbox.stub(User, 'create')
       .returns(Promise.resolve({ _id: 'id', name: 'name' }));
 
-    User.jwtLogin(googleCredentials).then((token) => {
+    return User.jwtLogin(googleCredentials).then((token) => {
       expect(create).to.have.been
         .calledWith(createUser);
     });
@@ -106,7 +106,7 @@ describe('User', () => {
   it('jwtLogin should return promise with valid JWT token', () => {
     const user = { profile: { _id: 'id', name: 'name' } };
     sandbox.stub(User, 'findOne').returns(Promise.resolve(user));
-    User.jwtLogin(facebookCredentials).then((token) => {
+    return User.jwtLogin(facebookCredentials).then((token) => {
       const decoded = jwt.verify(token, config.jwtSecret);
       expect(decoded.id).to.equal(user._id);
     });
