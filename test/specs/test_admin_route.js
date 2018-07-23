@@ -100,4 +100,48 @@ describe('Admin route', () => {
         });
       });
   });
+
+  it('Users returned when request is authorized', () => {
+    const users = [{'name': 'tempUser1'}, {'name': 'tempUser2'}];
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
+    const returnUsers = sandbox.stub().resolves(users);
+    const stubs = {
+      '../admin_functions/returnUsers': returnUsers
+    };
+    const options = {
+      method: 'GET',
+      url: '/admin',
+      headers: {
+        'Authorization': token
+      }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.statusCode).to.deep.equal(200);
+        });
+      });
+  });
+
+  it('Users should not returned when request is not authorized', () => {
+    const users = [{'name': 'tempUser1'}, {'name': 'tempUser2'}];
+    const token = 'eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTQ4NzU2MTU3MX0.6BTcxkL7uTFpq-6viM0QoNuud9tiF-wjSqW8Bhu5x9Y';
+    const returnUsers = sandbox.stub().resolves(users);
+    const stubs = {
+      '../admin_functions/returnUsers': returnUsers
+    };
+    const options = {
+      method: 'GET',
+      url: '/admin',
+      headers: {
+        'Authorization': token
+      }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.statusCode).to.deep.equal(401);
+        });
+      });
+  });
 });

@@ -4,7 +4,22 @@ const Joi = require('joi');
 const Boom = require('boom');
 const verifyCredentials = require('../models/verifyCredentials');
 const createToken = require('../models/createToken');
-const returnUsers = require('../admin_functions/returnUsers');
+const User = require('../models/user');
+
+function returnUsers () {
+  return User.find({}).then(users => {
+    if (!users) {
+      const doesNotExistError = new Error('No User Found');
+      throw doesNotExistError;
+    } else {
+      return users;
+    }
+  })
+  .catch(err => {
+    return (Boom.badRequest(err.message));
+  });
+}
+
 module.exports = [
   {
     method: 'GET',
