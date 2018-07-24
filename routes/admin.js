@@ -19,7 +19,19 @@ function returnUsers () {
     return (Boom.badRequest(err.message));
   });
 }
-
+function deleteUser (id) {
+  return User.findOneAndRemove({_id: id}).then(userDeleted => {
+    if (!userDeleted) {
+      const doesNotExistError = new Error('No Such User Found');
+      throw doesNotExistError;
+    } else {
+      return userDeleted;
+    }
+  })
+  .catch(err => {
+    return (Boom.badRequest(err.message));
+  });
+}
 module.exports = [
   {
     method: 'GET',
@@ -71,6 +83,19 @@ module.exports = [
       },
       handler: function (request, reply) {
         reply(returnUsers());
+      }
+    }
+  },
+  {
+    method: 'DELETE',
+    path: '/deleteUser/{id}',
+    config: {
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
+      handler: function (request, reply) {
+        reply(deleteUser(request.params.id));
       }
     }
   }

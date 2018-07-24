@@ -106,7 +106,7 @@ describe('Admin route', () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
     const returnUsers = sandbox.stub().resolves(users);
     const stubs = {
-      '../admin_functions/returnUsers': returnUsers
+      '../routes/admin': returnUsers
     };
     const options = {
       method: 'GET',
@@ -128,11 +128,63 @@ describe('Admin route', () => {
     const token = 'eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTQ4NzU2MTU3MX0.6BTcxkL7uTFpq-6viM0QoNuud9tiF-wjSqW8Bhu5x9Y';
     const returnUsers = sandbox.stub().resolves(users);
     const stubs = {
-      '../admin_functions/returnUsers': returnUsers
+      '../routes/admin': returnUsers
     };
     const options = {
       method: 'GET',
       url: '/admin',
+      headers: {
+        'Authorization': token
+      }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.statusCode).to.deep.equal(401);
+        });
+      });
+  });
+
+  it('Delete Existing User on Authentic hit', () => {
+    const user = {
+      '_id': '5b336c83df44870a04c6d288',
+      'name': 'test3',
+      'images': []
+    };
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
+    const deleteUser = sandbox.stub().resolves(user);
+    const stubs = {
+      '../routes/admin': deleteUser
+    };
+    const options = {
+      method: 'DELETE',
+      url: '/deleteUser/5b336c83df44870a04c6d288',
+      headers: {
+        'Authorization': token
+      }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.statusCode).to.deep.equal(200);
+        });
+      });
+  });
+
+  it('Do not Delete Existing User on Unauthentic hit', () => {
+    const user = {
+      '_id': '5b336c83df44870a04c6d288',
+      'name': 'test3',
+      'images': []
+    };
+    const token = 'eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTQ4NzU2MTU3MX0.6BTcxkL7uTFpq-6viM0QoNuud9tiF-wjSqW8Bhu5x9Y';
+    const deleteUser = sandbox.stub().resolves(user);
+    const stubs = {
+      '../routes/admin': deleteUser
+    };
+    const options = {
+      method: 'DELETE',
+      url: '/deleteUser/5b336c83df44870a04c6d288',
       headers: {
         'Authorization': token
       }
