@@ -88,7 +88,7 @@ module.exports = [
   },
   {
     method: 'DELETE',
-    path: '/deleteUser/{id}',
+    path: '/users/{id}',
     config: {
       auth: {
         strategy: 'jwt',
