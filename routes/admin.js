@@ -4,7 +4,7 @@ const Joi = require('joi');
 const Boom = require('boom');
 const verifyCredentials = require('../models/verifyCredentials');
 const createToken = require('../models/createToken');
-const {deleteUser, returnUsers} = require('../models/admin_helper');
+const {deleteUser, returnUsers, userImages} = require('../models/admin_helper');
 
 module.exports = [
   {
@@ -70,6 +70,19 @@ module.exports = [
       },
       handler: function (request, reply) {
         reply(deleteUser(request.params.id));
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/users/{user_id}',
+    config: {
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
+      handler: function (request, reply) {
+        reply(userImages(request.params.user_id));
       }
     }
   }

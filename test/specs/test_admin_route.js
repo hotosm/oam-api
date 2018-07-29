@@ -4,6 +4,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const User = require('../../models/user');
+const Meta = require('../../models/meta');
 
 const expect = chai.expect;
 chai.should();
@@ -171,6 +172,46 @@ describe('Admin route', () => {
         return server.inject(options).then((res) => {
           expect(res.result.message).to.equal('No Such User Found');
           expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
+  it('Returns User Images with valid User', () => {
+    let images = [
+      {
+        '_id': '5b5d79fdf1db7c4769bf83bc',
+        'uuid': 'http://oin-hotosm.s3.amazonaws.com/593164d3e407d7001138610d/0/6f407df9-a342-4fe8-a802-6cd81ca8974a.tif',
+        'title': 'Finca La escalera'
+      },
+      {
+        '_id': '5b5d7eeef1db7c4769bf83c2',
+        'uuid': 'http://www.example.com/some_image1.tif',
+        'title': 'some_image1.tif'
+      }];
+
+    const user = {
+      '_id': '5b336c83df44870a04c6d288',
+      'name': 'test3',
+      'images': images
+    };
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
+    const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve(user));
+    const stubs = {
+      '../models/admin_helper': findOne, find
+    };
+    const options = {
+      method: 'GET',
+      url: '/users/5b336c83df44870a04c6d288',
+      headers: {
+        'Authorization': token
+      }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result).to.deep.equal(images);
+          expect(res.statusCode).to.equal(200);
         });
       });
   });
