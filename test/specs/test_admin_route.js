@@ -3,6 +3,7 @@ const proxyquire = require('proxyquire');
 const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
+const User = require('../../models/user');
 
 const expect = chai.expect;
 chai.should();
@@ -101,16 +102,16 @@ describe('Admin route', () => {
       });
   });
 
-  it('Users returned when request is authorized', () => {
+  it('Users returned by Get Request', () => {
     const users = [{'name': 'tempUser1'}, {'name': 'tempUser2'}];
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
-    const returnUsers = sandbox.stub().resolves(users);
+    const find = sandbox.stub(User, 'find').returns(Promise.resolve(users));
     const stubs = {
-      '../routes/admin': returnUsers
+      '../models/admin_helper': find
     };
     const options = {
       method: 'GET',
-      url: '/admin',
+      url: '/users',
       headers: {
         'Authorization': token
       }
@@ -118,47 +119,26 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
-          expect(res.statusCode).to.deep.equal(200);
+          expect(res.result).to.deep.equal(users);
+          expect(res.statusCode).to.equal(200);
         });
       });
   });
 
-  it('Users should not returned when request is not authorized', () => {
-    const users = [{'name': 'tempUser1'}, {'name': 'tempUser2'}];
-    const token = 'eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTQ4NzU2MTU3MX0.6BTcxkL7uTFpq-6viM0QoNuud9tiF-wjSqW8Bhu5x9Y';
-    const returnUsers = sandbox.stub().resolves(users);
-    const stubs = {
-      '../routes/admin': returnUsers
-    };
-    const options = {
-      method: 'GET',
-      url: '/admin',
-      headers: {
-        'Authorization': token
-      }
-    };
-    return getServer(stubs)
-      .then((server) => {
-        return server.inject(options).then((res) => {
-          expect(res.statusCode).to.deep.equal(401);
-        });
-      });
-  });
-
-  it('Delete Existing User on Authentic hit', () => {
+  it('Delete User when User exists', () => {
     const user = {
       '_id': '5b336c83df44870a04c6d288',
       'name': 'test3',
       'images': []
     };
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
-    const deleteUser = sandbox.stub().resolves(user);
+    const findOneAndRemove = sandbox.stub(User, 'findOneAndRemove').returns(Promise.resolve(user));
     const stubs = {
-      '../routes/admin': deleteUser
+      '../models/admin_helper': findOneAndRemove
     };
     const options = {
       method: 'DELETE',
-      url: '/deleteUser/5b336c83df44870a04c6d288',
+      url: '/users/5b336c83df44870a04c6d288',
       headers: {
         'Authorization': token
       }
@@ -166,25 +146,22 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
-          expect(res.statusCode).to.deep.equal(200);
+          expect(res.result).to.deep.equal(user);
+          expect(res.statusCode).to.equal(200);
         });
       });
   });
 
-  it('Do not Delete Existing User on Unauthentic hit', () => {
-    const user = {
-      '_id': '5b336c83df44870a04c6d288',
-      'name': 'test3',
-      'images': []
-    };
-    const token = 'eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTQ4NzU2MTU3MX0.6BTcxkL7uTFpq-6viM0QoNuud9tiF-wjSqW8Bhu5x9Y';
-    const deleteUser = sandbox.stub().resolves(user);
+  it('No deletion when User does not exists', () => {
+    const user = null;
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
+    const findOneAndRemove = sandbox.stub(User, 'findOneAndRemove').returns(Promise.resolve(user));
     const stubs = {
-      '../routes/admin': deleteUser
+      '../models/admin_helper': findOneAndRemove
     };
     const options = {
       method: 'DELETE',
-      url: '/deleteUser/5b336c83df44870a04c6d288',
+      url: '/users/5b336c83df44870a04c6d288',
       headers: {
         'Authorization': token
       }
@@ -192,7 +169,8 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
-          expect(res.statusCode).to.deep.equal(401);
+          expect(res.result.message).to.equal('No Such User Found');
+          expect(res.statusCode).to.equal(400);
         });
       });
   });
