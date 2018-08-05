@@ -4,7 +4,7 @@ const Joi = require('joi');
 const Boom = require('boom');
 const verifyCredentials = require('../models/verifyCredentials');
 const createToken = require('../models/createToken');
-const {deleteUser, returnUsers, userImages} = require('../models/admin_helper');
+const {deleteUser, returnUsers, filterByUser, filterByDate, filterByPlatform, filterByLetter, deleteImage} = require('../models/admin_helper');
 
 module.exports = [
   {
@@ -75,14 +75,66 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: '/users/{user_id}',
+    path: '/images/user/{user_id}',
     config: {
       auth: {
         strategy: 'jwt',
         scope: ['admin']
       },
       handler: function (request, reply) {
-        reply(userImages(request.params.user_id));
+        reply(filterByUser(request.params.user_id));
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/images/{day}/{month}/{year}',
+    config: {
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
+      handler: function (request, reply) {
+        reply(filterByDate(request.params.day, request.params.month, request.params.year));
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/images/platform/{platform}',
+    config: {
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
+      handler: function (request, reply) {
+        reply(filterByPlatform(request.params.platform));
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/images/alphabet/{alphabet}',
+    config: {
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
+      handler: function (request, reply) {
+        reply(filterByLetter(request.params.alphabet));
+      }
+    }
+  },
+  {
+    method: 'DELETE',
+    path: '/image/{id}',
+    config: {
+      auth: {
+        strategy: 'jwt',
+        scope: ['admin']
+      },
+      handler: function (request, reply) {
+        reply(deleteImage(request.params.id));
       }
     }
   }

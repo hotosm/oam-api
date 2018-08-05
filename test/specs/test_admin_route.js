@@ -105,7 +105,6 @@ describe('Admin route', () => {
 
   it('Users returned by Get Request', () => {
     const users = [{'name': 'tempUser1'}, {'name': 'tempUser2'}];
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
     const find = sandbox.stub(User, 'find').returns(Promise.resolve(users));
     const stubs = {
       '../models/admin_helper': find
@@ -113,9 +112,7 @@ describe('Admin route', () => {
     const options = {
       method: 'GET',
       url: '/users',
-      headers: {
-        'Authorization': token
-      }
+      credentials: { scope: 'admin' }
     };
     return getServer(stubs)
       .then((server) => {
@@ -132,7 +129,6 @@ describe('Admin route', () => {
       'name': 'test3',
       'images': []
     };
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
     const findOneAndRemove = sandbox.stub(User, 'findOneAndRemove').returns(Promise.resolve(user));
     const stubs = {
       '../models/admin_helper': findOneAndRemove
@@ -140,9 +136,7 @@ describe('Admin route', () => {
     const options = {
       method: 'DELETE',
       url: '/users/5b336c83df44870a04c6d288',
-      headers: {
-        'Authorization': token
-      }
+      credentials: { scope: 'admin' }
     };
     return getServer(stubs)
       .then((server) => {
@@ -155,7 +149,6 @@ describe('Admin route', () => {
 
   it('No deletion when User does not exists', () => {
     const user = null;
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
     const findOneAndRemove = sandbox.stub(User, 'findOneAndRemove').returns(Promise.resolve(user));
     const stubs = {
       '../models/admin_helper': findOneAndRemove
@@ -163,9 +156,7 @@ describe('Admin route', () => {
     const options = {
       method: 'DELETE',
       url: '/users/5b336c83df44870a04c6d288',
-      headers: {
-        'Authorization': token
-      }
+      credentials: { scope: 'admin' }
     };
     return getServer(stubs)
       .then((server) => {
@@ -180,13 +171,15 @@ describe('Admin route', () => {
     let images = [
       {
         '_id': '5b5d79fdf1db7c4769bf83bc',
-        'uuid': 'http://oin-hotosm.s3.amazonaws.com/593164d3e407d7001138610d/0/6f407df9-a342-4fe8-a802-6cd81ca8974a.tif',
-        'title': 'Finca La escalera'
+        'uuid': 'uuid1',
+        'title': 'Finca La escalera',
+        'uploaded_at': '2017-06-02T13:15:01.400Z'
       },
       {
         '_id': '5b5d7eeef1db7c4769bf83c2',
-        'uuid': 'http://www.example.com/some_image1.tif',
-        'title': 'some_image1.tif'
+        'uuid': 'uuid2',
+        'title': 'some_image1.tif',
+        'uploaded_at': '2016-06-02T13:15:01.400Z'
       }];
 
     const user = {
@@ -194,7 +187,6 @@ describe('Admin route', () => {
       'name': 'test3',
       'images': images
     };
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1lQGdtYWlsLmNvbSIsInNjb3BlIjoiYWRtaW4iLCJpYXQiOjE1Mjk3NzM1NzEsImV4cCI6MTY4NzU2MTU3MX0.ZywZaau_67h1ZuhAnEeTMPUOQrM45JUyuoPOa9S_dkg';
     const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
     const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve(user));
     const stubs = {
@@ -203,9 +195,7 @@ describe('Admin route', () => {
     const options = {
       method: 'GET',
       url: '/users/5b336c83df44870a04c6d288',
-      headers: {
-        'Authorization': token
-      }
+      credentials: { scope: 'admin' }
     };
     return getServer(stubs)
       .then((server) => {
