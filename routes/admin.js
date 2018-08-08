@@ -4,7 +4,7 @@ const Joi = require('joi');
 const Boom = require('boom');
 const verifyCredentials = require('../models/verifyCredentials');
 const createToken = require('../models/createToken');
-const {deleteUser, returnUsers, filterByUser, filterByDate, filterByPlatform, filterByLetter, deleteImage} = require('../models/admin_helper');
+const {deleteUser, returnUsers, filterByUserName, filterByDate, filterByPlatform, filterByLetter, deleteImage} = require('../models/admin_helper');
 
 module.exports = [
   {
@@ -75,20 +75,20 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: '/images/user/{user_id}',
+    path: '/images/user/{name}',
     config: {
       auth: {
         strategy: 'jwt',
         scope: ['admin']
       },
       handler: function (request, reply) {
-        reply(filterByUser(request.params.user_id));
+        reply(filterByUserName(request.params.name));
       }
     }
   },
   {
     method: 'GET',
-    path: '/images/{day}/{month}/{year}',
+    path: '/images/date/{day}/{month}/{year}',
     config: {
       auth: {
         strategy: 'jwt',

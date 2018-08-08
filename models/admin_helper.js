@@ -52,6 +52,28 @@ function filterByUser (id) {
   });
 }
 
+function filterByUserName (name) {
+  return User.findOne({name: name}).then(user => {
+    if (!user) {
+      const doesNotExistError = new Error('No Such User Found');
+      throw doesNotExistError;
+    } else {
+      let query = {$in: user.images};
+      return Meta.find({_id: query}).then(images => {
+        if (!images) {
+          const doesNotExistError = new Error('No Such Image Found');
+          throw doesNotExistError;
+        } else {
+          return images;
+        }
+      });
+    }
+  })
+  .catch(err => {
+    return (Boom.badRequest(err.message));
+  });
+}
+
 function filterByDate (day, month, year) {
   return Meta.find({uploaded_at: {$gte: new Date(Date.UTC(year, month - 1, day))}}).then(images => {
     if (!images) {
@@ -108,4 +130,4 @@ function deleteImage (id) {
   });
 }
 
-module.exports = {deleteUser, returnUsers, filterByUser, filterByDate, filterByPlatform, filterByLetter, deleteImage};
+module.exports = {deleteUser, returnUsers, filterByUser, filterByDate, filterByPlatform, filterByLetter, deleteImage, filterByUserName};
