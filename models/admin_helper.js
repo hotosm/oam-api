@@ -100,6 +100,19 @@ function deleteImage (id) {
       const doesNotExistError = new Error('No Such Image Found');
       throw doesNotExistError;
     } else {
+      User.find({}).then(users => {
+        if (!users) {
+          return imageDeleted;
+        } else {
+          users.forEach(function (user) {
+            const index = user.images.indexOf(imageDeleted._id);
+            if (index !== -1) {
+              user.images.splice(index, 1);
+              user.save();
+            }
+          });
+        }
+      });
       return imageDeleted;
     }
   })
