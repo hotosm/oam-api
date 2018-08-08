@@ -30,28 +30,6 @@ function deleteUser (id) {
   });
 }
 
-function filterByUser (id) {
-  return User.findOne({_id: id}).then(user => {
-    if (!user) {
-      const doesNotExistError = new Error('No Such User Found');
-      throw doesNotExistError;
-    } else {
-      let query = {$in: user.images};
-      return Meta.find({_id: query}).then(images => {
-        if (!images) {
-          const doesNotExistError = new Error('No Such Image Found');
-          throw doesNotExistError;
-        } else {
-          return images;
-        }
-      });
-    }
-  })
-  .catch(err => {
-    return (Boom.badRequest(err.message));
-  });
-}
-
 function filterByUserName (name) {
   return User.findOne({name: name}).then(user => {
     if (!user) {
@@ -130,4 +108,4 @@ function deleteImage (id) {
   });
 }
 
-module.exports = {deleteUser, returnUsers, filterByUser, filterByDate, filterByPlatform, filterByLetter, deleteImage, filterByUserName};
+module.exports = {deleteUser, returnUsers, filterByDate, filterByPlatform, filterByLetter, deleteImage, filterByUserName};

@@ -123,6 +123,275 @@ describe('Admin route', () => {
       });
   });
 
+  it('Error message returned for no Users', () => {
+    const find = sandbox.stub(User, 'find').returns(Promise.resolve(null));
+    const stubs = {
+      '../models/admin_helper': find
+    };
+    const options = {
+      method: 'GET',
+      url: '/users',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result.message).to.equal('No User Found');
+          expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
+  it('Returns User Images with valid User', () => {
+    let images = [
+      {
+        '_id': '5b5d79fdf1db7c4769bf83bc',
+        'uuid': 'uuid1',
+        'title': 'Finca La escalera',
+        'uploaded_at': '2017-06-02T13:15:01.400Z'
+      },
+      {
+        '_id': '5b5d7eeef1db7c4769bf83c2',
+        'uuid': 'uuid2',
+        'title': 'some_image1.tif',
+        'uploaded_at': '2016-06-02T13:15:01.400Z'
+      }];
+
+    const user = {
+      '_id': '5b336c83df44870a04c6d288',
+      'name': 'test3',
+      'images': images
+    };
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
+    const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve(user));
+    const stubs = {
+      '../models/admin_helper': findOne, find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/user/test3',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result).to.deep.equal(images);
+          expect(res.statusCode).to.equal(200);
+        });
+      });
+  });
+
+  it('Returns Error message when no such User found', () => {
+    let images = [
+      {
+        '_id': '5b5d79fdf1db7c4769bf83bc',
+        'uuid': 'uuid1',
+        'title': 'Finca La escalera',
+        'uploaded_at': '2017-06-02T13:15:01.400Z'
+      },
+      {
+        '_id': '5b5d7eeef1db7c4769bf83c2',
+        'uuid': 'uuid2',
+        'title': 'some_image1.tif',
+        'uploaded_at': '2016-06-02T13:15:01.400Z'
+      }];
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
+    const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve(null));
+    const stubs = {
+      '../models/admin_helper': findOne, find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/user/test3',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result.message).to.equal('No Such User Found');
+          expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
+  it('Returns Error message when no image for user found', () => {
+    const user = {
+      '_id': '5b336c83df44870a04c6d288',
+      'name': 'test3',
+      'images': []
+    };
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(null));
+    const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve(user));
+    const stubs = {
+      '../models/admin_helper': findOne, find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/user/test3',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result.message).to.equal('No Such Image Found');
+          expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
+  it('Returns Image after dd/mm/yyyy date', () => {
+    let images = [
+      {
+        '_id': '5b5d79fdf1db7c4769bf83bc',
+        'uuid': 'uuid1',
+        'title': 'Finca La escalera',
+        'uploaded_at': '2017-06-02T13:15:01.400Z'
+      },
+      {
+        '_id': '5b5d7eeef1db7c4769bf83c2',
+        'uuid': 'uuid2',
+        'title': 'some_image1.tif',
+        'uploaded_at': '2016-06-02T13:15:01.400Z'
+      }];
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
+    const stubs = {
+      '../models/admin_helper': find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/date/dd/mm/yyyy',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result).to.deep.equal(images);
+          expect(res.statusCode).to.equal(200);
+        });
+      });
+  });
+
+  it('Returns Error when no Image after dd/mm/yyyy date found', () => {
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(null));
+    const stubs = {
+      '../models/admin_helper': find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/date/dd/mm/yyyy',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result.message).to.equal('No Image Found');
+          expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
+  it('Returns Image of Platform', () => {
+    let images = [
+      {
+        '_id': '5b5d79fdf1db7c4769bf83bc',
+        'uuid': 'uuid1',
+        'title': 'Finca La escalera',
+        'uploaded_at': '2017-06-02T13:15:01.400Z'
+      },
+      {
+        '_id': '5b5d7eeef1db7c4769bf83c2',
+        'uuid': 'uuid2',
+        'title': 'some_image1.tif',
+        'uploaded_at': '2016-06-02T13:15:01.400Z'
+      }];
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
+    const stubs = {
+      '../models/admin_helper': find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/platform/p',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result).to.deep.equal(images);
+          expect(res.statusCode).to.equal(200);
+        });
+      });
+  });
+
+  it('Returns Error when no Image of platform found', () => {
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(null));
+    const stubs = {
+      '../models/admin_helper': find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/platform/p',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result.message).to.equal('No Image Found');
+          expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
+  it('Returns Image starting with letter Found', () => {
+    let images = [
+      {
+        '_id': '5b5d79fdf1db7c4769bf83bc',
+        'uuid': 'uuid1',
+        'title': 'Finca La escalera',
+        'uploaded_at': '2017-06-02T13:15:01.400Z'
+      },
+      {
+        '_id': '5b5d7eeef1db7c4769bf83c2',
+        'uuid': 'uuid2',
+        'title': 'some_image1.tif',
+        'uploaded_at': '2016-06-02T13:15:01.400Z'
+      }];
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
+    const stubs = {
+      '../models/admin_helper': find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/alphabet/a',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result).to.deep.equal(images);
+          expect(res.statusCode).to.equal(200);
+        });
+      });
+  });
+
+  it('Returns Error when no Image of a Letter found', () => {
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(null));
+    const stubs = {
+      '../models/admin_helper': find
+    };
+    const options = {
+      method: 'GET',
+      url: '/images/alphabet/a',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result.message).to.equal('No Image Found');
+          expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
   it('Delete User when User exists', () => {
     const user = {
       '_id': '5b336c83df44870a04c6d288',
@@ -163,45 +432,6 @@ describe('Admin route', () => {
         return server.inject(options).then((res) => {
           expect(res.result.message).to.equal('No Such User Found');
           expect(res.statusCode).to.equal(400);
-        });
-      });
-  });
-
-  it('Returns User Images with valid User', () => {
-    let images = [
-      {
-        '_id': '5b5d79fdf1db7c4769bf83bc',
-        'uuid': 'uuid1',
-        'title': 'Finca La escalera',
-        'uploaded_at': '2017-06-02T13:15:01.400Z'
-      },
-      {
-        '_id': '5b5d7eeef1db7c4769bf83c2',
-        'uuid': 'uuid2',
-        'title': 'some_image1.tif',
-        'uploaded_at': '2016-06-02T13:15:01.400Z'
-      }];
-
-    const user = {
-      '_id': '5b336c83df44870a04c6d288',
-      'name': 'test3',
-      'images': images
-    };
-    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
-    const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve(user));
-    const stubs = {
-      '../models/admin_helper': findOne, find
-    };
-    const options = {
-      method: 'GET',
-      url: '/users/5b336c83df44870a04c6d288',
-      credentials: { scope: 'admin' }
-    };
-    return getServer(stubs)
-      .then((server) => {
-        return server.inject(options).then((res) => {
-          expect(res.result).to.deep.equal(images);
-          expect(res.statusCode).to.equal(200);
         });
       });
   });
