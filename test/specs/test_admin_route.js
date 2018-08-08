@@ -143,7 +143,7 @@ describe('Admin route', () => {
   });
 
   it('Returns User Images with valid User', () => {
-    let images = [
+    const images = [
       {
         '_id': '5b5d79fdf1db7c4769bf83bc',
         'uuid': 'uuid1',
@@ -182,7 +182,7 @@ describe('Admin route', () => {
   });
 
   it('Returns Error message when no such User found', () => {
-    let images = [
+    const images = [
       {
         '_id': '5b5d79fdf1db7c4769bf83bc',
         'uuid': 'uuid1',
@@ -240,7 +240,7 @@ describe('Admin route', () => {
   });
 
   it('Returns Image after dd/mm/yyyy date', () => {
-    let images = [
+    const images = [
       {
         '_id': '5b5d79fdf1db7c4769bf83bc',
         'uuid': 'uuid1',
@@ -291,7 +291,7 @@ describe('Admin route', () => {
   });
 
   it('Returns Image of Platform', () => {
-    let images = [
+    const images = [
       {
         '_id': '5b5d79fdf1db7c4769bf83bc',
         'uuid': 'uuid1',
@@ -342,7 +342,7 @@ describe('Admin route', () => {
   });
 
   it('Returns Image starting with letter Found', () => {
-    let images = [
+    const images = [
       {
         '_id': '5b5d79fdf1db7c4769bf83bc',
         'uuid': 'uuid1',
@@ -431,6 +431,50 @@ describe('Admin route', () => {
       .then((server) => {
         return server.inject(options).then((res) => {
           expect(res.result.message).to.equal('No Such User Found');
+          expect(res.statusCode).to.equal(400);
+        });
+      });
+  });
+
+  it('Delete Image when Exists', () => {
+    const imageToDelete = {
+      '_id': '5b5d79fdf1db7c4769bf83bc'
+    };
+    const find = sandbox.stub(User, 'find').returns(Promise.resolve(null));
+    const findOneAndRemove = sandbox.stub(Meta, 'findOneAndRemove').returns(Promise.resolve(imageToDelete));
+    const stubs = {
+      '../models/admin_helper': findOneAndRemove, find
+    };
+    const options = {
+      method: 'DELETE',
+      url: '/image/5b5d79fdf1db7c4769bf83bc',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result).to.deep.equal(imageToDelete);
+          expect(res.statusCode).to.equal(200);
+        });
+      });
+  });
+
+  it('No deletion when User does not exists', () => {
+    const image = null;
+    const findOneAndRemove = sandbox.stub(Meta, 'findOneAndRemove').returns(Promise.resolve(image));
+    const find = sandbox.stub(User, 'find').returns(Promise.resolve(null));
+    const stubs = {
+      '../models/admin_helper': findOneAndRemove, find
+    };
+    const options = {
+      method: 'DELETE',
+      url: '/image/5b5d79fdf1db7c4769bf83bc',
+      credentials: { scope: 'admin' }
+    };
+    return getServer(stubs)
+      .then((server) => {
+        return server.inject(options).then((res) => {
+          expect(res.result.message).to.equal('No Such Image Found');
           expect(res.statusCode).to.equal(400);
         });
       });
