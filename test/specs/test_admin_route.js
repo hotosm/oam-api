@@ -117,6 +117,8 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).returned(Promise.resolve(users));
+          expect(find).to.have.callCount(1);
           expect(res.result).to.deep.equal(users);
           expect(res.statusCode).to.equal(200);
         });
@@ -138,6 +140,8 @@ describe('Admin route', () => {
         return server.inject(options).then((res) => {
           expect(res.result.message).to.equal('No User Found');
           expect(res.statusCode).to.equal(400);
+          expect(find).to.have.callCount(1);
+          expect(find).returned(Promise.resolve(null));
         });
       });
   });
@@ -175,6 +179,12 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(findOne).calledWith({ name: 'test3' });
+          expect(find).calledWith({_id: {$in: user.images}});
+          expect(find).returned(Promise.resolve(images));
+          expect(findOne).returned(Promise.resolve(user));
+          expect(find).to.have.callCount(1);
+          expect(findOne).to.have.callCount(1);
           expect(res.result).to.deep.equal(images);
           expect(res.statusCode).to.equal(200);
         });
@@ -182,20 +192,7 @@ describe('Admin route', () => {
   });
 
   it('Returns Error message when no such User found', () => {
-    const images = [
-      {
-        '_id': '5b5d79fdf1db7c4769bf83bc',
-        'uuid': 'uuid1',
-        'title': 'Finca La escalera',
-        'uploaded_at': '2017-06-02T13:15:01.400Z'
-      },
-      {
-        '_id': '5b5d7eeef1db7c4769bf83c2',
-        'uuid': 'uuid2',
-        'title': 'some_image1.tif',
-        'uploaded_at': '2016-06-02T13:15:01.400Z'
-      }];
-    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve(images));
+    const find = sandbox.stub(Meta, 'find').returns(Promise.resolve('Images'));
     const findOne = sandbox.stub(User, 'findOne').returns(Promise.resolve(null));
     const stubs = {
       '../models/admin_helper': findOne, find
@@ -208,8 +205,12 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(findOne).calledWith({ name: 'test3' });
+          expect(find).to.have.callCount(0);
+          expect(findOne).to.have.callCount(1);
           expect(res.result.message).to.equal('No Such User Found');
           expect(res.statusCode).to.equal(400);
+          expect(findOne).returned(Promise.resolve(null));
         });
       });
   });
@@ -233,6 +234,12 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).calledWith({_id: { $in: user.images }});
+          expect(findOne).calledWith({ name: 'test3' });
+          expect(find).to.have.callCount(1);
+          expect(findOne).to.have.callCount(1);
+          expect(find).returned(Promise.resolve(null));
+          expect(findOne).returned(Promise.resolve(user));
           expect(res.result.message).to.equal('No Such Image Found');
           expect(res.statusCode).to.equal(400);
         });
@@ -259,12 +266,15 @@ describe('Admin route', () => {
     };
     const options = {
       method: 'GET',
-      url: '/images/date/dd/mm/yyyy',
+      url: '/images/date/11/08/2018',
       credentials: { scope: 'admin' }
     };
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).calledWith({ uploaded_at: { $gte: new Date(Date.UTC(2018, 7, 11)) } });
+          expect(find).to.have.callCount(1);
+          expect(find).returned(Promise.resolve(images));
           expect(res.result).to.deep.equal(images);
           expect(res.statusCode).to.equal(200);
         });
@@ -278,13 +288,16 @@ describe('Admin route', () => {
     };
     const options = {
       method: 'GET',
-      url: '/images/date/dd/mm/yyyy',
+      url: '/images/date/11/08/2018',
       credentials: { scope: 'admin' }
     };
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
           expect(res.result.message).to.equal('No Image Found');
+          expect(find).returned(Promise.resolve(null));
+          expect(find).to.have.callCount(1);
+          expect(find).calledWith({ uploaded_at: { $gte: new Date(Date.UTC(2018, 7, 11)) } });    
           expect(res.statusCode).to.equal(400);
         });
       });
@@ -316,6 +329,9 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).returned(Promise.resolve(images));
+          expect(find).to.have.callCount(1);
+          expect(find).calledWith({ platform: 'p' });
           expect(res.result).to.deep.equal(images);
           expect(res.statusCode).to.equal(200);
         });
@@ -335,6 +351,9 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).returned(Promise.resolve(null));
+          expect(find).to.have.callCount(1);
+          expect(find).calledWith({ platform: 'p' });
           expect(res.result.message).to.equal('No Image Found');
           expect(res.statusCode).to.equal(400);
         });
@@ -367,6 +386,9 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).returned(Promise.resolve(images));
+          expect(find).to.have.callCount(1);
+          expect(find).calledWith({title: {$regex: '^' + 'a', $options: 'i'}});
           expect(res.result).to.deep.equal(images);
           expect(res.statusCode).to.equal(200);
         });
@@ -386,6 +408,9 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).returned(Promise.resolve(null));
+          expect(find).to.have.callCount(1);
+          expect(find).calledWith({title: {$regex: '^' + 'a', $options: 'i'}});
           expect(res.result.message).to.equal('No Image Found');
           expect(res.statusCode).to.equal(400);
         });
@@ -410,6 +435,9 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(findOneAndRemove).returned(Promise.resolve(user));
+          expect(findOneAndRemove).to.have.callCount(1);
+          expect(findOneAndRemove).calledWith({_id: '5b336c83df44870a04c6d288'});
           expect(res.result).to.deep.equal(user);
           expect(res.statusCode).to.equal(200);
         });
@@ -430,6 +458,9 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(findOneAndRemove).returned(Promise.resolve(null));
+          expect(findOneAndRemove).to.have.callCount(1);
+          expect(findOneAndRemove).calledWith({_id: '5b336c83df44870a04c6d288'});
           expect(res.result.message).to.equal('No Such User Found');
           expect(res.statusCode).to.equal(400);
         });
@@ -453,13 +484,19 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).returned(Promise.resolve(null));
+          expect(find).to.have.callCount(1);
+          expect(find).calledWith({});
+          expect(findOneAndRemove).returned(Promise.resolve(imageToDelete));
+          expect(findOneAndRemove).to.have.callCount(1);
+          expect(findOneAndRemove).calledWith({_id: '5b5d79fdf1db7c4769bf83bc'});
           expect(res.result).to.deep.equal(imageToDelete);
           expect(res.statusCode).to.equal(200);
         });
       });
   });
 
-  it('No deletion when User does not exists', () => {
+  it('No deletion from users when image does not exists', () => {
     const image = null;
     const findOneAndRemove = sandbox.stub(Meta, 'findOneAndRemove').returns(Promise.resolve(image));
     const find = sandbox.stub(User, 'find').returns(Promise.resolve(null));
@@ -474,6 +511,10 @@ describe('Admin route', () => {
     return getServer(stubs)
       .then((server) => {
         return server.inject(options).then((res) => {
+          expect(find).to.have.callCount(0);
+          expect(findOneAndRemove).returned(Promise.resolve(null));
+          expect(findOneAndRemove).to.have.callCount(1);
+          expect(findOneAndRemove).calledWith({_id: '5b5d79fdf1db7c4769bf83bc'});
           expect(res.result.message).to.equal('No Such Image Found');
           expect(res.statusCode).to.equal(400);
         });
