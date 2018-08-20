@@ -8,9 +8,9 @@ describe('removeDuplicateVertices', () => {
   it('Removes a duplicate vertice', () => {
     const geom = getGeom(geojson);
     expect(geom.coordinates[1][0].length).to.equal(166);
-    removeDuplicateVertices(geom, [128, 136]);
+    removeDuplicateVertices(geojson);
     expect(geom.coordinates[1][0].length).to.equal(165);
-    removeDuplicateVertices(geom, [128, 136]);
+    removeDuplicateVertices(geojson);
     expect(geom.coordinates[1][0].length).to.equal(165);
   });
 });

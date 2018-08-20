@@ -68,7 +68,7 @@ const getServer = (stubs) => {
 };
 
 describe('Updating image metadata', () => {
-  afterEach(() => {
+  beforeEach(() => {
     sandbox.restore();
   });
 
@@ -193,8 +193,7 @@ describe('Updating image metadata', () => {
     };
     const create = sandbox.stub();
     create.onFirstCall().rejects({
-      code: 16755,
-      message: 'error : 100 and 200'
+      code: 16755
     });
     create.onSecondCall().resolves(meta);
 
@@ -216,9 +215,7 @@ describe('Updating image metadata', () => {
         return server.inject(options).then((res) => {
           expect(create.firstCall.args[0].user).to.equal(image.user_id);
           expect(create.secondCall.args[0].user).to.equal(image.user_id);
-
-          expect(removeDuplicateVertices.firstCall.args[1][0]).to.equal(100);
-          expect(removeDuplicateVertices.firstCall.args[1][1]).to.equal(200);
+          expect(removeDuplicateVertices).to.have.been.calledOnce;
           expect(oamSync).to.have.been.calledOnce;
 
           expect(res.statusCode).to.equal(200);
