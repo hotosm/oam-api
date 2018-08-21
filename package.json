@@ -27,7 +27,6 @@
     "@turf/envelope": "^5.0.4",
     "@turf/intersect": "^6.1.2",
     "@turf/invariant": "^4.7.3",
-    "@turf/meta": "^6.0.1",
     "@turf/union": "^6.0.2",
     "async": "2.1.4",
     "aws-sdk": "^2.66.0",

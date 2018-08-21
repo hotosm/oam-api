@@ -392,12 +392,9 @@ function updateUploadMetadata (request, imageId) {
     const metaCreate = Meta.create(meta)
       .catch((error) => {
         if (error.code === 16755) {
-          const errorSplit = error.message.split(':');
-          const errorVertices = errorSplit[errorSplit.length - 1];
-          const verticeIndexStrings = errorVertices.trim().split(' and ');
-          const verticeIndexes = verticeIndexStrings.map(v => parseInt(v, 10));
           // Mutates geojson
-          removeDuplicateVertices(geojson, verticeIndexes);
+          removeDuplicateVertices(request.payload);
+          meta.geojson = getGeom(request.payload);
           return Meta.create(meta);
         } else {
           throw error;

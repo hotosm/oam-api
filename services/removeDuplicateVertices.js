@@ -1,49 +1,48 @@
-const meta = require('@turf/meta');
-
-function findBadRing (geoJSON, vertexIndices) {
-  const coords = geoJSON.coordinates;
-  // Create array of ring indexes with [polygonIndex, ringIndex]
-  const rings = meta.lineReduce(geoJSON,
-    function (accumulator, cl, fi, multiFeatureIndex, geometryIndex) {
-      accumulator.push([multiFeatureIndex, geometryIndex]);
-      return accumulator;
-    }, []);
-
-  const badRing = rings.reduce((accumulator, ring) => {
-    // Check if ring contains duplicate vertex in the first position.
-    const firstIndex = coords[ring[0]][ring[1]][vertexIndices[0]];
-    let ringHasAllDuplicateVertices = true;
-    // Check if ring contains duplicate vertices in the other specified positions.
-    if (firstIndex) {
-      for (let index = 1; index < vertexIndices.length; index++) {
-        if (coords[ring[0]][ring[1]][vertexIndices[index]] != null && coords[ring[0]][ring[1]][vertexIndices[index]][0] === firstIndex[0] &&
-            coords[ring[0]][ring[1]][vertexIndices[index]][1] === firstIndex[1]) {
-        } else {
-          ringHasAllDuplicateVertices = false;
-        }
-      }
-    } else {
-      ringHasAllDuplicateVertices = false;
+function removeDuplicate (point, coordinates, index) {
+  let duplicate = false;
+  let duplicateIndex = null;
+  const lastIndex = coordinates.length - 1;
+  coordinates.forEach((el, coordIndex) => {
+    if (point[0] === el[0] && point[1] === el[1] && index !== coordIndex &&
+        coordIndex < lastIndex && coordIndex !== 0) {
+      duplicate = true;
+      duplicateIndex = coordIndex;
     }
-    if (ringHasAllDuplicateVertices) {
-      accumulator[0] = ring[0];
-      accumulator[1] = ring[1];
-    }
-    return accumulator;
-  }, []);
+  });
+  if (duplicate) {
+    coordinates.splice(duplicateIndex, 1);
+  }
+  return coordinates;
+}
 
-  return badRing;
+function processFeature (feature) {
+  if (feature.geometry.type === 'Polygon') {
+    feature.geometry.coordinates[0].forEach((coordinates) => {
+      coordinates.forEach((point, index) => {
+        feature.geometry.coordinates[0] =
+          removeDuplicate(point, coordinates, index);
+      });
+    });
+  } else if (feature.geometry.type === 'MultiPolygon') {
+    feature.geometry.coordinates.forEach((points, ringIndex) => {
+      points.forEach((coordinates, pointIndex) => {
+        coordinates.forEach((point, coordIndex) => {
+          feature.geometry.coordinates[ringIndex][pointIndex] =
+            removeDuplicate(point, coordinates, coordIndex);
+        });
+      });
+    });
+  }
+  return feature;
 }
 
 // Mutates geoJSON argument
-module.exports = function (geoJSON, vertexIndices) {
-  const badRingIndex = findBadRing(geoJSON, vertexIndices);
-  if (badRingIndex.length === 2) {
-    // Remove duplicate coordinates from the problem ring.
-    const badRing = geoJSON.coordinates[badRingIndex[0]][badRingIndex[1]];
-    for (let index = 1; index < vertexIndices.length; index++) {
-      badRing.splice(vertexIndices[index], 1);
-    }
+module.exports = function (geojson) {
+  if (geojson.features) {
+    geojson.features.forEach((feature, featureIndex) => {
+      geojson.features[featureIndex] = processFeature(feature);
+    });
+  } else {
+    processFeature(geojson);
   }
 };
-
