@@ -63,6 +63,12 @@ Server.prototype.start = function (cb) {
     },
     {
       register: require('../plugins/paginate.js')
+    },
+    {
+      register: require('hapi-raven'),
+      options: {
+        dsn: process.env.SENTRY_DSN
+      }
     }
   ], function (err) {
     if (err) throw err;

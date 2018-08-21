@@ -6,7 +6,7 @@
     "contact": "Aeracoop,aeracoop@gmail.com",
     "properties": {
         "thumbnail": "http://oin-hotosm.s3.amazonaws.com/593164d3e407d7001138610d/0/6f407df9-a342-4fe8-a802-6cd81ca8974a_thumb.png",
-        "tms": "https://tiles.openaerialmap.org/593164d3e407d7001138610d/0/6f407df9-a342-4fe8-a802-6cd81ca8974a/{z}/{x}/{y}.png",
+        "tms": "https://tiles.openaerialmap.org/593164d3e407d7001138610d/0/6f407df9-a342-4fe8-a802-6cd81ca8974a/{z}/{x}/{y}",
         "wmts": "https://tiles.openaerialmap.org/593164d3e407d7001138610d/0/6f407df9-a342-4fe8-a802-6cd81ca8974a/wmts",
         "sensor": "DJI Mavic",
         "license": "CC-BY 4.0",

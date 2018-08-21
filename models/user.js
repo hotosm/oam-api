@@ -3,8 +3,7 @@
 var uuidV4 = require('uuid/v4');
 var mongoose = require('mongoose');
 var FB = require('fb');
-const jwt = require('jsonwebtoken');
-const config = require('../config');
+const createToken = require('./createToken');
 
 var userSchema = mongoose.Schema({
   name: {type: String, required: true},
@@ -48,17 +47,8 @@ userSchema.statics = {
       }
     })
     .then((user) => {
-      const userJWT = jwt.sign(
-        {
-          _id: user._id,
-          name: user.name,
-          contact_email: user.contact_email
-        },
-        config.jwtSecret,
-        { algorithm: 'HS256',
-          expiresIn: '1d'
-        }
-      );
+      const userJWT = createToken(
+        user._id, user.name, user.contact_email, 'user', '1d');
       return userJWT;
     })
     .catch((error) => {
