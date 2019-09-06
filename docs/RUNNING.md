@@ -77,4 +77,22 @@ server {
 Nginx proxies the API service running on localhost to the world. Note:
 Cloudflare fronts the service and protects the API server from common attacks.
 
+## Test
+
+```
+$ sudo systemctl start nginx
+$ sleep 10
+$ nc -zv localhost 80
+Connection to localhost 80 port [tcp/http] succeeded!
+$ nc -zv localhost 443
+Connection to localhost 443 port [tcp/https] succeeded!
+```
+
+
+## TODO:
+
+1. Make building faster by changing ubuntu repository url to `http://us-east-1.ec2.archive.ubuntu.com`
+2. Upgrade Node from v6 to v10 (dev effort needed)
+3. Document CloudFlare DNS configuration
+4. Update API documentation: https://docs.openaerialmap.org/uploader/api-server/
 
