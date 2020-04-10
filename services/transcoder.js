@@ -50,7 +50,7 @@ module.exports.transcode = (sourceUrl, output, metaUrl, callback) => {
       );
     }
 
-    return callback();
+    return _callback();
   });
 };
 
