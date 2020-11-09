@@ -20,6 +20,14 @@ const Parameters = {
         Type: 'String',
         Description: 'Version of production deployment',
         Default: '1'
+    },
+    EFSSecurityGroup: {
+        Type: 'AWS::EC2::SecurityGroup::Id',
+        Description: 'ID of security group that is in the subnet'
+    },
+    Subnets: {
+        Description: 'ELB subnets',
+        Type: 'List<AWS::EC2::Subnet::Id>'
     }
 };
 
@@ -220,21 +228,21 @@ const Resources = {
     BatchComputeEnv100: {
         Type: 'AWS::Batch::ComputeEnvironment',
         Properties: {
-            ComputeEnvironmentName: '',
+            ComputeEnvironmentName: cf.stackName,
             ComputeResources: {
                 'AllocationStrategy': 'BEST_FIT',
                 'BidPercentage': 100,
                 'DesiredvCpus': 0,
                 'MinvCpus': 0,
                 'MaxvCpus': 256,
-                'SpotIamFleetRole': 'arn:aws:iam::670261699094:role/aws-ec2-spot-fleet-role', //make account number from cf.var
+                'SpotIamFleetRole': cf.join('', ['arn:aws:iam::', cf.accountId, ':role/aws-ec2-spot-fleet-role']),
                 'InstanceTypes': ['optimal'],
-                'InstanceRole': 'arn:aws:iam::670261699094:instance-profile/ecsInstanceRole', // same as above
+                'InstanceRole': cf.join('', ['arn:aws:iam::', cf.accountId, ':instance-profile/ecsInstanceRole']), // same as above
                 'Type': 'SPOT',
-                'Subnets': '', //from default vpc export??
+                'Subnets': cf.ref('Subnets'),
                 'Tags': {'Project': 'OpenAerialMap'}
             },
-            ServiceRole: 'arn:aws:iam::670261699094:role/service-role/AWSBatchServiceRole', //add to template
+            ServiceRole: cf.join('', ['arn:aws:iam::', cf.accountId, ':role/service-role/AWSBatchServiceRole']), 
             State: 'ENABLED',
             Tags: {
                 'Name': cf.stackName,
@@ -246,24 +254,24 @@ const Resources = {
     BatchComputeEnv50: {
         Type: 'AWS::Batch::ComputeEnvironment',
         Properties: {
-            ComputeEnvironmentName: '',
+            ComputeEnvironmentName: cf.stackName,
             ComputeResources: {
                 'AllocationStrategy': 'BEST_FIT',
                 'BidPercentage': 50,
                 'DesiredvCpus': 0,
                 'MinvCpus': 0,
                 'MaxvCpus': 256,
-                'SpotIamFleetRole': 'arn:aws:iam::670261699094:role/aws-ec2-spot-fleet-role', //make account number from cf.var
+                'SpotIamFleetRole': cf.join('', ['arn:aws:iam::', cf.accountId, ':role/aws-ec2-spot-fleet-role']), 
                 'InstanceTypes': ['optimal'],
-                'InstanceRole': 'arn:aws:iam::670261699094:instance-profile/ecsInstanceRole', // same as above
+                'InstanceRole': cf.join('', ['arn:aws:iam::', cf.accountId, ':instance-profile/ecsInstanceRole']), 
                 'Type': 'SPOT',
-                'Subnets': '', //from default vpc export??
+                'Subnets': cf.ref('Subnets'), 
                 'Tags': {
                     'Name': cf.stackName,
                     'Project': 'OpenAerialMap'
                 }
             },
-            ServiceRole: 'arn:aws:iam::670261699094:role/service-role/AWSBatchServiceRole', //add to template
+            ServiceRole: cf.join('', ['arn:aws:iam::', cf.accountId, ':role/service-role/AWSBatchServiceRole']), 
             State: 'ENABLED',
             Tags: {
                 'Project': 'OpenAerialMap'
@@ -273,24 +281,23 @@ const Resources = {
     },
     BatchJobDefinition: {
         Type: 'AWS::Batch::JobDefinition',
+        DependsOn: 'BatchScratchStorageMountTarget',
         Properties: {
             Type: 'container',
-            JobDefinitionName: '', //cf.name join
-            Parameters: {
-                ContainerProperties: {
-                    Command: ["process.sh","Ref::input","Ref::output","Ref::callback_url"],
-                    Environment: [{
-                        'Name': 'EFS_HOST',
-                        'Value': '' // from EFS below
+            JobDefinitionName: cf.join('-', [cf.stackName, 'job', 'definition']),
+            ContainerProperties: {
+                Command: ["process.sh","Ref::input","Ref::output","Ref::callback_url"],
+                Environment: [{
+                    'Name': 'EFS_HOST',
+                    'Value': cf.getAtt(cf.ref('BatchScratchStorageMountTarget', 'IpAddress')), 
                     }],
-                    Image: 'quay.io/mojodna/marblecutter-tools',
-                    JobRoleArn: cf.ref('BatchJobRole'),
-                    Memory: 3000,
-                    Privileged: true,
-                    Vcpus: 1
-                }
+                Image: 'quay.io/mojodna/marblecutter-tools',
+                JobRoleArn: cf.ref('BatchJobRole'),
+                Memory: 3000,
+                Privileged: true,
+                Vcpus: 1
             },
-            RetryStrategy: {
+            RetryStrategies: {
                 Attempts: 2
             },
             Tags: {
@@ -320,25 +327,34 @@ const Resources = {
     BatchJobQueue: {
         Type: 'AWS::Batch::JobQueue',
         Properties: {
-            JobQueueName: '',
+            JobQueueName: cf.stackName,
             ComputeEnvironmentOrder: [],
             Priority: 10,
             State: 'ENABLED',
-            Tags: [ ]
+            Tags: {
+                'Name': cf.stackName,
+                'Project':'OpenAerialMap'
+            }
         }
     },
     BatchScratchStorageFileSystem: {
         Type: 'AWS::EFS::FileSystem',
         Properties: {
-
+            FileSystemTags: [
+                {
+                    Key:"Name",
+                    Value: cf.stackName
+                }
+            ],
+            PerformanceMode: 'generalPurpose'
         }
     },
     BatchScratchStorageMountTarget: {
         Type: 'AWS::EFS::MountTarget',
         Properties: {
             FileSystemId: cf.getAtt('BatchScratchStorageFileSystem', 'Arn'),
-            SecurityGroups: [],
-            SubnetId: ''
+            SecurityGroups: [cf.ref("EFSSecurityGroup")],
+            SubnetId: cf.select(0, cf.ref('Subnets'))
         }
     },
 };
