@@ -21,12 +21,12 @@ const Parameters = {
         Description: 'Version of production deployment',
         Default: '1'
     },
-    EFSSecurityGroup: {
+    SecurityGroup: {
         Type: 'AWS::EC2::SecurityGroup::Id',
         Description: 'ID of security group that is in the subnet'
     },
     Subnets: {
-        Description: 'ELB subnets',
+        Description: 'List of 6 ELB subnets',
         Type: 'List<AWS::EC2::Subnet::Id>'
     }
 };
@@ -228,7 +228,7 @@ const Resources = {
     BatchComputeEnv100: {
         Type: 'AWS::Batch::ComputeEnvironment',
         Properties: {
-            ComputeEnvironmentName: cf.stackName,
+            ComputeEnvironmentName: cf.join('-', [cf.stackName, 'ce100']),
             ComputeResources: {
                 'AllocationStrategy': 'BEST_FIT',
                 'BidPercentage': 100,
@@ -240,6 +240,7 @@ const Resources = {
                 'InstanceRole': cf.join('', ['arn:aws:iam::', cf.accountId, ':instance-profile/ecsInstanceRole']), // same as above
                 'Type': 'SPOT',
                 'Subnets': cf.ref('Subnets'),
+                'SecurityGroupIds': [cf.ref('SecurityGroup')],
                 'Tags': {'Project': 'OpenAerialMap'}
             },
             ServiceRole: cf.join('', ['arn:aws:iam::', cf.accountId, ':role/service-role/AWSBatchServiceRole']), 
@@ -254,7 +255,7 @@ const Resources = {
     BatchComputeEnv50: {
         Type: 'AWS::Batch::ComputeEnvironment',
         Properties: {
-            ComputeEnvironmentName: cf.stackName,
+            ComputeEnvironmentName: cf.join('-', [cf.stackName, 'ce50']),
             ComputeResources: {
                 'AllocationStrategy': 'BEST_FIT',
                 'BidPercentage': 50,
@@ -266,6 +267,7 @@ const Resources = {
                 'InstanceRole': cf.join('', ['arn:aws:iam::', cf.accountId, ':instance-profile/ecsInstanceRole']), 
                 'Type': 'SPOT',
                 'Subnets': cf.ref('Subnets'), 
+                'SecurityGroupIds': [cf.ref('SecurityGroup')],
                 'Tags': {
                     'Name': cf.stackName,
                     'Project': 'OpenAerialMap'
@@ -281,7 +283,6 @@ const Resources = {
     },
     BatchJobDefinition: {
         Type: 'AWS::Batch::JobDefinition',
-        DependsOn: 'BatchScratchStorageMountTarget',
         Properties: {
             Type: 'container',
             JobDefinitionName: cf.join('-', [cf.stackName, 'job', 'definition']),
@@ -289,7 +290,7 @@ const Resources = {
                 Command: ["process.sh","Ref::input","Ref::output","Ref::callback_url"],
                 Environment: [{
                     'Name': 'EFS_HOST',
-                    'Value': cf.getAtt(cf.ref('BatchScratchStorageMountTarget', 'IpAddress')), 
+                    'Value': cf.join('.', [cf.ref('BatchScratchStorageFileSystem'), 'efs', cf.region, 'amazonaws.com']), 
                     }],
                 Image: 'quay.io/mojodna/marblecutter-tools',
                 JobRoleArn: cf.ref('BatchJobRole'),
@@ -297,7 +298,7 @@ const Resources = {
                 Privileged: true,
                 Vcpus: 1
             },
-            RetryStrategies: {
+            RetryStrategy: {
                 Attempts: 2
             },
             Tags: {
@@ -316,7 +317,7 @@ const Resources = {
                     Principal: {
                         Service: [ 'ecs-tasks.amazonaws.com' ]
                     },
-                    Action: [ "sts.AssumeRole" ]
+                    Action: [ "sts:AssumeRole" ]
                 }]
             },
             ManagedPolicyArns: [
@@ -328,7 +329,10 @@ const Resources = {
         Type: 'AWS::Batch::JobQueue',
         Properties: {
             JobQueueName: cf.stackName,
-            ComputeEnvironmentOrder: [],
+            ComputeEnvironmentOrder: [{
+                ComputeEnvironment: cf.ref('BatchComputeEnv100'),
+                Order: 0
+            }],
             Priority: 10,
             State: 'ENABLED',
             Tags: {
@@ -344,17 +348,61 @@ const Resources = {
                 {
                     Key:"Name",
                     Value: cf.stackName
+                },
+                {
+                    Key:"Project",
+                    Value:"OpenAerialMap"
                 }
             ],
             PerformanceMode: 'generalPurpose'
         }
     },
-    BatchScratchStorageMountTarget: {
+    BatchScratchStorageMountTarget0: {
         Type: 'AWS::EFS::MountTarget',
         Properties: {
-            FileSystemId: cf.getAtt('BatchScratchStorageFileSystem', 'Arn'),
-            SecurityGroups: [cf.ref("EFSSecurityGroup")],
+            FileSystemId: cf.ref('BatchScratchStorageFileSystem'),
+            SecurityGroups: [cf.ref('SecurityGroup')],
             SubnetId: cf.select(0, cf.ref('Subnets'))
+        }
+    },
+    BatchScratchStorageMountTarget1: {
+        Type: 'AWS::EFS::MountTarget',
+        Properties: {
+            FileSystemId: cf.ref('BatchScratchStorageFileSystem'),
+            SecurityGroups: [cf.ref('SecurityGroup')],
+            SubnetId: cf.select(1, cf.ref('Subnets'))
+        }
+    },
+    BatchScratchStorageMountTarget2: {
+        Type: 'AWS::EFS::MountTarget',
+        Properties: {
+            FileSystemId: cf.ref('BatchScratchStorageFileSystem'),
+            SecurityGroups: [cf.ref('SecurityGroup')],
+            SubnetId: cf.select(2, cf.ref('Subnets'))
+        }
+    },
+    BatchScratchStorageMountTarget3: {
+        Type: 'AWS::EFS::MountTarget',
+        Properties: {
+            FileSystemId: cf.ref('BatchScratchStorageFileSystem'),
+            SecurityGroups: [cf.ref('SecurityGroup')],
+            SubnetId: cf.select(3, cf.ref('Subnets'))
+        }
+    },
+    BatchScratchStorageMountTarget4: {
+        Type: 'AWS::EFS::MountTarget',
+        Properties: {
+            FileSystemId: cf.ref('BatchScratchStorageFileSystem'),
+            SecurityGroups: [cf.ref('SecurityGroup')],
+            SubnetId: cf.select(4, cf.ref('Subnets'))
+        }
+    },
+    BatchScratchStorageMountTarget5: {
+        Type: 'AWS::EFS::MountTarget',
+        Properties: {
+            FileSystemId: cf.ref('BatchScratchStorageFileSystem'),
+            SecurityGroups: [cf.ref('SecurityGroup')],
+            SubnetId: cf.select(5, cf.ref('Subnets'))
         }
     },
 };
@@ -364,7 +412,7 @@ const lambda = new cf.shortcuts.Lambda({
     Description: 'Marblecutter Production Lambda',
     MemorySize: 1536,
     Timeout: 18,
-    Runtime: 'nodejs8.10',  // TODO: UPDATE
+    Runtime: 'nodejs10.x',  // TODO: UPDATE
     Handler: '_proxy.handle',
     Code: { // TODO: FIND OUT
         S3Bucket: 'bucket-name',
