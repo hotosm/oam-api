@@ -20,6 +20,21 @@ const Parameters = {
         Type: 'String',
         Description: 'Version of production deployment',
         Default: '1'
+    },
+    LambdaRuntime: {
+        Type: 'String',
+        Description: 'NodeJS Runtime (Version) for Lambda',
+        Default: 'nodejs8.10',  // TODO: UPDATE'
+    },
+    LambdaCodeBucketName: {
+        Type: 'String',
+        Description: 'Name of the bucket hosting Lambda Code',
+        Default: 'hot-oam-bucket',  // TODO: UPDATE'
+    },
+    LambdaCodePath: {
+        Type: 'String',
+        Description: 'Path to zipped code file in Bucket',
+        Default: '/marblecutter-production-lambda.zip',  // TODO: UPDATE'
     }
 };
 
@@ -348,11 +363,11 @@ const lambda = new cf.shortcuts.Lambda({
     Description: 'Marblecutter Production Lambda',
     MemorySize: 1536,
     Timeout: 18,
-    Runtime: 'nodejs8.10',  // TODO: UPDATE
+    Runtime: cf.ref('LambdaRuntime'),
     Handler: '_proxy.handle',
     Code: { // TODO: FIND OUT
-        S3Bucket: 'bucket-name',
-        S3Key: 'path/to/file.zip'
+        S3Bucket: cf.ref('LambdaCodeBucketName'),
+        S3Key: cf.ref('LambdaCodePath'),
     },
     Environment: {
         Variables: {  // TODO: PARAMETERIZE
