@@ -111,8 +111,13 @@ var batchTranscode = (jobName, input, output, callbackUrl, callback) =>
           callback_url: callbackUrl
         },
         containerOverrides: {
-          memory
-        }
+          "resourceRequirements": [
+            {
+             "type": "MEMORY",
+             "value": memory
+            }
+          ],
+        },
       },
       (err, data) => callback(err)
     )
