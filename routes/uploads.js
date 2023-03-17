@@ -386,6 +386,9 @@ function updateUploadMetadata (request, imageId) {
     meta.properties.tms = `${config.tilerBaseUrl}/cog/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=${encodeURIComponent(meta.uuid)}`;
     meta.properties.wmts = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
 
+    const tilejsonUrl = `${config.tilerBaseUrl}/cog/tilejson.json?url=${encodeURIComponent(meta.uuid)}`;
+    meta.properties.tilejson = tilejsonUrl;
+
     // remove duplicated properties
     delete meta.properties.projection;
     delete meta.properties.size;
