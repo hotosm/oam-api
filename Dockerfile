@@ -17,11 +17,13 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+RUN npm install --global yarn
+
 WORKDIR /app
 
 COPY package.json /app
 
-RUN npm install \
+RUN yarn install \
   && rm -rf /root/.npm
 
 COPY . /app
