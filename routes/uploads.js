@@ -383,8 +383,11 @@ function updateUploadMetadata (request, imageId) {
     meta.uploaded_at = new Date();
     meta.properties = Object.assign(meta.properties, request.payload.properties);
     meta.properties.thumbnail = meta.properties.thumbnail.replace(/^s3:\/\/([^/]+)\//, `https://$1.${config.s3PublicDomain}/`);
-    meta.properties.tms = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}`;
+    meta.properties.tms = `${config.tilerBaseUrl}/cog/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=${encodeURIComponent(meta.uuid)}`;
     meta.properties.wmts = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
+
+    const tilejsonUrl = `${config.tilerBaseUrl}/cog/tilejson.json?url=${encodeURIComponent(meta.uuid)}`;
+    meta.properties.tilejson = tilejsonUrl;
 
     // remove duplicated properties
     delete meta.properties.projection;
