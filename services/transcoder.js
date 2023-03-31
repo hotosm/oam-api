@@ -21,6 +21,7 @@ module.exports.transcode = (sourceUrl, output, metaUrl, callback) => {
     AWS_ACCESS_KEY_ID: config.awsKey,
     AWS_SECRET_ACCESS_KEY: config.awsSecret,
     AWS_DEFAULT_REGION: config.awsRegion,
+    AWS_REGION: config.awsRegion,
     THUMBNAIL_SIZE: config.thumbnailSize
   });
 
