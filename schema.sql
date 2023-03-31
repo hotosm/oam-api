@@ -52,10 +52,6 @@ insert into public.layers(
 select
     'openaerialmap_geocint',
     'OAM Mosaic',
-    -- (case '<stage>' when 'dev' then 'https://test-apps02.konturlabs.com/raster-tiler/oam/mosaic/{z}/{x}/{y}.png'
-    --                 when 'test' then 'https://test-apps.konturlabs.com/raster-tiler/oam/mosaic/{z}/{x}/{y}.png'
-    --                 else  'https://apps.kontur.io/raster-tiler/oam/mosaic/{z}/{x}/{y}.png'
-    -- end),
     '',
     'raster',
     'The open collection of openly licensed satellite and unmanned aerial vehicle (UAV) imagery. ',
