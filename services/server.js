@@ -40,7 +40,7 @@ var Server = function (port) {
 
 Server.prototype.start = function (cb) {
   var self = this;
-  self.hapi.connection({ port: self.port });
+  self.hapi.connection({ port: self.port, uri: config.host });
 
   self.hapi.register([
     { register: require('../plugins/authentication') },
