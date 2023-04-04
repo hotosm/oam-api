@@ -21,6 +21,7 @@ RUN npm install --global yarn
 
 WORKDIR /app
 
+COPY yarn.lock /app
 COPY package.json /app
 
 RUN yarn install \
