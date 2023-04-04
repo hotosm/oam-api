@@ -1,6 +1,8 @@
+CREATE EXTENSION btree_gist;
+
 -- STEP1 create table layers
-DROP TABLE IF EXISTS public.layers;
-CREATE TABLE public.layers (
+DROP TABLE IF EXISTS layers;
+CREATE TABLE layers (
     id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
     public_id text NOT NULL,
     "name" text NULL,
@@ -18,7 +20,7 @@ CREATE TABLE public.layers (
     properties jsonb NULL,
     is_dirty bool NULL,
     zoom_visibility_rules jsonb NULL,
-    geom public.geometry NULL,
+    geom geometry NULL,
     is_visible bool NULL DEFAULT false,
     feature_properties jsonb NULL,
     api_key varchar NULL,
@@ -31,11 +33,11 @@ CREATE TABLE public.layers (
     CONSTRAINT layers_pkey PRIMARY KEY (id),
     CONSTRAINT layers_public_id_key UNIQUE (public_id)
 );
-CREATE INDEX layers_geom_idx ON public.layers USING gist (geom);
+CREATE INDEX layers_geom_idx ON layers USING gist (geom);
 
 
 -- STEP2 populate table layers with feature for openaerialmap
-insert into public.layers(
+insert into layers(
     public_id,
     name,
     url,
@@ -66,20 +68,20 @@ select
 
 
 -- STEP3 creating table layers_features
-DROP TABLE IF EXISTS public.layers_features;
-CREATE TABLE public.layers_features (
+DROP TABLE IF EXISTS layers_features;
+CREATE TABLE layers_features (
     feature_id text NOT NULL,
     layer_id int4 NOT NULL,
     properties jsonb NULL,
-    geom public.geometry NULL,
+    geom geometry NULL,
     last_updated timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     zoom int4 NULL DEFAULT 999,
     CONSTRAINT layers_features_feature_id_layer_id_zoom_key UNIQUE (feature_id, layer_id, zoom)
 );
-CREATE INDEX layers_features_3857_idx ON public.layers_features USING gist (st_transform(geom, 3857));
-CREATE INDEX layers_features_layer_id_3857_idx ON public.layers_features USING gist (layer_id, st_transform(geom, 3857));
-CREATE INDEX layers_features_layer_id_geom_idx ON public.layers_features USING gist (layer_id, geom);
-CREATE INDEX layers_features_layer_id_zoom_geom_idx ON public.layers_features USING gist (layer_id, zoom, geom);
-CREATE INDEX layers_features_zoom_idx ON public.layers_features USING btree (zoom);
+CREATE INDEX layers_features_3857_idx ON layers_features USING gist (st_transform(geom, 3857));
+CREATE INDEX layers_features_layer_id_3857_idx ON layers_features USING gist (layer_id, st_transform(geom, 3857));
+CREATE INDEX layers_features_layer_id_geom_idx ON layers_features USING gist (layer_id, geom);
+CREATE INDEX layers_features_layer_id_zoom_geom_idx ON layers_features USING gist (layer_id, zoom, geom);
+CREATE INDEX layers_features_zoom_idx ON layers_features USING btree (zoom);
 
-ALTER TABLE public.layers_features ADD CONSTRAINT layers_features_layer_id_fkey FOREIGN KEY (layer_id) REFERENCES public.layers(id) ON DELETE CASCADE;
+ALTER TABLE layers_features ADD CONSTRAINT layers_features_layer_id_fkey FOREIGN KEY (layer_id) REFERENCES layers(id) ON DELETE CASCADE;
