@@ -21,6 +21,7 @@ var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 var request = require('request');
 var cron = require('node-cron');
+var { Client: pgClient } = require('pg');
 
 var db = new Conn();
 db.start();
@@ -180,5 +181,64 @@ cron.schedule(
       'Running a catalog worker (cron time: ' + config.cronTime + ')'
     );
     getListAndReadBuckets();
+  }
+);
+
+let pgConnection;
+async function pgCreateConnection() {
+  if (pgConnection) {
+    return pgConnection;
+  }
+
+  const connection = new pgClient({
+    connectionString: "postgres://postgres:postgres@postgres:5432/postgres" // FIXME: should be specified in env vars
+  });
+  await connection.connect();
+
+  pgConnection = connection;
+  return pgConnection;
+}
+
+// This is a task scheduled by cron run that copies all images metadata from
+// mongodb in postgres. It is required to run mosaic server that relies on
+// postgres db with postgis extension.
+cron.schedule(
+  "* * * * *", // NOTE: this is a cron rule to start task every minite. FIXME: should be coming from config
+  async function() {
+    const records = await new Promise((resolve, reject) => {
+      Meta.find({}, null, {}).exec((err, records) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(records);
+      })
+    });
+
+    const pgConnection = await pgCreateConnection();
+
+    try {
+      await pgConnection.query("begin");
+
+      await pgConnection.query("delete from layers_features where layer_id = (select id from layers where public_id = 'openaerialmap_geocint')");
+
+      // TODO: there should be a better way to do bulk insert
+      const queryText = "insert into public.layers_features (feature_id, layer_id, properties, geom, last_updated, zoom) values ($1, (select id from layers where public_id = 'openaerialmap_geocint'), $2, ST_Transform(ST_GeomFromGeoJSON($3), 4326), now(), 999)";
+      for (const record of records) {
+        const queryValues = [
+          record._id,
+          JSON.stringify(record.properties),
+          JSON.stringify(record.geojson)
+        ];
+
+        await pgConnection.query(queryText, queryValues);
+      };
+
+      await pgConnection.query("commit");
+    } catch(err) {
+      console.error(err);
+      await pgConnection.query("rollback");
+    }
   }
 );
