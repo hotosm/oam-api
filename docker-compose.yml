@@ -37,6 +37,11 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+  postgres:
+    build:
+      context: ./postgres
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
   worker:
     extends: app
     environment:
@@ -45,9 +50,11 @@ services:
     depends_on:
       - mongo
       - register
+      - postgres
     links:
       - mongo
       - register
+      - postgres
     volumes:
       - ./bin:/app/bin
       - ./controllers:/app/controllers
