@@ -462,7 +462,10 @@ function updateUploadMessage (request, imageId) {
       _id: imageId
     }, {
       $push: {
-        messages: request.payload.message
+        messages: {
+          status: request.payload.status,
+          message: request.payload.message
+        }
       }
     });
   }
