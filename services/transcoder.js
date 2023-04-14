@@ -17,7 +17,7 @@ var s3bucket = config.oinBucket;
 module.exports.transcode = (sourceUrl, output, metaUrl, callback) => {
   var args = [sourceUrl, output, metaUrl];
 
-  var child = cp.spawn('process.sh', args, {
+  var child = cp.spawn('process.py', args, {
     AWS_ACCESS_KEY_ID: config.awsKey,
     AWS_SECRET_ACCESS_KEY: config.awsSecret,
     AWS_DEFAULT_REGION: config.awsRegion,
