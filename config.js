@@ -77,7 +77,7 @@ const config = {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
       'processed. You can check on the status of the upload at ' +
-      process.env.BROWSER_URL + '/#/upload/status/{UPLOAD_ID}.'
+      process.env.BROWSER_URL + '/#/upload/status/{UPLOAD_ID}'
   },
 
   // For encrypting/decrypting cookie data
