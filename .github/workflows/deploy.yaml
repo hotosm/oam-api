@@ -33,5 +33,5 @@ jobs:
         run: |
           ssh -p 33322 -o "StrictHostKeyChecking no" gis@geocint.kontur.io << 'ENDSSH'
           cd ~/oam-api && git pull
-          docker-compose down --volumes && docker-compose up --build
+          docker-compose up -d --build
           ENDSSH
