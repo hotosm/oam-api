@@ -37,6 +37,25 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+  postgres:
+    build:
+      context: ./postgres
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+  mosaic:
+    image: mosaic-tiler:latest
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    environment:
+      - OAM_LAYER_ID=openaerialmap-geocint
+      - DB_DISABLE_SSL=true
+      - PORT=8081
+    volumes:
+      - ./tiles:/tiles
+    ports:
+      - 8081:8081
   worker:
     extends: app
     environment:
@@ -45,9 +64,11 @@ services:
     depends_on:
       - mongo
       - register
+      - postgres
     links:
       - mongo
       - register
+      - postgres
     volumes:
       - ./bin:/app/bin
       - ./controllers:/app/controllers

@@ -11,17 +11,20 @@ RUN apt-get update \
     git \
     software-properties-common \
   && curl -sf https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
-  && add-apt-repository -s "deb https://deb.nodesource.com/node_6.x $(lsb_release -c -s) main" \
+  && add-apt-repository -s "deb https://deb.nodesource.com/node_10.x $(lsb_release -c -s) main" \
   && apt-get update \
   && apt-get install --no-install-recommends -y nodejs \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+RUN npm install --global yarn
+
 WORKDIR /app
 
+COPY yarn.lock /app
 COPY package.json /app
 
-RUN npm install \
+RUN yarn install \
   && rm -rf /root/.npm
 
 COPY . /app
