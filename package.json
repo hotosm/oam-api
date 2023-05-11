@@ -70,7 +70,7 @@
     "apidoc": "^0.13.1",
     "build-url": "^1.0.10",
     "chai": "^2.3.0",
-    "ecstatic": "^0.8.0",
+    "ecstatic": "^4.1.4",
     "eslint": "^3.10.2",
     "eslint-config-standard": "^6.2.1",
     "eslint-config-standard-react": "^4.2.0",
