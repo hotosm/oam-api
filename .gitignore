@@ -15,6 +15,6 @@ npm-debug.log
 temp
 tmp
 scratch.js
-docs
+#docs
 local.env
 
