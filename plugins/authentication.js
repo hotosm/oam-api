@@ -5,6 +5,11 @@ var User = require('../models/user');
 
 var Authentication = {
   register: function (server, options, next) {
+    server.ext('onPreAuth', function (request, reply) {
+      request.connection.info.protocol = 'https';
+      return reply.continue();
+    });
+
     server.register([
       { register: require('hapi-auth-cookie') },
       // Various OAuth login strategies
@@ -35,6 +40,8 @@ var Authentication = {
       });
 
       server.auth.strategy('session', 'cookie', {
+        ttl: 24 * 60 * 60 * 7000, // 7 days
+        keepAlive: true,
         password: config.cookiePassword,
         cookie: config.sessionCookieKey,
         domain: config.hostTld === 'localhost' ? null : config.hostTld,
