@@ -1,22 +1,30 @@
-version: '2'
+version: "2"
+
+volumes:
+  mongodb: ~
+
 services:
   app:
     environment:
       - API_ENDPOINT=http://api:4000
       - DB_URI=mongodb://mongo/oam-api
-      - S3_PUBLIC_DOMAIN=s3.amazonaws.com
-    env_file: .env
+      - BROWSER_URL=http://localhost:3000
+      - OAM_DEBUG=true
+      - HOST=0.0.0.0
+    env_file: .env.local
     build:
       context: .
       args:
         - NODE_ENV=development
     command: "false"
+
   api:
     extends: app
     environment:
       - PORT=4000
       - HOST_TLD=localhost
       - COOKIE_PASSWORD=12345678901234567890123456789012
+      - TILER_BASE_URL=http://localhost:8000
     command: nodemon index.js
     depends_on:
       - mongo
@@ -37,38 +45,24 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
-  postgres:
-    build:
-      context: ./postgres
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-  mosaic:
-    image: mosaic-tiler:latest
-    depends_on:
-      - postgres
-    links:
-      - postgres
-    environment:
-      - OAM_LAYER_ID=openaerialmap-geocint
-      - DB_DISABLE_SSL=true
-      - PORT=8081
-    volumes:
-      - ./tiles:/tiles
-    ports:
-      - 8081:8081
+
   worker:
     extends: app
     environment:
-      - OIN_REGISTER_URL=http://register:8080/fixtures/oin-buckets.json
+      - DOT_ENV_FILENAME=.env.local
+      - CRON_TIME=*/15 * * * *
+      - PGHOST=host.docker.internal # postgres from mosaic-tiler in dev mode on localhost
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
+      - PGDATABASE=postgres
     command: nodemon catalog-worker.js
     depends_on:
       - mongo
       - register
-      - postgres
     links:
       - mongo
       - register
-      - postgres
     volumes:
       - ./bin:/app/bin
       - ./controllers:/app/controllers
@@ -82,6 +76,7 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+
   transcoder:
     extends: app
     command: nodemon bin/transcoder.js
@@ -103,6 +98,7 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+
   register:
     build:
       context: .
@@ -113,7 +109,17 @@ services:
       - 8080:8080
     volumes:
       - ./test:/app/test
+
   mongo:
     image: mongo:3
-    logging:
-      driver: none
+    volumes:
+      - mongodb:/data/db
+
+  mongo-express:
+    image: mongo-express:1.0.0-alpha.4
+    ports:
+      - 8081:8081
+    links:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/

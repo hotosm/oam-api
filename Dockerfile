@@ -1,4 +1,4 @@
-FROM quay.io/mojodna/marblecutter-tools
+FROM public.ecr.aws/r4e3a2l5/marblecutter-tools:latest
 
 ARG NODE_ENV=production
 

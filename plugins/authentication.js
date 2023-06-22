@@ -5,10 +5,12 @@ var User = require('../models/user');
 
 var Authentication = {
   register: function (server, options, next) {
-    server.ext('onPreAuth', function (request, reply) {
-      request.connection.info.protocol = 'https';
-      return reply.continue();
-    });
+    if (config.isCookieOverHTTPS) {
+      server.ext('onPreAuth', function (request, reply) {
+        request.connection.info.protocol = 'https';
+        return reply.continue();
+      });
+    }
 
     server.register([
       { register: require('hapi-auth-cookie') },

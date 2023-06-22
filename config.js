@@ -34,6 +34,9 @@ const config = {
   apiEndpoint: process.env.API_ENDPOINT,
   browserURL: process.env.BROWSER_URL,
 
+  // Mosaic layer
+  oamMosacLayerId: process.env.OAM_LAYER_ID || 'openaerialmap',
+
   // DB connection
   dbUri: process.env.DB_URI,
 

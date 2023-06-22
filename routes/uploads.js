@@ -403,7 +403,18 @@ function updateUploadMetadata (request, imageId) {
           throw error;
         }
       })
-      .then(obj => obj.oamSync())
+      .then(meta => {
+        db.collection('images').updateOne({
+          _id: imageId
+        }, {
+          $set: {
+            metadata: meta
+          }
+        });
+
+        return meta;
+      })
+      .then(meta => meta.oamSync())
       .then(() => true);
     return metaCreate;
   });

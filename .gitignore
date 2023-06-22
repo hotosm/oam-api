@@ -9,7 +9,9 @@ npm-debug.log
 *#
 .DS_STORE
 .netbeans
-.env
+.env*
+!.env.sample
+!.env.local.sample
 .idea
 .node_history
 temp
