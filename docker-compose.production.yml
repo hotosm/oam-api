@@ -1,0 +1,34 @@
+version: "2"
+
+services:
+  app:
+    restart: always
+    environment:
+      - NODE_ENV=production
+    env_file: .env
+    build:
+      context: .
+      args:
+        - NODE_ENV=production
+    command: "false"
+
+  api:
+    extends: app
+    environment:
+      - PORT=4000
+      - NODE_OPTIONS=--max_old_space_size=2048
+    command: nodemon index.js
+    ports:
+      - 4000:4000
+
+  worker:
+    extends: app
+    environment:
+      - DOT_ENV_FILENAME=.env
+    command: node catalog-worker.js
+
+  transcoder:
+    extends: app
+    command: node bin/transcoder.js
+    depends_on:
+      - api
