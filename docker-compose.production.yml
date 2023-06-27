@@ -17,7 +17,7 @@ services:
     environment:
       - PORT=4000
       - NODE_OPTIONS=--max_old_space_size=2048
-    command: nodemon index.js
+    command: node index.js
     ports:
       - 4000:4000
 
@@ -27,8 +27,8 @@ services:
       - DOT_ENV_FILENAME=.env
     command: node catalog-worker.js
 
-  transcoder:
-    extends: app
-    command: node bin/transcoder.js
-    depends_on:
-      - api
+  # transcoder:
+  #   extends: app
+  #   command: node bin/transcoder.js
+  #   depends_on:
+  #     - api
