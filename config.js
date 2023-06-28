@@ -18,12 +18,6 @@ if (process.env.INTEGRATION_TESTS === 'true') {
   process.env.API_ENDPOINT = 'http://localhost:' + process.env.PORT;
 }
 
-if (process.env.NODE_ENV === 'production') {
-  // Paranoid safety measure to prevent imagery being placed in a namespacing
-  // directory.
-  process.env.OIN_BUCKET_PREFIX = null;
-}
-
 const config = {
   env: process.env.NODE_ENV,
   debug: process.env.OAM_DEBUG,
