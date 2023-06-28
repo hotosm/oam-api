@@ -2,7 +2,6 @@ version: "2"
 
 services:
   app:
-    restart: always
     environment:
       - NODE_ENV=production
     env_file: .env
@@ -13,6 +12,7 @@ services:
     command: "false"
 
   api:
+    restart: always
     extends: app
     environment:
       - PORT=4000
@@ -22,13 +22,8 @@ services:
       - 4000:4000
 
   worker:
+    restart: always
     extends: app
     environment:
       - DOT_ENV_FILENAME=.env
     command: node catalog-worker.js
-
-  # transcoder:
-  #   extends: app
-  #   command: node bin/transcoder.js
-  #   depends_on:
-  #     - api
