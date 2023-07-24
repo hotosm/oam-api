@@ -29,7 +29,7 @@
     "@turf/invariant": "^4.7.3",
     "@turf/union": "^6.0.2",
     "async": "2.1.4",
-    "aws-sdk": "^2.66.0",
+    "aws-sdk": "^2.79.0",
     "babel": "^5.8.21",
     "bell": "^8.9.0",
     "bluebird": "^3.4.1",

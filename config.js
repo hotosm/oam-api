@@ -106,6 +106,7 @@ const config = {
     jobDefinition: process.env.AWS_BATCH_JD_NAME,
     jobQueue: process.env.AWS_BATCH_JQ_NAME
   },
+  maxBatchMemoryMB: process.env.MAX_BATCH_MEMORY_MB || 60000, // 60GB
 
   useTitiler: process.env.USE_TITILER || false,
 
