@@ -107,6 +107,8 @@ const config = {
     jobQueue: process.env.AWS_BATCH_JQ_NAME
   },
 
+  useTitiler: process.env.USE_TITILER || false,
+
   // TODO: Deprecate the following once user accounts have been implemented.
   // Credentials for Uploader Admin
   adminPassword: process.env.ADMIN_PASSWORD,
