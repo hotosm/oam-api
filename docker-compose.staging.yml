@@ -1,0 +1,48 @@
+version: "2"
+
+services:
+  app:
+    environment:
+      - NODE_ENV=production
+      - DB_URI=mongodb://mongo/oam-api
+    env_file: .env
+    build:
+      context: .
+      args:
+        - NODE_ENV=production
+    command: "false"
+
+  api:
+    restart: always
+    extends: app
+    environment:
+      - PORT=4000
+      - NODE_OPTIONS=--max_old_space_size=2048
+    command: node index.js
+    ports:
+      - 4000:4000
+
+  worker:
+    restart: always
+    extends: app
+    environment:
+      - DOT_ENV_FILENAME=.env
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    command: node catalog-worker.js
+
+  mongo:
+    image: mongo:3
+    volumes:
+      - mongodb:/data/db
+
+  mongo-express:
+    image: mongo-express:1.0.0-alpha.4
+    ports:
+      - 8081:8081
+    links:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+
+volumes:
+  mongodb: ~

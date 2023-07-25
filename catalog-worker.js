@@ -214,10 +214,19 @@ async function pgCreateConnection() {
   }
 
   const connection = new PgClient({
-    connectionString: `postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}`,
+    user: PGUSER,
+    password: PGPASSWORD,
+    database: PGDATABASE,
+    port: 5432,
+    host: PGHOST,
+    ssl: true,
   });
 
-  await connection.connect();
+  try {
+    await connection.connect();
+  } catch (error) {
+    console.error(error);
+  }
 
   pgConnection = connection;
   return pgConnection;
