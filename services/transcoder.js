@@ -89,6 +89,11 @@ var guessMemoryAllocation = (sourceUrl, callback) =>
       return callback(null, 3000);
     }
 
+    if (!size) {
+      console.warn('Unable to get file size by url');
+      return callback(null, 3000);
+    }
+
     var mbs = Math.ceil(size / (1024 * 1024));
 
     // optimistic about source encoding; assume it's the smallest it can be (but
