@@ -268,6 +268,9 @@ if (isPgEnabled) {
             ...record.properties,
             gsd: record.gsd,
             uuid: record.uuid,
+            uploaded_at: record.uploaded_at,
+            acquisition_start: record.acquisition_start,
+            acquisition_end: record.acquisition_end,
           }),
           JSON.stringify(record.geojson),
         ];
