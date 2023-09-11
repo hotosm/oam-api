@@ -1,0 +1,29 @@
+version: "2"
+
+services:
+  app:
+    environment:
+      - NODE_ENV=production
+    env_file: .env
+    build:
+      context: .
+      args:
+        - NODE_ENV=production
+    command: "false"
+
+  api:
+    restart: always
+    extends: app
+    environment:
+      - PORT=4000
+      - NODE_OPTIONS=--max_old_space_size=2048
+    command: node index.js
+    ports:
+      - 4000:4000
+
+  worker:
+    restart: always
+    extends: app
+    environment:
+      - DOT_ENV_FILENAME=.env
+    command: node catalog-worker.js

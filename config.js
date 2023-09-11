@@ -18,12 +18,6 @@ if (process.env.INTEGRATION_TESTS === 'true') {
   process.env.API_ENDPOINT = 'http://localhost:' + process.env.PORT;
 }
 
-if (process.env.NODE_ENV === 'production') {
-  // Paranoid safety measure to prevent imagery being placed in a namespacing
-  // directory.
-  process.env.OIN_BUCKET_PREFIX = null;
-}
-
 const config = {
   env: process.env.NODE_ENV,
   debug: process.env.OAM_DEBUG,
@@ -33,6 +27,9 @@ const config = {
   port: process.env.PORT,
   apiEndpoint: process.env.API_ENDPOINT,
   browserURL: process.env.BROWSER_URL,
+
+  // Mosaic layer
+  oamMosacLayerId: process.env.OAM_LAYER_ID || 'openaerialmap',
 
   // DB connection
   dbUri: process.env.DB_URI,
@@ -77,7 +74,7 @@ const config = {
     subject: '[ OAM Uploader ] Imagery upload submitted',
     text: 'Your upload has been successfully submitted and is now being ' +
       'processed. You can check on the status of the upload at ' +
-      process.env.BROWSER_URL + '/#/upload/status/{UPLOAD_ID}.'
+      process.env.BROWSER_URL + '/#/upload/status/{UPLOAD_ID}'
   },
 
   // For encrypting/decrypting cookie data
@@ -109,6 +106,9 @@ const config = {
     jobDefinition: process.env.AWS_BATCH_JD_NAME,
     jobQueue: process.env.AWS_BATCH_JQ_NAME
   },
+  maxBatchMemoryMB: process.env.MAX_BATCH_MEMORY_MB || 60000, // 60GB
+
+  useTitiler: process.env.USE_TITILER || false,
 
   // TODO: Deprecate the following once user accounts have been implemented.
   // Credentials for Uploader Admin

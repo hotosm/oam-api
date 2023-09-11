@@ -17,10 +17,11 @@ var s3bucket = config.oinBucket;
 module.exports.transcode = (sourceUrl, output, metaUrl, callback) => {
   var args = [sourceUrl, output, metaUrl];
 
-  var child = cp.spawn('process.sh', args, {
+  var child = cp.spawn('process.py', args, {
     AWS_ACCESS_KEY_ID: config.awsKey,
     AWS_SECRET_ACCESS_KEY: config.awsSecret,
     AWS_DEFAULT_REGION: config.awsRegion,
+    AWS_REGION: config.awsRegion,
     THUMBNAIL_SIZE: config.thumbnailSize
   });
 
@@ -58,7 +59,7 @@ var getSize = (sourceUrl, callback) => {
   var uri = url.parse(sourceUrl);
 
   switch (uri.protocol) {
-    case "s3:":
+    case 's3:':
       return s3.headObject({
         Bucket: uri.hostname,
         Key: uri.pathname.slice(1)
@@ -88,18 +89,23 @@ var guessMemoryAllocation = (sourceUrl, callback) =>
       return callback(null, 3000);
     }
 
+    if (!size) {
+      console.warn('Unable to get file size by url');
+      return callback(null, 3000);
+    }
+
     var mbs = Math.ceil(size / (1024 * 1024));
 
     // optimistic about source encoding; assume it's the smallest it can be (but
     // cap allocated memory at 30GB)
     // provide a minimum for smaller images
-    var recommended = Math.max(3000, Math.min(30000, mbs * 10));
+    var recommended = Math.max(3000, Math.min(config.maxBatchMemoryMB, mbs * 10));
 
     return callback(null, recommended);
   });
 
 var batchTranscode = (jobName, input, output, callbackUrl, callback) =>
-  guessMemoryAllocation(input, (err, memory) =>
+  guessMemoryAllocation(input, (_, memory) =>
     batch.submitJob(
       {
         jobDefinition: config.batch.jobDefinition,
@@ -111,7 +117,12 @@ var batchTranscode = (jobName, input, output, callbackUrl, callback) =>
           callback_url: callbackUrl
         },
         containerOverrides: {
-          memory
+          'resourceRequirements': [
+            {
+              type: 'MEMORY',
+              value: `${memory}`
+            }
+          ]
         }
       },
       (err, data) => callback(err)

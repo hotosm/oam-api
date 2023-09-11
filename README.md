@@ -35,6 +35,14 @@ And the background OIN indexer can be run with: `node catalog-worker.js`
 
 ## Development Using Docker
 
+Before running `oam-api` you need to run `oam-mosaic`
+
+```bash
+git clone https://github.com/hotosm/oam-mosaic-map
+cd oam-mosaic-map
+docker-compose up
+```
+
 To start a self-contained development instance using Docker Compose, run:
 
 ```bash
@@ -47,32 +55,13 @@ Once it has started, connect to `http://localhost:4000` to access the API.
 
 The MongoDB command line interface can be run within its container like so: `docker-compose exec mongo mongo`
 
-The following environment variables should be set (probably in `.env`; see `sample.env` for defaults and additional information):
+Use `http://localhost:8081` to inspect the `mongo` database content with `mongo-express`.
 
-```bash
-# AWS credentials for writing to S3
-AWS_ACCESS_KEY_ID=<redacted>
-AWS_SECRET_ACCESS_KEY=<redacted>
-AWS_REGION=us-east-1
+The following environment variables should be set (probably in `.env.local`; see `.env.local.sample` for defaults and additional information)
 
-# Social login
-FACEBOOK_APP_ID=<redacted>
-FACEBOOK_APP_SECRET=<redacted>
-GOOGLE_CLIENT_ID=<redacted>
-GOOGLE_CLIENT_SECRET=<redacted>
+If `OIN_REGISTER_URL` env variable is not set, the `OIN_BUCKET` will be used for indexing by default.
+You can also set `OIN_REGISTER_URL=http://register:8080/fixtures/oin-buckets.json` to the `worker` service on `docker-compose.yml` and then modify `test/fixtures/oin-buckets.json` to specify a bucket for indexing.
 
-# S3 resources
-OIN_BUCKET=<redacted>
-OIN_BUCKET_PREFIX=<optional>
-UPLOAD_BUCKET=<redacted>
-
-# JWT Secret Key
-JWT_SECRET_KEY=<redacted>
-```
-
-If Docker does not bind / forward ports to `localhost`, set `HOST_TLD` to the Docker hostname and use that to access the API.
-
-To specify a bucket for indexing, modify `test/fixtures/oin-buckets.json`.
 
 Instructions for generating the JWT signing key can be found [here](https://github.com/dwyl/hapi-auth-jwt2#generating-your-secret-key).
 If you find that additional environment variables are needed, please submit a pull request!
