@@ -15,7 +15,7 @@
 
 A catalog and processor for OpenAerialMap imagery. The application indexes all metadata available within Open Imagery Network and creates an API to search and find imagery. It also takes imagery from users and converts to a format and places it in the Open Imagery Network. The API powers the frontend search tool, [OAM Imagery Browser](https://github.com/hotosm/oam-browser). Read the [ecosystem documentation](https://docs.openaerialmap.org/ecosystem/getting-started/) for more information about OpenAerialMap.
 
-Full details of the API endpoints is available at: https://hotosm.github.io/oam-catalog
+Full details of the API endpoints is available at: https://hotosm.github.io/oam-api
 
 ## Installation
 
