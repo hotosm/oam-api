@@ -54,6 +54,14 @@ module.exports = [
         }
 
         request.count = count;
+
+        // TEMPORARY FIX (OAM triage 2025 01 15)
+        for (let i = 0 ; i < records.length; i++) {
+          records[i].uuid = records[i].uuid.replace("oin-hotosm.", "oin-hotosm-temp.");
+          records[i].meta_uri = records[i].meta_uri.replace("oin-hotosm.", "oin-hotosm-temp.");
+          records[i].properties.thumbnail = records[i].properties.thumbnail.replace("oin-hotosm.", "oin-hotosm-temp.");
+        }
+
         return reply(records);
       });
     }
@@ -81,6 +89,12 @@ module.exports = [
           console.error(err);
           return reply(Boom.badImplementation(err.message));
         }
+
+        // TEMPORARY FIX (OAM triage 2025 01 15)
+        record.uuid = record.uuid.replace("oin-hotosm.", "oin-hotosm-temp.");
+        record.properties.thumbnail = record.properties.thumbnail.replace("oin-hotosm.", "oin-hotosm-temp.");
+        record.meta_uri = record.meta_uri.replace("oin-hotosm.", "oin-hotosm-temp.");
+
         return reply(record);
       });
     }
