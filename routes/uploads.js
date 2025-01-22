@@ -388,7 +388,7 @@ function updateUploadMetadata (request, imageId) {
       : `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/{z}/{x}/{y}`;
     meta.properties.wmts = `${config.tilerBaseUrl}/${request.params.id}/${request.params.sceneIdx}/${request.params.imageId}/wmts`;
 
-    const tilejsonUrl = `${config.tilerBaseUrl}/cog/tilejson.json?url=${encodeURIComponent(meta.uuid)}`;
+    const tilejsonUrl = `${config.tilerBaseUrl}/cog/WebMercatorQuad/tilejson.json?url=${encodeURIComponent(meta.uuid)}`;
     meta.properties.tilejson = tilejsonUrl;
 
     // remove duplicated properties
