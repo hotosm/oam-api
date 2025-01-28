@@ -1,7 +1,9 @@
-version: "2"
-
 volumes:
   mongodb: ~
+
+networks:
+  oam-api:
+
 
 services:
   app:
@@ -17,6 +19,8 @@ services:
       args:
         - NODE_ENV=development
     command: "false"
+    networks:
+      - oam-api
 
   api:
     extends: app
@@ -45,13 +49,15 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+    networks:
+      - oam-api
 
   worker:
     extends: app
     environment:
       - DOT_ENV_FILENAME=.env.local
       - CRON_TIME=*/15 * * * *
-      - PGHOST=host.docker.internal # postgres from mosaic-tiler in dev mode on localhost
+      - PGHOST=localhost # postgres from mosaic-tiler in dev mode on localhost
       - PGPORT=5432
       - PGUSER=postgres
       - PGPASSWORD=postgres
@@ -76,6 +82,11 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+    # This allows usage of services running directly on the host machine
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - oam-api
 
   transcoder:
     extends: app
@@ -98,6 +109,8 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+    networks:
+      - oam-api
 
   register:
     build:
@@ -109,11 +122,15 @@ services:
       - 8080:8080
     volumes:
       - ./test:/app/test
+    networks:
+      - oam-api
 
   mongo:
     image: mongo:6
     volumes:
       - mongodb:/data/db
+    networks:
+      - oam-api
 
   mongo-express:
     # this version works with Mongo v6
@@ -126,3 +143,5 @@ services:
       - mongo
     environment:
       ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+    networks:
+      - oam-api
