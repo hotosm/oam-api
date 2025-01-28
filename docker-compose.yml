@@ -111,12 +111,15 @@ services:
       - ./test:/app/test
 
   mongo:
-    image: mongo:3
+    image: mongo:6
     volumes:
       - mongodb:/data/db
 
   mongo-express:
-    image: mongo-express:1.0.0-alpha.4
+    # this version works with Mongo v6
+    # https://github.com/mongo-express/mongo-express/issues/887#issuecomment-1241830515
+    # upgrading past this has not been tested, but probably works
+    image: mongo-express:1.0
     ports:
       - 8081:8081
     links:
