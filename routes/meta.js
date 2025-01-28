@@ -60,7 +60,7 @@ module.exports = [
           records[i].uuid = records[i].uuid.replace("oin-hotosm.", "oin-hotosm-temp.");
           records[i].meta_uri = records[i].meta_uri.replace("oin-hotosm.", "oin-hotosm-temp.");
           records[i].properties.thumbnail = records[i].properties.thumbnail.replace("oin-hotosm.", "oin-hotosm-temp.");
-          records[i].properties.tilejson = record.properties.tilejson.replace("https://tiles.openaerialmap.org/cog/tilejson.json", "https://titiler.hotosm.org/cog/WebMercatorQuad/tilejson.json");
+          //records[i].properties.tilejson = record.properties.tilejson.replace("https://tiles.openaerialmap.org/cog/tilejson.json", "https://titiler.hotosm.org/cog/WebMercatorQuad/tilejson.json");
         }
 
         return reply(records);
@@ -95,7 +95,7 @@ module.exports = [
         record.uuid = record.uuid.replace("oin-hotosm.", "oin-hotosm-temp.");
         record.properties.thumbnail = record.properties.thumbnail.replace("oin-hotosm.", "oin-hotosm-temp.");
         record.meta_uri = record.meta_uri.replace("oin-hotosm.", "oin-hotosm-temp.");
-        record.properties.tilejson = record.properties.tilejson.replace("https://tiles.openaerialmap.org/cog/tilejson.json", "https://titiler.hotosm.org/cog/WebMercatorQuad/tilejson.json");
+        //record.properties.tilejson = record.properties.tilejson.replace("https://tiles.openaerialmap.org/cog/tilejson.json", "https://titiler.hotosm.org/cog/WebMercatorQuad/tilejson.json");
 
         return reply(record);
       });
