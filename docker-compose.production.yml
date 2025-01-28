@@ -20,6 +20,11 @@ services:
     command: node index.js
     ports:
       - 4000:4000
+    volumes:
+      # override usage of custom mongojs driver in monq
+      - ./monq/connection.js:/app/node_modules/monq/lib/connection.js:ro
+      - ./monq/queue.js:/app/node_modules/monq/lib/queue.js:ro
+      - ./monq/db.js:/app/node_modules/monq/lib/db.js:ro
 
   worker:
     restart: always
