@@ -4,6 +4,8 @@ var mongoose = require('mongoose');
 var config = require('../config');
 
 var Connection = function () {
+  // avoid DeprecationWarning for mongoose v6 --> v7
+  mongoose.set('strictQuery', true);
   mongoose.Promise = global.Promise;
   mongoose.connect(config.dbUri);
   this.db = mongoose.connection;

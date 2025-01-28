@@ -49,6 +49,10 @@ services:
       - ./index.js:/app/index.js
       - ./newrelic.js:/app/newrelic.js
       - ./package.json:/app/package.json
+      # override usage of custom mongojs driver in monq
+      - ./monq/connection.js:/app/node_modules/monq/lib/connection.js:ro
+      - ./monq/queue.js:/app/node_modules/monq/lib/queue.js:ro
+      - ./monq/db.js:/app/node_modules/monq/lib/db.js:ro
     networks:
       - oam-api
 
