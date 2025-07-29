@@ -62,13 +62,13 @@ metaSchema.methods = {
   // Delete a metadata object only after its corelating _meta.json file has
   // been deleted on S3.
   oamDelete: function (callback) {
-    var s3Sync = new S3Sync(this.meta_uri);
-    s3Sync.deleteRemoteMeta(() => {
+    // var s3Sync = new S3Sync(this.meta_uri);
+    // s3Sync.deleteRemoteMeta(() => {
       this.remove(function (err) {
         if (err) throw new Error('Error deleting meta: ', err);
         callback();
       });
-    });
+    // });
   }
 };
 
