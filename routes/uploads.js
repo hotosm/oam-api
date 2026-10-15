@@ -8,7 +8,9 @@ var ObjectID = require('mongodb').ObjectID;
 var queue = require('queue-async');
 var Boom = require('boom');
 var Joi = require('joi');
-var S3 = require('aws-sdk/clients/s3');
+// Updated to AWS SDK v3
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 var crypto = require('crypto');
 var wellknown = require('wellknown');
 var Meta = require('../models/meta');
@@ -131,21 +133,23 @@ module.exports = [
     },
     handler: function (request, reply) {
       var payload = request.payload;
-      var s3 = new S3();
-      var params = {
+      // Construct S3 client using AWS SDK v3
+      const s3 = new S3Client({ region: config.awsRegion });
+      const params = {
         Bucket: config.uploadBucket,
         Key: payload.name,
-        ContentType: payload.type,
-        Expires: 60
+        ContentType: payload.type
+        // Expires is handled by getSignedUrl options, not command params
       };
-      s3.getSignedUrl('putObject', params, function (err, url) {
-        if (err) {
+      // Generate presigned URL for PutObject
+      getSignedUrl(s3, new PutObjectCommand(params), { expiresIn: 60 })
+        .then(url => {
+          return reply({code: 200, url: url});
+        })
+        .catch(err => {
           console.log(err);
           return reply({code: 500, url: null});
-        } else {
-          return reply({code: 200, url: url});
-        }
-      });
+        });
     }
   },
 

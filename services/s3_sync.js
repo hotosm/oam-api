@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var url = require('url');
-var S3 = require('aws-sdk/clients/s3');
+const { S3Client, GetObjectCommand, PutObjectCommand, ListObjectsCommand, DeleteObjectsCommand } = require('@aws-sdk/client-s3');
 
 var config = require('../config');
 
@@ -11,7 +11,7 @@ var config = require('../config');
 */
 module.exports = class S3Sync {
   constructor (remoteMetaUri) {
-    this.s3 = new S3();
+    this.s3 = new S3Client({});
     this.remoteMetaUri = remoteMetaUri;
     this.s3Params = {
       Bucket: config.oinBucket
@@ -52,25 +52,25 @@ module.exports = class S3Sync {
     console.log(`Attempting to delete: s3://${this.s3Params.Bucket}/${this.s3Params.Key}`);
     this.s3Params.Prefix = this.s3Params.Key;
     delete this.s3Params.Key;
-    this.s3.listObjects(this.s3Params, (err, data) => {
-      if (err) throw new Error(err);
-      if (data.Contents.length === 0) {
+    this.s3.send(new ListObjectsCommand(this.s3Params))
+      .then((data) => {
+        if (data.Contents.length === 0) {
+          callback();
+          return;
+        }
+        delete this.s3Params.Prefix;
+        this.s3Params.Delete = { Objects: [] };
+        data.Contents.forEach((content) => {
+          this.s3Params.Delete.Objects.push({Key: content.Key});
+        });
+        return this.s3.send(new DeleteObjectsCommand(this.s3Params));
+      })
+      .then(() => {
         callback();
-        return;
-      }
-
-      delete this.s3Params.Prefix;
-      this.s3Params.Delete = { Objects: [] };
-
-      data.Contents.forEach((content) => {
-        this.s3Params.Delete.Objects.push({Key: content.Key});
+      })
+      .catch((err) => {
+        throw new Error(err);
       });
-
-      this.s3.deleteObjects(this.s3Params, function (err, data) {
-        if (err) throw new Error(err);
-        callback();
-      });
-    });
   }
 
   // Find the base folder within which all the assets for a single image exists
@@ -98,13 +98,18 @@ module.exports = class S3Sync {
   downloadRemoteMeta () {
     return new Promise((resolve, reject) => {
       console.info(`Downloading metadata file: ${this.s3Params.Key}`);
-      this.s3.getObject(this.s3Params, function (err, response) {
-        if (err) {
+      this.s3.send(new GetObjectCommand(this.s3Params))
+        .then(async (response) => {
+          const chunks = [];
+          for await (const chunk of response.Body) {
+            chunks.push(chunk);
+          }
+          const bodyString = Buffer.concat(chunks).toString('utf8');
+          resolve(bodyString);
+        })
+        .catch((err) => {
           reject('Unable to download metadata: ' + err.stack);
-        } else {
-          resolve(response.Body.toString('utf8'));
-        }
-      });
+        });
     });
   }
 
@@ -119,13 +124,13 @@ module.exports = class S3Sync {
     return new Promise((resolve, reject) => {
       console.info(`Uploading metadata file: ${this.s3Params.Key}`);
       this.s3Params.Body = Buffer.from(metadata, 'utf8');
-      this.s3.putObject(this.s3Params, function (err, _response) {
-        if (err) {
-          reject(new Error('Unable to replace metadata: ' + err.stack));
-        } else {
+      this.s3.send(new PutObjectCommand(this.s3Params))
+        .then(() => {
           resolve();
-        }
-      });
+        })
+        .catch((err) => {
+          reject(new Error('Unable to replace metadata: ' + err.stack));
+        });
     });
   }
 };

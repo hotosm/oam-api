@@ -2,6 +2,7 @@ var cp = require('child_process');
 var url = require('url');
 
 var AWS = require('aws-sdk');
+var { S3Client, HeadObjectCommand } = require('@aws-sdk/client-s3');
 var monq = require('monq');
 var promisify = require('es6-promisify');
 var request = require('request');
@@ -11,7 +12,7 @@ var config = require('../config');
 var batch = new AWS.Batch();
 var client = monq(config.dbUri);
 var queue = client.queue('transcoder');
-var s3 = new AWS.S3();
+var s3 = new S3Client({});
 var s3bucket = config.oinBucket;
 
 module.exports.transcode = (sourceUrl, output, metaUrl, callback) => {
@@ -60,16 +61,19 @@ var getSize = (sourceUrl, callback) => {
 
   switch (uri.protocol) {
     case 's3:':
-      return s3.headObject({
-        Bucket: uri.hostname,
-        Key: uri.pathname.slice(1)
-      }, (err, data) => {
-        if (err) {
+      return s3
+        .send(
+          new HeadObjectCommand({
+            Bucket: uri.hostname,
+            Key: uri.pathname.slice(1)
+          })
+        )
+        .then(data => {
+          return callback(null, data.ContentLength);
+        })
+        .catch(err => {
           return callback(err);
-        }
-
-        return callback(null, data.ContentLength);
-      });
+        });
 
     default:
       return request.head(sourceUrl, (err, rsp) => {
